@@ -1,0 +1,296 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>لوحة تحكم SafeScan</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
+        body { background: #f5f7fa; padding: 16px; min-height: 100vh; display: flex; flex-direction: column; }
+        .dashboard { max-width: 450px; margin: 0 auto; width: 100%; }
+        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+        .logo { display: flex; align-items: center; gap: 8px; }
+        .car-badge { background: #e2e8f0; padding: 6px 14px; border-radius: 40px; font-size: 14px; }
+        .card { background: white; border-radius: 24px; padding: 22px 20px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+        .status-toggle { display: flex; align-items: center; justify-content: space-between; }
+        .toggle-label { font-weight: 600; font-size: 18px; }
+        .toggle-switch { width: 58px; height: 32px; background: #2563eb; border-radius: 40px; position: relative; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1); cursor: pointer; transition: background 0.2s; }
+        .toggle-switch::after { content: ""; width: 26px; height: 26px; background: white; border-radius: 50%; position: absolute; top: 3px; right: 3px; transition: 0.2s; }
+        .toggle-switch.off { background: #94a3b8; }
+        .toggle-switch.off::after { right: 29px; }
+        .stats { display: flex; gap: 12px; margin: 18px 0 8px; }
+        .stat-item { background: #f8fafc; padding: 10px 16px; border-radius: 20px; flex: 1; text-align: center; }
+        .stat-number { font-size: 28px; font-weight: 700; color: #0f172a; }
+        .inbox-item { padding: 16px 0; border-bottom: 1px solid #e2e8f0; cursor: pointer; }
+        .inbox-item:last-child { border-bottom: none; }
+        .msg-preview { font-weight: 500; margin-bottom: 6px; }
+        .msg-time { font-size: 12px; color: #64748b; }
+        .btn-outline { background: transparent; border: 1.5px solid #2563eb; color: #2563eb; padding: 12px 16px; border-radius: 40px; font-weight: 600; width: 100%; margin-top: 12px; cursor: pointer; }
+        .settings-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid #f1f5f9; }
+        .footer { margin-top: 24px; font-size: 12px; text-align: center; color: #64748b; }
+        .loading { text-align: center; padding: 20px; color: #64748b; }
+        .response-box { background: #f8fafc; padding: 12px; border-radius: 16px; margin: 12px 0; }
+        textarea { width: 100%; padding: 12px; border-radius: 16px; border: 1px solid #e2e8f0; margin: 8px 0; }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <div class="logo">
+            <span style="font-size: 28px;">🛡️</span>
+            <span style="font-weight: 700; font-size: 20px;">SafeScan</span>
+        </div>
+        <div class="car-badge" id="vehicleName">🚗 سيارتي</div>
+    </div>
+
+    <!-- بطاقة الحالة -->
+    <div class="card">
+        <div class="status-toggle">
+            <span class="toggle-label" id="statusLabel">🟢 حالة الاستقبال</span>
+            <div class="toggle-switch" id="statusToggle" onclick="toggleStatus()"></div>
+        </div>
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="newCount">0</div>
+                <div style="font-size:14px;">رسائل جديدة</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="totalCount">0</div>
+                <div style="font-size:14px;">إجمالي</div>
+            </div>
+        </div>
+        <div style="margin-top:8px; color:#475569;" id="notificationStatus">
+            📱 جار التحميل...
+        </div>
+    </div>
+
+    <!-- صندوق الوارد -->
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <h3 style="font-size:18px;">📥 آخر الرسائل</h3>
+            <button onclick="loadMessages()" style="background:none; border:none; color:#2563eb; cursor:pointer;">🔄 تحديث</button>
+        </div>
+        <div id="inboxContainer">
+            <div class="loading">جار تحميل الرسائل...</div>
+        </div>
+    </div>
+
+    <!-- الرد على رسالة (يظهر عند اختيار رسالة) -->
+    <div class="card" id="replyCard" style="display:none;">
+        <h4>💬 الرد على الرسالة</h4>
+        <div id="selectedMessagePreview"></div>
+        <textarea id="replyText" placeholder="اكتب ردك هنا..."></textarea>
+        <button class="btn-outline" onclick="sendReply()">إرسال الرد</button>
+        <button style="background:none; border:none; margin-top:8px; color:#64748b;" onclick="cancelReply()">إلغاء</button>
+    </div>
+
+    <!-- إعدادات سريعة -->
+    <div class="card">
+        <h3 style="margin-bottom:8px;">⚙️ الإعدادات السريعة</h3>
+        <div class="settings-row">
+            <span>🔔 إشعارات تيليجرام</span>
+            <span id="telegramStatus">⏳</span>
+        </div>
+        <div class="settings-row">
+            <span>📱 رقم الجوال المسجل</span>
+            <span id="phoneDisplay">---</span>
+        </div>
+        <div class="settings-row">
+            <span>🕒 الجدولة التلقائية</span>
+            <span>قريباً</span>
+        </div>
+        <button class="btn-outline" style="margin-top:20px;" onclick="logout()">تسجيل الخروج</button>
+    </div>
+
+    <div class="footer">
+        <a href="#" style="color:#2563eb;">سياسة الخصوصية</a> · <a href="#" style="color:#2563eb;">مركز المساعدة</a>
+        <div style="margin-top:10px;">© SafeScan 2026</div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let currentUser = null;
+    let currentVehicle = null;
+    let active = true;
+    let selectedMessageId = null;
+
+    // تهيئة الصفحة
+    async function initDashboard() {
+        // 1. التحقق من تسجيل الدخول
+        const { data: { user }, error } = await supabase.auth.getUser();
+        if (error || !user) {
+            alert('الرجاء تسجيل الدخول أولاً');
+            window.location.href = '/login.html';
+            return;
+        }
+        currentUser = user;
+        
+        // 2. جلب بيانات الملف الشخصي
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('phone')
+            .eq('id', user.id)
+            .single();
+        if (profile) {
+            document.getElementById('phoneDisplay').innerText = profile.phone || 'غير مسجل';
+        }
+
+        // 3. جلب مركبات المستخدم
+        const { data: vehicles } = await supabase
+            .from('vehicles')
+            .select('*')
+            .eq('user_id', user.id)
+            .limit(1);
+        
+        if (vehicles && vehicles.length > 0) {
+            currentVehicle = vehicles[0];
+            document.getElementById('vehicleName').innerText = currentVehicle.custom_name;
+            active = currentVehicle.is_active;
+            updateToggleUI();
+        } else {
+            // إنشاء مركبة افتراضية إذا لم توجد
+            const { data: newVehicle } = await supabase
+                .from('vehicles')
+                .insert([{ user_id: user.id }])
+                .select()
+                .single();
+            currentVehicle = newVehicle;
+            document.getElementById('vehicleName').innerText = 'سيارتي';
+        }
+
+        // 4. تحميل الرسائل
+        loadMessages();
+    }
+
+    function updateToggleUI() {
+        const toggle = document.getElementById('statusToggle');
+        const label = document.getElementById('statusLabel');
+        if (active) {
+            toggle.classList.remove('off');
+            label.innerHTML = '🟢 حالة الاستقبال';
+            document.getElementById('notificationStatus').innerHTML = '📱 سيتم إشعارك فور وصول رسالة';
+        } else {
+            toggle.classList.add('off');
+            label.innerHTML = '🔴 متوقف (خصوصية تامة)';
+            document.getElementById('notificationStatus').innerHTML = '🔕 الإشعارات متوقفة';
+        }
+    }
+
+    async function toggleStatus() {
+        if (!currentVehicle) return;
+        active = !active;
+        updateToggleUI();
+        
+        const { error } = await supabase
+            .from('vehicles')
+            .update({ is_active: active })
+            .eq('id', currentVehicle.id);
+        if (error) alert('فشل تحديث الحالة');
+    }
+
+    async function loadMessages() {
+        if (!currentVehicle) return;
+        
+        // جلب الاستيكرات المرتبطة بهذه المركبة
+        const { data: stickers } = await supabase
+            .from('stickers')
+            .select('id')
+            .eq('vehicle_id', currentVehicle.id);
+        if (!stickers || stickers.length === 0) {
+            document.getElementById('inboxContainer').innerHTML = '<div class="loading">لا توجد استيكرات مرتبطة</div>';
+            return;
+        }
+        const stickerIds = stickers.map(s => s.id);
+        
+        // جلب الرسائل
+        const { data: logs, error } = await supabase
+            .from('scan_logs')
+            .select('*')
+            .in('sticker_id', stickerIds)
+            .order('created_at', { ascending: false })
+            .limit(20);
+            
+        if (error) {
+            document.getElementById('inboxContainer').innerHTML = '<div class="loading">خطأ في التحميل</div>';
+            return;
+        }
+        
+        const pendingCount = logs.filter(l => l.status === 'pending').length;
+        document.getElementById('newCount').innerText = pendingCount;
+        document.getElementById('totalCount').innerText = logs.length;
+        
+        if (logs.length === 0) {
+            document.getElementById('inboxContainer').innerHTML = '<div class="loading">لا توجد رسائل بعد</div>';
+            return;
+        }
+        
+        let html = '';
+        logs.forEach(log => {
+            const date = new Date(log.created_at);
+            const timeStr = date.toLocaleString('ar-SA', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'numeric' });
+            html += `
+                <div class="inbox-item" onclick="selectMessage('${log.id}')">
+                    <div class="msg-preview">"${log.visitor_message.substring(0, 50)}${log.visitor_message.length > 50 ? '...' : ''}"</div>
+                    <div class="msg-time">${timeStr} · ${log.status === 'pending' ? '🆕 جديدة' : '✅ تم الرد'}</div>
+                </div>
+            `;
+        });
+        document.getElementById('inboxContainer').innerHTML = html;
+    }
+
+    window.selectMessage = function(messageId) {
+        // البحث عن الرسالة المحددة (مخزنة في المتغير المحلي)
+        // للتبسيط، سنعيد جلبها
+        supabase.from('scan_logs').select('*').eq('id', messageId).single().then(({ data }) => {
+            if (data) {
+                selectedMessageId = data.id;
+                document.getElementById('selectedMessagePreview').innerHTML = `
+                    <div class="response-box">
+                        <strong>الرسالة:</strong> ${data.visitor_message}<br>
+                        ${data.owner_response ? `<strong>ردك السابق:</strong> ${data.owner_response}` : ''}
+                    </div>
+                `;
+                document.getElementById('replyCard').style.display = 'block';
+            }
+        });
+    };
+
+    async function sendReply() {
+        const reply = document.getElementById('replyText').value.trim();
+        if (!reply || !selectedMessageId) return;
+        
+        const { error } = await supabase
+            .from('scan_logs')
+            .update({ owner_response: reply, status: 'closed' })
+            .eq('id', selectedMessageId);
+            
+        if (error) {
+            alert('فشل إرسال الرد');
+        } else {
+            alert('✅ تم إرسال الرد');
+            document.getElementById('replyCard').style.display = 'none';
+            document.getElementById('replyText').value = '';
+            loadMessages();
+        }
+    }
+
+    window.cancelReply = function() {
+        document.getElementById('replyCard').style.display = 'none';
+        selectedMessageId = null;
+    };
+
+    async function logout() {
+        await supabase.auth.signOut();
+        window.location.href = '/index.html';
+    }
+
+    // بدء التهيئة
+    initDashboard();
+</script>
+</body>
+</html>
+
