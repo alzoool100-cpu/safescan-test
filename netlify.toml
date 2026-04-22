@@ -1,7 +1,0 @@
-[build]
-  functions = "netlify/functions"
-
-[[redirects]]
-  from = "/c/*"
-  to = "/.netlify/functions/redirect"
-  status = 200
