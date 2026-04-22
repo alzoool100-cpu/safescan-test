@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -50,12 +50,12 @@
     <script src="config.js"></script>
     
     <script>
-        // تهيئة Supabase
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // تهيئة Supabase باستخدام اسم متغير جديد
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         // الحصول على رمز الاستيكر من الرابط (مثال: ?token=ABC123)
         const urlParams = new URLSearchParams(window.location.search);
-        const stickerTokenFromUrl = urlParams.get('token'); // هذا سنستخدمه لاحقاً في التوجيه
+        const stickerTokenFromUrl = urlParams.get('token');
 
         document.getElementById('activateForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -65,7 +65,7 @@
             errorEl.textContent = '';
 
             // 1. البحث عن الاستيكر برمز التفعيل
-            const { data: sticker, error: stickerError } = await supabase
+            const { data: sticker, error: stickerError } = await supabaseClient
                 .from('stickers')
                 .select('*')
                 .eq('activation_code', token)
@@ -81,11 +81,10 @@
             }
 
             // 2. إنشاء مستخدم جديد (باستخدام رقم الجوال كمصادقة - إصدار مبسط)
-            // في الإصدار الحقيقي نستخدم OTP لكن هنا نستخدم signUp مباشرة للتبسيط
-            const email = `${phone}@safescan.local`; // تحويل رقم الجوال إلى بريد إلكتروني وهمي
-            const password = token + 'SafeScan@2026'; // كلمة مرور مؤقتة
+            const email = `${phone}@safescan.local`;
+            const password = token + 'SafeScan@2026';
             
-            const { data: authData, error: authError } = await supabase.auth.signUp({
+            const { data: authData, error: authError } = await supabaseClient.auth.signUp({
                 email: email,
                 password: password,
                 options: {
@@ -101,7 +100,7 @@
             const userId = authData.user.id;
 
             // 3. تحديث جدول profiles برقم الجوال
-            const { error: profileError } = await supabase
+            const { error: profileError } = await supabaseClient
                 .from('profiles')
                 .update({ phone: phone })
                 .eq('id', userId);
@@ -112,7 +111,7 @@
             }
 
             // 4. إنشاء مركبة جديدة
-            const { data: vehicle, error: vehicleError } = await supabase
+            const { data: vehicle, error: vehicleError } = await supabaseClient
                 .from('vehicles')
                 .insert([{ user_id: userId }])
                 .select()
@@ -124,7 +123,7 @@
             }
 
             // 5. ربط الاستيكر بالمركبة وتفعيله
-            const { error: updateError } = await supabase
+            const { error: updateError } = await supabaseClient
                 .from('stickers')
                 .update({ 
                     vehicle_id: vehicle.id, 
@@ -144,4 +143,3 @@
     </script>
 </body>
 </html>
-
