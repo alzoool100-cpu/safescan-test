@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -111,7 +111,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // استخدام اسم متغير جديد
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     let currentUser = null;
     let currentVehicle = null;
@@ -121,7 +122,7 @@
     // تهيئة الصفحة
     async function initDashboard() {
         // 1. التحقق من تسجيل الدخول
-        const { data: { user }, error } = await supabase.auth.getUser();
+        const { data: { user }, error } = await supabaseClient.auth.getUser();
         if (error || !user) {
             alert('الرجاء تسجيل الدخول أولاً');
             window.location.href = '/login.html';
@@ -130,7 +131,7 @@
         currentUser = user;
         
         // 2. جلب بيانات الملف الشخصي
-        const { data: profile } = await supabase
+        const { data: profile } = await supabaseClient
             .from('profiles')
             .select('phone')
             .eq('id', user.id)
@@ -140,7 +141,7 @@
         }
 
         // 3. جلب مركبات المستخدم
-        const { data: vehicles } = await supabase
+        const { data: vehicles } = await supabaseClient
             .from('vehicles')
             .select('*')
             .eq('user_id', user.id)
@@ -153,7 +154,7 @@
             updateToggleUI();
         } else {
             // إنشاء مركبة افتراضية إذا لم توجد
-            const { data: newVehicle } = await supabase
+            const { data: newVehicle } = await supabaseClient
                 .from('vehicles')
                 .insert([{ user_id: user.id }])
                 .select()
@@ -185,7 +186,7 @@
         active = !active;
         updateToggleUI();
         
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('vehicles')
             .update({ is_active: active })
             .eq('id', currentVehicle.id);
@@ -196,7 +197,7 @@
         if (!currentVehicle) return;
         
         // جلب الاستيكرات المرتبطة بهذه المركبة
-        const { data: stickers } = await supabase
+        const { data: stickers } = await supabaseClient
             .from('stickers')
             .select('id')
             .eq('vehicle_id', currentVehicle.id);
@@ -207,7 +208,7 @@
         const stickerIds = stickers.map(s => s.id);
         
         // جلب الرسائل
-        const { data: logs, error } = await supabase
+        const { data: logs, error } = await supabaseClient
             .from('scan_logs')
             .select('*')
             .in('sticker_id', stickerIds)
@@ -243,9 +244,7 @@
     }
 
     window.selectMessage = function(messageId) {
-        // البحث عن الرسالة المحددة (مخزنة في المتغير المحلي)
-        // للتبسيط، سنعيد جلبها
-        supabase.from('scan_logs').select('*').eq('id', messageId).single().then(({ data }) => {
+        supabaseClient.from('scan_logs').select('*').eq('id', messageId).single().then(({ data }) => {
             if (data) {
                 selectedMessageId = data.id;
                 document.getElementById('selectedMessagePreview').innerHTML = `
@@ -263,7 +262,7 @@
         const reply = document.getElementById('replyText').value.trim();
         if (!reply || !selectedMessageId) return;
         
-        const { error } = await supabase
+        const { error } = await supabaseClient
             .from('scan_logs')
             .update({ owner_response: reply, status: 'closed' })
             .eq('id', selectedMessageId);
@@ -284,7 +283,7 @@
     };
 
     async function logout() {
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
         window.location.href = '/index.html';
     }
 
@@ -293,4 +292,3 @@
 </script>
 </body>
 </html>
-
