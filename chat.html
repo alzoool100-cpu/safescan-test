@@ -5,25 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeScan - محادثة مؤقتة</title>
     <style>
-        body { font-family: system-ui; background: #f5f7fa; padding: 16px; }
+        body { font-family: system-ui; background: #f5f7fa; padding: 16px; margin: 0; }
         .container { max-width: 500px; margin: 0 auto; }
-        .message { background: white; padding: 14px; border-radius: 16px; margin: 10px 0; }
-        .visitor { background: #e0f2fe; }
-        .owner { background: #dcfce7; text-align: left; }
+        h2 { text-align: center; color: #1e293b; }
+        .message { background: white; padding: 14px; border-radius: 16px; margin: 10px 0; max-width: 80%; }
+        .visitor { background: #e0f2fe; margin-left: auto; text-align: right; }
+        .owner { background: #dcfce7; margin-right: auto; text-align: left; }
         .input-area { display: flex; gap: 8px; margin-top: 20px; }
-        input { flex: 1; padding: 12px; border-radius: 30px; border: 1px solid #ccc; }
-        button { background: #2563eb; color: white; border: none; padding: 12px 20px; border-radius: 30px; }
+        input { flex: 1; padding: 14px; border-radius: 30px; border: 1px solid #ccc; font-size: 16px; }
+        button { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 30px; font-weight: 600; cursor: pointer; }
+        button.secondary { background: #e2e8f0; color: #1e293b; margin-left: 8px; }
+        .info { font-size: 13px; color: #64748b; text-align: center; margin-top: 16px; }
+        .error { color: #dc2626; margin: 10px 0; }
+        .loading { text-align: center; padding: 20px; color: #64748b; }
     </style>
 </head>
 <body>
 <div class="container">
     <h2>💬 محادثة مؤقتة مع مالك السيارة</h2>
+    <div id="status"></div>
     <div id="messages"></div>
     <div class="input-area">
         <input type="text" id="replyInput" placeholder="اكتب ردك...">
         <button onclick="sendReply()">إرسال</button>
     </div>
-    <p style="font-size:12px; margin-top:16px;">⏱️ تنتهي الجلسة بعد ساعة</p>
+    <div style="display: flex; justify-content: center; margin-top: 10px;">
+        <button class="secondary" onclick="loadMessages()">🔄 تحديث</button>
+    </div>
+    <div class="info">
+        ⏱️ تنتهي الجلسة بعد ساعة من آخر رد<br>
+        📵 هويتك مجهولة لدى مالك السيارة
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -33,40 +45,122 @@
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('session');
 
-    async function loadMessages() {
-        const { data, error } = await supabaseClient
-            .from('scan_logs')
-            .select('visitor_message, owner_response, created_at')
-            .eq('session_token', sessionToken)
-            .single();
+    let autoRefreshInterval;
 
-        if (error || !data) {
-            document.getElementById('messages').innerHTML = '<p>الجلسة غير موجودة أو انتهت.</p>';
+    // دالة جلب الرسائل وعرضها
+    async function loadMessages() {
+        const messagesDiv = document.getElementById('messages');
+        const statusDiv = document.getElementById('status');
+        
+        if (!sessionToken) {
+            messagesDiv.innerHTML = '<div class="error">❌ رابط غير صالح</div>';
             return;
         }
 
-        let html = `<div class="message visitor">🧑 زائر: ${data.visitor_message}</div>`;
-        if (data.owner_response) {
-            html += `<div class="message owner">🚗 مالك: ${data.owner_response}</div>`;
+        statusDiv.innerHTML = '<div class="loading">⏳ جار التحميل...</div>';
+
+        const { data, error } = await supabaseClient
+            .from('scan_logs')
+            .select('visitor_message, owner_response, created_at, status')
+            .eq('session_token', sessionToken)
+            .maybeSingle();
+
+        if (error) {
+            console.error('Error loading messages:', error);
+            statusDiv.innerHTML = '<div class="error">❌ فشل تحميل المحادثة</div>';
+            return;
         }
-        document.getElementById('messages').innerHTML = html;
+
+        if (!data) {
+            statusDiv.innerHTML = '<div class="error">❌ الجلسة غير موجودة أو انتهت</div>';
+            clearInterval(autoRefreshInterval);
+            return;
+        }
+
+        statusDiv.innerHTML = ''; // إخفاء حالة التحميل
+
+        let html = '';
+        
+        // رسالة الزائر
+        html += `<div class="message visitor">🧑 زائر: ${escapeHtml(data.visitor_message)}</div>`;
+        
+        // رد المالك (إذا وجد)
+        if (data.owner_response) {
+            html += `<div class="message owner">🚗 مالك: ${escapeHtml(data.owner_response)}</div>`;
+        }
+        
+        // إظهار الحالة
+        if (data.status === 'closed' && data.owner_response) {
+            html += '<div class="info" style="color: #16a34a;">✅ تم الرد - انتهت الجلسة</div>';
+            // إيقاف التحديث التلقائي بعد انتهاء الجلسة
+            clearInterval(autoRefreshInterval);
+            document.getElementById('replyInput').disabled = true;
+            document.querySelector('button[onclick="sendReply()"]').disabled = true;
+        } else {
+            html += '<div class="info" style="color: #eab308;">⏳ في انتظار رد المالك...</div>';
+        }
+
+        messagesDiv.innerHTML = html;
     }
 
+    // دالة مساعدة لمنع XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // إرسال رد (من الزائر - لكن الزائر لا يرد عادة، هذا للاختبار فقط)
     async function sendReply() {
-        const reply = document.getElementById('replyInput').value.trim();
+        const replyInput = document.getElementById('replyInput');
+        const reply = replyInput.value.trim();
         if (!reply) return alert('اكتب رداً');
+
+        // تعطيل الزر مؤقتاً
+        const btn = event.target;
+        btn.disabled = true;
+        btn.textContent = '⏳ جار الإرسال...';
 
         const { error } = await supabaseClient
             .from('scan_logs')
             .update({ owner_response: reply, status: 'closed' })
             .eq('session_token', sessionToken);
 
-        if (error) return alert('فشل الإرسال');
-        loadMessages();
-        document.getElementById('replyInput').value = '';
+        if (error) {
+            alert('❌ فشل الإرسال: ' + error.message);
+            btn.disabled = false;
+            btn.textContent = 'إرسال';
+            return;
+        }
+
+        replyInput.value = '';
+        btn.disabled = false;
+        btn.textContent = 'إرسال';
+        
+        // تحديث العرض فوراً
+        await loadMessages();
     }
 
-    loadMessages();
+    // بدء التحديث التلقائي كل 5 ثوانٍ
+    function startAutoRefresh() {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = setInterval(() => {
+            loadMessages();
+        }, 5000); // 5 ثوانٍ
+    }
+
+    // تهيئة الصفحة
+    async function init() {
+        await loadMessages();
+        startAutoRefresh();
+    }
+
+    // تنظيف عند مغادرة الصفحة
+    window.addEventListener('beforeunload', () => {
+        clearInterval(autoRefreshInterval);
+    });
+
+    init();
 </script>
 </body>
 </html>
