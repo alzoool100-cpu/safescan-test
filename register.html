@@ -81,7 +81,8 @@
             }
 
             // 2. إنشاء مستخدم جديد (باستخدام رقم الجوال كمصادقة - إصدار مبسط)
-            const email = `${phone}@safescan.local`;
+            const email = `user_${Date.now()}@safescan.local`;
+// أو استخدم بريداً ثابتاً للتجربة: const email = 'test@example.com';
             const password = token + 'SafeScan@2026';
             
             const { data: authData, error: authError } = await supabaseClient.auth.signUp({
