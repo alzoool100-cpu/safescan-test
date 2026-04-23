@@ -111,7 +111,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
-    // استخدام اسم متغير جديد
+    // استخدام اسم متغير جديد لتجنب التعارض
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     let currentUser = null;
@@ -130,14 +130,18 @@
         }
         currentUser = user;
         
-        // 2. جلب بيانات الملف الشخصي
-        const { data: profile } = await supabaseClient
+        // 2. جلب بيانات الملف الشخصي (مع إصلاح خطأ 406)
+        const { data: profile, error: profileError } = await supabaseClient
             .from('profiles')
             .select('phone')
             .eq('id', user.id)
-            .single();
-        if (profile) {
-            document.getElementById('phoneDisplay').innerText = profile.phone || 'غير مسجل';
+            .maybeSingle()
+            .setHeader('Accept', 'application/json');
+            
+        if (!profileError && profile && profile.phone) {
+            document.getElementById('phoneDisplay').innerText = profile.phone;
+        } else {
+            document.getElementById('phoneDisplay').innerText = 'غير مسجل';
         }
 
         // 3. جلب مركبات المستخدم
