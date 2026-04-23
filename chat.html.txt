@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeScan - محادثة مؤقتة</title>
+    <style>
+        body { font-family: system-ui; background: #f5f7fa; padding: 16px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .message { background: white; padding: 14px; border-radius: 16px; margin: 10px 0; }
+        .visitor { background: #e0f2fe; }
+        .owner { background: #dcfce7; text-align: left; }
+        .input-area { display: flex; gap: 8px; margin-top: 20px; }
+        input { flex: 1; padding: 12px; border-radius: 30px; border: 1px solid #ccc; }
+        button { background: #2563eb; color: white; border: none; padding: 12px 20px; border-radius: 30px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>💬 محادثة مؤقتة مع مالك السيارة</h2>
+    <div id="messages"></div>
+    <div class="input-area">
+        <input type="text" id="replyInput" placeholder="اكتب ردك...">
+        <button onclick="sendReply()">إرسال</button>
+    </div>
+    <p style="font-size:12px; margin-top:16px;">⏱️ تنتهي الجلسة بعد ساعة</p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionToken = urlParams.get('session');
+
+    async function loadMessages() {
+        const { data, error } = await supabaseClient
+            .from('scan_logs')
+            .select('visitor_message, owner_response, created_at')
+            .eq('session_token', sessionToken)
+            .single();
+
+        if (error || !data) {
+            document.getElementById('messages').innerHTML = '<p>الجلسة غير موجودة أو انتهت.</p>';
+            return;
+        }
+
+        let html = `<div class="message visitor">🧑 زائر: ${data.visitor_message}</div>`;
+        if (data.owner_response) {
+            html += `<div class="message owner">🚗 مالك: ${data.owner_response}</div>`;
+        }
+        document.getElementById('messages').innerHTML = html;
+    }
+
+    async function sendReply() {
+        const reply = document.getElementById('replyInput').value.trim();
+        if (!reply) return alert('اكتب رداً');
+
+        const { error } = await supabaseClient
+            .from('scan_logs')
+            .update({ owner_response: reply, status: 'closed' })
+            .eq('session_token', sessionToken);
+
+        if (error) return alert('فشل الإرسال');
+        loadMessages();
+        document.getElementById('replyInput').value = '';
+    }
+
+    loadMessages();
+</script>
+</body>
+</html>
