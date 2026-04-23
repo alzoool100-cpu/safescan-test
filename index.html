@@ -16,8 +16,11 @@
         .quick-msgs { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; justify-content: center; }
         .quick-btn { background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px 14px; border-radius: 40px; font-size: 13px; cursor: pointer; }
         .btn-primary { background: #2563eb; color: white; font-weight: 600; font-size: 17px; padding: 16px; border: none; border-radius: 60px; width: 100%; cursor: pointer; margin: 12px 0; }
-        .session-url { background: #f1f5f9; padding: 10px; border-radius: 40px; margin: 10px 0; word-break: break-all; }
+        .btn-success { background: #16a34a; color: white; font-weight: 600; font-size: 17px; padding: 16px; border: none; border-radius: 60px; width: 100%; cursor: pointer; margin: 8px 0; }
+        .session-area { background: #f1f5f9; border-radius: 20px; padding: 16px; margin-top: 16px; }
+        .session-link-box { background: white; padding: 10px; border-radius: 30px; margin: 10px 0; word-break: break-all; border: 1px dashed #94a3b8; }
         .error { color: #dc2626; font-size: 14px; margin-top: 8px; }
+        .info-text { font-size: 13px; color: #64748b; margin-top: 8px; }
     </style>
 </head>
 <body>
@@ -45,12 +48,15 @@
         <button class="btn-primary" onclick="sendMessage()">📨 إرسال الرسالة</button>
         <div id="errorMsg" class="error"></div>
 
-        <div id="sessionArea" style="display:none;">
-            <div class="session-url">
-                رابط المتابعة:<br>
+        <!-- هذه المنطقة تظهر بعد إرسال الرسالة بنجاح -->
+        <div id="sessionArea" style="display:none;" class="session-area">
+            <p style="font-weight: 600; margin-bottom: 8px;">✅ تم إرسال رسالتك</p>
+            <button class="btn-success" id="openChatBtn" onclick="openChat()">💬 فتح المحادثة الآن</button>
+            <div class="session-link-box">
+                <span style="font-size:12px; color:#64748b;">أو يمكنك نسخ الرابط يدوياً:</span><br>
                 <span id="sessionLink"></span>
             </div>
-            <p style="font-size:12px; margin:8px 0;">⏱️ تنتهي الجلسة بعد ساعة</p>
+            <p class="info-text">⏱️ الرابط صالح لمدة ساعة واحدة</p>
         </div>
 
         <div style="margin-top:16px; font-size:13px;">
@@ -61,13 +67,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script>
-        // استخدام اسم متغير جديد لتجنب التعارض
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         const urlParams = new URLSearchParams(window.location.search);
         const stickerToken = urlParams.get('token');
+        
+        let currentSessionToken = '';
 
-        // --- التوجيه الذكي ---
+        // التوجيه الذكي (كما هو)
         async function checkStickerAndRedirect() {
             if (!stickerToken) return;
             try {
@@ -85,7 +92,6 @@
         }
         checkStickerAndRedirect();
 
-        // --- دوال واجهة التواصل ---
         function setMessage(text) {
             document.getElementById('messageInput').value = text;
         }
@@ -106,7 +112,7 @@
 
             const { data: sticker, error: stickerError } = await supabaseClient
                 .from('stickers')
-                .select('id, vehicle_id, status')
+                .select('id, status')
                 .eq('qr_token', stickerToken)
                 .single();
 
@@ -120,6 +126,8 @@
             }
 
             const sessionToken = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+            currentSessionToken = sessionToken;
+
             const { error: insertError } = await supabaseClient
                 .from('scan_logs')
                 .insert([{
@@ -135,11 +143,23 @@
                 return;
             }
 
+            // عرض منطقة المتابعة
             const sessionLink = `https://calm-chebakia-9ddff4.netlify.app/chat.html?session=${sessionToken}`;
             document.getElementById('sessionLink').innerText = sessionLink;
             document.getElementById('sessionArea').style.display = 'block';
             document.getElementById('messageInput').value = '';
-            alert('✅ تم إرسال رسالتك. يمكنك متابعة الردود عبر الرابط أعلاه.');
+            
+            // فتح المحادثة تلقائياً بعد ثانية واحدة (اختياري)
+            // setTimeout(() => openChat(), 1000);
+        }
+
+        function openChat() {
+            if (currentSessionToken) {
+                const chatUrl = `https://calm-chebakia-9ddff4.netlify.app/chat.html?session=${currentSessionToken}`;
+                window.open(chatUrl, '_blank');
+            } else {
+                alert('الرجاء إرسال رسالة أولاً');
+            }
         }
     </script>
 </body>
