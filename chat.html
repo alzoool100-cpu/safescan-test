@@ -16,8 +16,11 @@
         button { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 30px; font-weight: 600; cursor: pointer; }
         button.secondary { background: #e2e8f0; color: #1e293b; margin-left: 8px; }
         .info { font-size: 13px; color: #64748b; text-align: center; margin-top: 16px; }
-        .error { color: #dc2626; margin: 10px 0; }
+        .error { color: #dc2626; margin: 10px 0; text-align: center; }
         .loading { text-align: center; padding: 20px; color: #64748b; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 30px; font-size: 13px; font-weight: 500; }
+        .pending { background: #fef9c3; color: #854d0e; }
+        .replied { background: #dcfce7; color: #166534; }
     </style>
 </head>
 <body>
@@ -26,11 +29,11 @@
     <div id="status"></div>
     <div id="messages"></div>
     <div class="input-area">
-        <input type="text" id="replyInput" placeholder="اكتب ردك...">
-        <button onclick="sendReply()">إرسال</button>
+        <input type="text" id="replyInput" placeholder="اكتب ردك..." disabled>
+        <button onclick="sendReply()" id="sendBtn" disabled>إرسال</button>
     </div>
     <div style="display: flex; justify-content: center; margin-top: 10px;">
-        <button class="secondary" onclick="loadMessages()">🔄 تحديث</button>
+        <button class="secondary" onclick="loadMessages()">🔄 تحديث الآن</button>
     </div>
     <div class="info">
         ⏱️ تنتهي الجلسة بعد ساعة من آخر رد<br>
@@ -46,12 +49,15 @@
     const sessionToken = urlParams.get('session');
 
     let autoRefreshInterval;
+    let isReplied = false;
 
     // دالة جلب الرسائل وعرضها
     async function loadMessages() {
         const messagesDiv = document.getElementById('messages');
         const statusDiv = document.getElementById('status');
-        
+        const replyInput = document.getElementById('replyInput');
+        const sendBtn = document.getElementById('sendBtn');
+
         if (!sessionToken) {
             messagesDiv.innerHTML = '<div class="error">❌ رابط غير صالح</div>';
             return;
@@ -61,12 +67,12 @@
 
         const { data, error } = await supabaseClient
             .from('scan_logs')
-            .select('visitor_message, owner_response, created_at, status')
+            .select('visitor_message, owner_response, status')
             .eq('session_token', sessionToken)
             .maybeSingle();
 
         if (error) {
-            console.error('Error loading messages:', error);
+            console.error('Error:', error);
             statusDiv.innerHTML = '<div class="error">❌ فشل تحميل المحادثة</div>';
             return;
         }
@@ -77,49 +83,39 @@
             return;
         }
 
-        statusDiv.innerHTML = ''; // إخفاء حالة التحميل
+        statusDiv.innerHTML = ''; 
 
         let html = '';
-        
         // رسالة الزائر
         html += `<div class="message visitor">🧑 زائر: ${escapeHtml(data.visitor_message)}</div>`;
-        
+
         // رد المالك (إذا وجد)
         if (data.owner_response) {
             html += `<div class="message owner">🚗 مالك: ${escapeHtml(data.owner_response)}</div>`;
-        }
-        
-        // إظهار الحالة
-        if (data.status === 'closed' && data.owner_response) {
-            html += '<div class="info" style="color: #16a34a;">✅ تم الرد - انتهت الجلسة</div>';
-            // إيقاف التحديث التلقائي بعد انتهاء الجلسة
+            isReplied = true;
+            replyInput.disabled = true;
+            sendBtn.disabled = true;
             clearInterval(autoRefreshInterval);
-            document.getElementById('replyInput').disabled = true;
-            document.querySelector('button[onclick="sendReply()"]').disabled = true;
+            statusDiv.innerHTML = '<div class="status-badge replied">✅ تم الرد - انتهت الجلسة</div>';
         } else {
-            html += '<div class="info" style="color: #eab308;">⏳ في انتظار رد المالك...</div>';
+            isReplied = false;
+            replyInput.disabled = false;
+            sendBtn.disabled = false;
+            statusDiv.innerHTML = '<div class="status-badge pending">⏳ في انتظار رد المالك...</div>';
         }
 
         messagesDiv.innerHTML = html;
     }
 
-    // دالة مساعدة لمنع XSS
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-
-    // إرسال رد (من الزائر - لكن الزائر لا يرد عادة، هذا للاختبار فقط)
+    // إرسال رد (هذه الدالة للمالك فقط، لكننا نسمح للزائر بإرسال رد للاختبار)
     async function sendReply() {
         const replyInput = document.getElementById('replyInput');
+        const sendBtn = document.getElementById('sendBtn');
         const reply = replyInput.value.trim();
         if (!reply) return alert('اكتب رداً');
 
-        // تعطيل الزر مؤقتاً
-        const btn = event.target;
-        btn.disabled = true;
-        btn.textContent = '⏳ جار الإرسال...';
+        sendBtn.disabled = true;
+        sendBtn.textContent = '⏳ جار الإرسال...';
 
         const { error } = await supabaseClient
             .from('scan_logs')
@@ -128,38 +124,37 @@
 
         if (error) {
             alert('❌ فشل الإرسال: ' + error.message);
-            btn.disabled = false;
-            btn.textContent = 'إرسال';
+            sendBtn.disabled = false;
+            sendBtn.textContent = 'إرسال';
             return;
         }
 
         replyInput.value = '';
-        btn.disabled = false;
-        btn.textContent = 'إرسال';
-        
-        // تحديث العرض فوراً
+        // تحديث فوري
         await loadMessages();
     }
 
-    // بدء التحديث التلقائي كل 5 ثوانٍ
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
     function startAutoRefresh() {
         clearInterval(autoRefreshInterval);
         autoRefreshInterval = setInterval(() => {
-            loadMessages();
-        }, 5000); // 5 ثوانٍ
+            if (!isReplied) {
+                loadMessages();
+            }
+        }, 3000); // كل 3 ثوانٍ
     }
 
-    // تهيئة الصفحة
     async function init() {
         await loadMessages();
         startAutoRefresh();
     }
 
-    // تنظيف عند مغادرة الصفحة
-    window.addEventListener('beforeunload', () => {
-        clearInterval(autoRefreshInterval);
-    });
-
+    window.addEventListener('beforeunload', () => clearInterval(autoRefreshInterval));
     init();
 </script>
 </body>
