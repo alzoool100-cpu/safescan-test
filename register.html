@@ -18,6 +18,7 @@
         .btn { background: #2563eb; color: white; font-weight: 600; font-size: 17px; padding: 16px; border: none; border-radius: 60px; width: 100%; cursor: pointer; margin-top: 10px; }
         .footer-note { margin-top: 24px; font-size: 12px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 20px; }
         .error { color: #dc2626; font-size: 14px; margin-top: 8px; }
+        .hint { font-size: 12px; color: #64748b; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -38,6 +39,11 @@
             <div class="input-group">
                 <label>🔑 رمز التفعيل (من الكرت)</label>
                 <input type="text" id="token" placeholder="XXXXXX" required>
+            </div>
+            <div class="input-group">
+                <label>🔒 كلمة المرور (اختر كلمة قوية)</label>
+                <input type="password" id="password" placeholder="كلمة المرور" required minlength="6">
+                <div class="hint">ستستخدمها لتسجيل الدخول لاحقاً</div>
             </div>
             <button type="submit" class="btn">تفعيل الاستيكر</button>
             <div id="errorMsg" class="error"></div>
@@ -61,8 +67,15 @@
             e.preventDefault();
             const phone = document.getElementById('phone').value;
             const token = document.getElementById('token').value;
+            const password = document.getElementById('password').value;
             const errorEl = document.getElementById('errorMsg');
             errorEl.textContent = '';
+
+            // التحقق من طول كلمة المرور
+            if (password.length < 6) {
+                errorEl.textContent = '❌ كلمة المرور يجب أن تكون 6 أحرف على الأقل';
+                return;
+            }
 
             // 1. البحث عن الاستيكر برمز التفعيل
             const { data: sticker, error: stickerError } = await supabaseClient
@@ -80,10 +93,8 @@
                 return;
             }
 
-            // 2. إنشاء مستخدم جديد (باستخدام رقم الجوال كمصادقة - إصدار مبسط)
+            // 2. إنشاء مستخدم جديد باستخدام رقم الجوال وكلمة المرور
             const email = `user_${Date.now()}@safescan.local`;
-// أو استخدم بريداً ثابتاً للتجربة: const email = 'test@example.com';
-            const password = token + 'SafeScan@2026';
             
             const { data: authData, error: authError } = await supabaseClient.auth.signUp({
                 email: email,
