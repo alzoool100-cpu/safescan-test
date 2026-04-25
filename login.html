@@ -4,30 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeScan - تسجيل دخول المالك</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, sans-serif; }
-        body { background: #f5f7fa; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 16px; }
-        .card { background: white; border-radius: 28px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); padding: 32px 24px; max-width: 400px; width: 100%; text-align: center; }
-        .logo { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 32px; }
-        h1 { font-size: 24px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
-        .subtitle { color: #475569; font-size: 14px; margin-bottom: 28px; }
-        .input-group { margin-bottom: 20px; text-align: right; }
-        label { display: block; font-size: 14px; font-weight: 500; color: #334155; margin-bottom: 6px; }
-        input { width: 100%; padding: 16px; border: 1.5px solid #e2e8f0; border-radius: 16px; font-size: 16px; transition: border 0.2s; }
-        input:focus { outline: none; border-color: #2563eb; }
-        .btn { background: #2563eb; color: white; font-weight: 600; font-size: 17px; padding: 16px; border: none; border-radius: 40px; width: 100%; cursor: pointer; margin-top: 12px; transition: background 0.2s; }
-        .btn:hover { background: #1d4ed8; }
-        .error { color: #dc2626; font-size: 14px; margin-top: 12px; }
-        .footer { margin-top: 24px; font-size: 13px; color: #64748b; }
-        .footer a { color: #2563eb; text-decoration: none; }
-        .nfc-badge { background: #1e293b; color: white; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 30px; }
-    </style>
+    <link rel="stylesheet" href="base.css">
 </head>
 <body>
     <div class="card">
         <div class="logo">
-            <span style="font-size: 28px;">🛡️</span>
-            <span style="font-weight: 700; font-size: 22px; color: #0f172a;">SafeScan</span>
+            <span class="logo-icon">🛡️</span>
+            <span class="logo-text">SafeScan</span>
             <span class="nfc-badge">NFC</span>
         </div>
         <h1>تسجيل الدخول</h1>
@@ -42,13 +25,10 @@
                 <label>🔒 كلمة المرور</label>
                 <input type="password" id="password" placeholder="كلمة المرور" required>
             </div>
-            <button type="submit" class="btn">دخول</button>
-            <div id="errorMsg" class="error"></div>
+            <button type="submit" class="btn btn-primary">دخول</button>
+            <div id="errorMsg" class="error-text"></div>
         </form>
-
-        <div class="footer">
-            ليس لديك حساب؟ <a href="/register.html">فعّل استيكر جديد</a>
-        </div>
+        <div class="footer-note">ليس لديك حساب؟ <a href="/register.html" style="color: var(--color-primary);">فعّل استيكر جديد</a></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -63,32 +43,13 @@
             const errorEl = document.getElementById('errorMsg');
             errorEl.textContent = '';
 
-            if (!phone || !password) {
-                errorEl.textContent = '❌ الرجاء إدخال رقم الجوال وكلمة المرور';
-                return;
-            }
+            if (!phone || !password) { errorEl.textContent = '❌ الرجاء إدخال رقم الجوال وكلمة المرور'; return; }
 
-            // تحويل رقم الجوال إلى البريد الإلكتروني المستخدم أثناء التسجيل
             const email = `${phone}@safescan.local`;
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
 
-            try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
-
-                if (error) {
-                    console.error('Login error:', error);
-                    errorEl.textContent = '❌ رقم الجوال أو كلمة المرور غير صحيحة';
-                    return;
-                }
-
-                // تسجيل الدخول ناجح
-                window.location.href = '/dashboard.html';
-            } catch (err) {
-                console.error('Unexpected error:', err);
-                errorEl.textContent = '❌ حدث خطأ غير متوقع. حاول مرة أخرى.';
-            }
+            if (error) { errorEl.textContent = '❌ رقم الجوال أو كلمة المرور غير صحيحة'; return; }
+            window.location.href = '/dashboard.html';
         });
     </script>
 </body>
