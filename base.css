@@ -1,0 +1,334 @@
+/* ===========================
+   SafeScan - التصميم الأساسي
+   =========================== */
+
+/* --- 1. متغيرات الألوان (Light Mode - الوضع الفاتح) --- */
+:root {
+  --color-primary: #2563eb;       /* أزرق أساسي */
+  --color-primary-hover: #1d4ed8; /* أزرق غامق للتأثير */
+  --color-success: #16a34a;       /* أخضر للنجاح */
+  --color-danger: #dc2626;        /* أحمر للخطأ */
+  --color-warning: #f59e0b;       /* برتقالي للتحذير */
+
+  --bg-body: #f1f5f9;            /* خلفية الصفحة */
+  --bg-card: #ffffff;            /* خلفية البطاقات */
+  --bg-input: #ffffff;           /* خلفية حقول الإدخال */
+  --bg-tag: #e2e8f0;            /* خلفية الشارات */
+
+  --text-primary: #0f172a;       /* نص رئيسي */
+  --text-secondary: #475569;     /* نص ثانوي */
+  --text-muted: #64748b;         /* نص خافت */
+
+  --border-color: #e2e8f0;       /* لون الإطارات */
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
+
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+
+  --font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* --- 2. متغيرات الوضع الليلي (Dark Mode) --- */
+.dark-mode {
+  --bg-body: #0f172a;
+  --bg-card: #1e293b;
+  --bg-input: #334155;
+  --bg-tag: #334155;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+
+  --border-color: #334155;
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* --- 3. إعادة ضبط عامة --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--bg-body);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* --- 4. بطاقة (Card) --- */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 28px 20px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+/* --- 5. شعار (Logo) --- */
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.logo-icon {
+  font-size: 28px;
+}
+
+.logo-text {
+  font-weight: 700;
+  font-size: 22px;
+  color: var(--text-primary);
+}
+
+.nfc-badge {
+  background: var(--text-primary);
+  color: var(--bg-card);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 30px;
+  letter-spacing: 0.5px;
+}
+
+/* --- 6. عناوين ونصوص --- */
+h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.info-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.error-text {
+  color: var(--color-danger);
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* --- 7. حقول الإدخال --- */
+.input-group {
+  margin-bottom: 18px;
+  text-align: right;
+}
+
+label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 16px;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  color: var(--text-primary);
+  transition: border 0.2s;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* --- 8. أزرار --- */
+.btn {
+  font-weight: 600;
+  font-size: 16px;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 60px;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--color-primary-hover);
+}
+
+.btn-success {
+  background: var(--color-success);
+  color: white;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn-tag {
+  background: var(--bg-tag);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: 40px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-tag:hover {
+  background: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --- 9. شارة الحالة (Status Badge) --- */
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.status-pending {
+  background: #fef9c3;
+  color: #854d0e;
+}
+
+.status-replied {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* --- 10. فقاعة الرسالة (Chat Bubble) --- */
+.message-bubble {
+  background: var(--bg-card);
+  padding: 14px;
+  border-radius: 16px;
+  margin: 10px 0;
+  max-width: 80%;
+  border: 1px solid var(--border-color);
+}
+
+.visitor-bubble {
+  background: #e0f2fe;
+  margin-left: auto;
+  text-align: right;
+}
+
+.owner-bubble {
+  background: #dcfce7;
+  margin-right: auto;
+  text-align: left;
+}
+
+/* --- 11. مفاتيح التبديل (Toggle Switch) --- */
+.toggle {
+  width: 56px;
+  height: 30px;
+  background: var(--color-primary);
+  border-radius: 40px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toggle::after {
+  content: "";
+  width: 24px;
+  height: 24px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  transition: 0.2s;
+}
+
+.toggle.off {
+  background: #94a3b8;
+}
+
+.toggle.off::after {
+  right: 29px;
+}
+
+/* --- 12. عناصر مساعدة --- */
+.footer-note {
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+}
+
+.session-area {
+  background: var(--bg-tag);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-top: 16px;
+}
+
+/* --- 13. الوضع الليلي - تعديلات إضافية --- */
+.dark-mode .visitor-bubble {
+  background: #1e3a5f;
+}
+
+.dark-mode .owner-bubble {
+  background: #14532d;
+}
+
+.dark-mode .status-pending {
+  background: #422006;
+  color: #fde68a;
+}
+
+.dark-mode .status-replied {
+  background: #052e16;
+  color: #86efac;
+}
