@@ -4,20 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeScan - محادثة مؤقتة</title>
+    <link rel="stylesheet" href="base.css">
     <style>
-        body { font-family: system-ui; background: #f5f7fa; padding: 16px; margin: 0; }
         .container { max-width: 500px; margin: 0 auto; }
-        h2 { text-align: center; color: #1e293b; }
-        .message { background: white; padding: 14px; border-radius: 16px; margin: 10px 0; max-width: 80%; }
-        .visitor { background: #e0f2fe; margin-left: auto; text-align: right; }
-        .owner { background: #dcfce7; margin-right: auto; text-align: left; }
-        .info { font-size: 13px; color: #64748b; text-align: center; margin-top: 16px; }
-        .error { color: #dc2626; margin: 10px 0; text-align: center; }
-        .loading { text-align: center; padding: 20px; color: #64748b; }
-        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 30px; font-size: 13px; font-weight: 500; margin-bottom: 10px; }
-        .pending { background: #fef9c3; color: #854d0e; }
-        .replied { background: #dcfce7; color: #166534; }
-        .btn-secondary { background: #e2e8f0; color: #1e293b; border: none; padding: 12px 24px; border-radius: 30px; font-weight: 600; cursor: pointer; }
+        h2 { text-align: center; margin-bottom: 16px; }
+        .btn-secondary { background: var(--bg-tag); color: var(--text-primary); border: none; padding: 12px 24px; border-radius: 30px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -25,11 +16,10 @@
     <h2>💬 محادثة مؤقتة مع مالك السيارة</h2>
     <div id="status"></div>
     <div id="messages"></div>
-    <!-- منطقة الكتابة مخفية تماماً، لأن الزائر لا يحق له الرد -->
     <div style="display: flex; justify-content: center; margin-top: 16px;">
         <button class="btn-secondary" onclick="loadMessages()">🔄 تحديث الآن</button>
     </div>
-    <div class="info">
+    <div class="info-text">
         ⏱️ تنتهي الجلسة بعد ساعة من آخر رد<br>
         📵 هويتك مجهولة لدى مالك السيارة<br>
         🔒 لا يمكنك الرد، فقط متابعة الردود
@@ -42,75 +32,37 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const urlParams = new URLSearchParams(window.location.search);
     const sessionToken = urlParams.get('session');
-
-    let autoRefreshInterval;
-    let isReplied = false;
+    let autoRefreshInterval, isReplied = false;
 
     async function loadMessages() {
         const messagesDiv = document.getElementById('messages');
         const statusDiv = document.getElementById('status');
-
-        if (!sessionToken) {
-            messagesDiv.innerHTML = '<div class="error">❌ رابط غير صالح</div>';
-            return;
-        }
-
+        if (!sessionToken) { messagesDiv.innerHTML = '<div class="error-text">❌ رابط غير صالح</div>'; return; }
         statusDiv.innerHTML = '<div class="loading">⏳ جار التحميل...</div>';
 
-        const { data, error } = await supabaseClient
-            .from('scan_logs')
-            .select('visitor_message, owner_response, status')
-            .eq('session_token', sessionToken)
-            .maybeSingle();
-
-        if (error) {
-            statusDiv.innerHTML = '<div class="error">❌ فشل تحميل المحادثة</div>';
-            return;
-        }
-
-        if (!data) {
-            statusDiv.innerHTML = '<div class="error">❌ الجلسة غير موجودة أو انتهت</div>';
-            clearInterval(autoRefreshInterval);
-            return;
-        }
+        const { data, error } = await supabaseClient.from('scan_logs').select('visitor_message, owner_response, status').eq('session_token', sessionToken).maybeSingle();
+        if (error || !data) { statusDiv.innerHTML = '<div class="error-text">❌ الجلسة غير موجودة أو انتهت</div>'; clearInterval(autoRefreshInterval); return; }
 
         statusDiv.innerHTML = '';
-
-        let html = `<div class="message visitor">🧑 زائر: ${escapeHtml(data.visitor_message)}</div>`;
+        let html = `<div class="message-bubble visitor-bubble">🧑 زائر: ${escapeHtml(data.visitor_message)}</div>`;
 
         if (data.owner_response) {
-            html += `<div class="message owner">🚗 مالك: ${escapeHtml(data.owner_response)}</div>`;
+            html += `<div class="message-bubble owner-bubble">🚗 مالك: ${escapeHtml(data.owner_response)}</div>`;
             isReplied = true;
             clearInterval(autoRefreshInterval);
-            statusDiv.innerHTML = '<div class="status-badge replied">✅ تم الرد - انتهت الجلسة</div>';
+            statusDiv.innerHTML = '<div class="status-badge status-replied">✅ تم الرد - انتهت الجلسة</div>';
         } else {
             isReplied = false;
-            statusDiv.innerHTML = '<div class="status-badge pending">⏳ في انتظار رد المالك...</div>';
+            statusDiv.innerHTML = '<div class="status-badge status-pending">⏳ في انتظار رد المالك...</div>';
         }
-
         messagesDiv.innerHTML = html;
     }
 
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
+    function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
-    function startAutoRefresh() {
-        clearInterval(autoRefreshInterval);
-        autoRefreshInterval = setInterval(() => {
-            if (!isReplied) {
-                loadMessages();
-            }
-        }, 3000);
-    }
+    function startAutoRefresh() { clearInterval(autoRefreshInterval); autoRefreshInterval = setInterval(() => { if (!isReplied) loadMessages(); }, 3000); }
 
-    async function init() {
-        await loadMessages();
-        startAutoRefresh();
-    }
-
+    async function init() { await loadMessages(); startAutoRefresh(); }
     window.addEventListener('beforeunload', () => clearInterval(autoRefreshInterval));
     init();
 </script>
