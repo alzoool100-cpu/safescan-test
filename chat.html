@@ -1,70 +1,32 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeScan - محادثة مؤقتة</title>
-    <link rel="stylesheet" href="base.css">
-    <style>
-        .container { max-width: 500px; margin: 0 auto; }
-        h2 { text-align: center; margin-bottom: 16px; }
-        .btn-secondary { background: var(--bg-tag); color: var(--text-primary); border: none; padding: 12px 24px; border-radius: 30px; font-weight: 600; cursor: pointer; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h2>💬 محادثة مؤقتة مع مالك السيارة</h2>
-    <div id="status"></div>
-    <div id="messages"></div>
-    <div style="display: flex; justify-content: center; margin-top: 16px;">
-        <button class="btn-secondary" onclick="loadMessages()">🔄 تحديث الآن</button>
-    </div>
-    <div class="info-text">
-        ⏱️ تنتهي الجلسة بعد ساعة من آخر رد<br>
-        📵 هويتك مجهولة لدى مالك السيارة<br>
-        🔒 لا يمكنك الرد، فقط متابعة الردود
-    </div>
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>SafeScan</title><link rel="stylesheet" href="base.css"></head>
+<body><div class="container" style="max-width:500px;margin:0 auto">
+<h2 data-key="chat_title">💬 محادثة مؤقتة مع مالك السيارة</h2>
+<div id="status"></div><div id="messages"></div>
+<div style="display:flex;justify-content:center;margin-top:16px"><button class="btn-secondary" onclick="loadMessages()" data-key="refresh_btn">🔄 تحديث الآن</button></div>
+<div class="info-text" style="text-align:center;margin-top:16px">
+<span data-key="session_info">⏱️ تنتهي الجلسة بعد ساعة</span><br>
+<span data-key="identity_hidden">📵 هويتك مجهولة</span><br>
+<span data-key="no_reply">🔒 لا يمكنك الرد</span></div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js"></script>
+<script src="config.js"></script><script src="translations.js"></script>
 <script>
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionToken = urlParams.get('session');
-    let autoRefreshInterval, isReplied = false;
-
-    async function loadMessages() {
-        const messagesDiv = document.getElementById('messages');
-        const statusDiv = document.getElementById('status');
-        if (!sessionToken) { messagesDiv.innerHTML = '<div class="error-text">❌ رابط غير صالح</div>'; return; }
-        statusDiv.innerHTML = '<div class="loading">⏳ جار التحميل...</div>';
-
-        const { data, error } = await supabaseClient.from('scan_logs').select('visitor_message, owner_response, status').eq('session_token', sessionToken).maybeSingle();
-        if (error || !data) { statusDiv.innerHTML = '<div class="error-text">❌ الجلسة غير موجودة أو انتهت</div>'; clearInterval(autoRefreshInterval); return; }
-
-        statusDiv.innerHTML = '';
-        let html = `<div class="message-bubble visitor-bubble">🧑 زائر: ${escapeHtml(data.visitor_message)}</div>`;
-
-        if (data.owner_response) {
-            html += `<div class="message-bubble owner-bubble">🚗 مالك: ${escapeHtml(data.owner_response)}</div>`;
-            isReplied = true;
-            clearInterval(autoRefreshInterval);
-            statusDiv.innerHTML = '<div class="status-badge status-replied">✅ تم الرد - انتهت الجلسة</div>';
-        } else {
-            isReplied = false;
-            statusDiv.innerHTML = '<div class="status-badge status-pending">⏳ في انتظار رد المالك...</div>';
-        }
-        messagesDiv.innerHTML = html;
-    }
-
-    function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
-
-    function startAutoRefresh() { clearInterval(autoRefreshInterval); autoRefreshInterval = setInterval(() => { if (!isReplied) loadMessages(); }, 3000); }
-
-    async function init() { await loadMessages(); startAutoRefresh(); }
-    window.addEventListener('beforeunload', () => clearInterval(autoRefreshInterval));
-    init();
-</script>
-</body>
-</html>
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const stok=new URLSearchParams(window.location.search).get('session');
+let arI,replied=false;
+async function loadMessages(){
+ const mD=document.getElementById('messages'),sD=document.getElementById('status');
+ if(!stok){mD.innerHTML='<div class="error-text">❌ رابط غير صالح</div>';return;}
+ sD.innerHTML='<div class="loading">⏳ جار التحميل...</div>';
+ const {data,error}=await supabaseClient.from('scan_logs').select('visitor_message,owner_response,status').eq('session_token',stok).maybeSingle();
+ if(error||!data){sD.innerHTML='<div class="error-text">❌ الجلسة غير موجودة</div>';clearInterval(arI);return;}
+ let h=`<div class="message-bubble visitor-bubble">🧑 زائر: ${data.visitor_message}</div>`;
+ if(data.owner_response){
+  h+=`<div class="message-bubble owner-bubble">🚗 مالك: ${data.owner_response}</div>`;
+  replied=true;clearInterval(arI);
+  sD.innerHTML='<div class="status-badge status-replied">✅ '+t('session_ended')+'</div>';
+ }else{replied=false;sD.innerHTML='<div class="status-badge status-pending">⏳ '+t('waiting_reply')+'</div>';}
+ mD.innerHTML=h;
+}
+function startAR(){clearInterval(arI);arI=setInterval(()=>{if(!replied)loadMessages();},3000);}
+loadMessages();startAR();
+</script></body></html>
