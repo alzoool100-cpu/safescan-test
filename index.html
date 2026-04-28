@@ -123,7 +123,7 @@
             document.getElementById('messageInput').value = text;
         }
 
-        // دالة إرسال الرسالة إلى المالك
+        // دالة إرسال الرسالة إلى المالك (معدّلة للتحقق من نشاط المركبة)
         async function sendMessage() {
             if (!supabaseClient) return;
             const msg = document.getElementById('messageInput').value.trim();
@@ -133,9 +133,23 @@
             if (!stickerToken) { errorEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف على الاستيكر'); return; }
 
             const { data: sticker, error: stickerError } = await supabaseClient
-                .from('stickers').select('id, status').eq('qr_token', stickerToken).single();
+                .from('stickers').select('id, status, vehicle_id').eq('qr_token', stickerToken).single();
             if (stickerError || !sticker) { errorEl.textContent = '❌ ' + (t('sticker_invalid') || 'استيكر غير صالح'); return; }
             if (sticker.status !== 'active') { errorEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
+
+            // ==== التحقق الإضافي من نشاط المركبة ====
+            if (sticker.vehicle_id) {
+                const { data: vehicle } = await supabaseClient
+                    .from('vehicles')
+                    .select('is_active')
+                    .eq('id', sticker.vehicle_id)
+                    .maybeSingle()
+                    .setHeader('Accept', 'application/json');
+                if (vehicle && !vehicle.is_active) {
+                    errorEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح');
+                    return;
+                }
+            }
 
             const sessionToken = Math.random().toString(36).substring(2,10) + Date.now().toString(36);
             currentSessionToken = sessionToken;
