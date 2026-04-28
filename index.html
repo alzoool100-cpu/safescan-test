@@ -23,6 +23,7 @@
         </div>
         <div style="background:var(--bg-tag);padding:8px 12px;border-radius:40px;font-size:13px;margin-bottom:20px;display:inline-block" data-key="safe_message">🔔 رسالتك آمنة ولن يظهر رقمك</div>
 
+        <!-- منطقة إظهار رقم المالك (تظهر فقط إذا سمح) -->
         <div id="ownerPhoneArea" style="display:none; background: var(--bg-tag); padding: 12px; border-radius: 20px; margin: 16px 0;">
             <p style="font-weight: 600; margin-bottom: 8px;" data-key="phone_revealed">📱 رقم مالك السيارة:</p>
             <a id="ownerPhoneLink" href="#" style="font-size: 18px; font-weight: 700; color: var(--color-primary); text-decoration: none;"></a>
@@ -59,7 +60,7 @@
     <script src="config.js"></script>
     <script src="translations.js"></script>
     <script>
-        // تعريف جميع المتغيرات والدوال في النطاق العام
+        // تعريف جميع المتغيرات والدوال في النطاق العام (global scope)
         let supabaseClient;
         const urlParams = new URLSearchParams(window.location.search);
         const stickerToken = urlParams.get('token');
@@ -72,7 +73,7 @@
             alert('خطأ في تحميل المكتبات. الرجاء المحاولة لاحقاً.');
         }
 
-        // التوجيه الذكي
+        // التوجيه الذكي (إعادة توجيه إلى التسجيل إذا كان الاستيكر غير مفعّل)
         async function checkStickerAndRedirect() {
             if (!stickerToken || !supabaseClient) return;
             try {
@@ -88,14 +89,27 @@
         }
         checkStickerAndRedirect();
 
-        // التحقق من إظهار رقم المالك
+        // التحقق من إظهار رقم المالك (إذا سمح)
         async function checkOwnerPhone() {
             if (!stickerToken || !supabaseClient) return;
-            const { data: sticker } = await supabaseClient.from('stickers').select('vehicle_id').eq('qr_token', stickerToken).single();
+            const { data: sticker } = await supabaseClient
+                .from('stickers')
+                .select('vehicle_id')
+                .eq('qr_token', stickerToken)
+                .single();
             if (!sticker) return;
-            const { data: vehicle } = await supabaseClient.from('vehicles').select('user_id').eq('id', sticker.vehicle_id).single();
+            const { data: vehicle } = await supabaseClient
+                .from('vehicles')
+                .select('user_id')
+                .eq('id', sticker.vehicle_id)
+                .single();
             if (!vehicle) return;
-            const { data: profile } = await supabaseClient.from('profiles').select('phone, show_phone').eq('id', vehicle.user_id).single();
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('phone, show_phone')
+                .eq('id', vehicle.user_id)
+                .maybeSingle()
+                .setHeader('Accept', 'application/json');
             if (profile && profile.show_phone && profile.phone) {
                 document.getElementById('ownerPhoneLink').href = `tel:${profile.phone}`;
                 document.getElementById('ownerPhoneLink').innerText = profile.phone;
@@ -104,12 +118,12 @@
         }
         checkOwnerPhone();
 
-        // دالة إدراج نص سريع
+        // دالة إدراج نص سريع في صندوق الرسالة
         function setMessage(text) {
             document.getElementById('messageInput').value = text;
         }
 
-        // دالة إرسال الرسالة
+        // دالة إرسال الرسالة إلى المالك
         async function sendMessage() {
             if (!supabaseClient) return;
             const msg = document.getElementById('messageInput').value.trim();
@@ -129,6 +143,7 @@
                 .from('scan_logs').insert([{ sticker_id: sticker.id, visitor_message: msg, session_token: sessionToken, status: 'pending' }]);
             if (insertError) { errorEl.textContent = '❌ فشل إرسال الرسالة'; return; }
 
+            // إرسال إشارة للوحة التحكم بأن رسالة جديدة وصلت
             localStorage.setItem('safescan_new_message', JSON.stringify({ message: msg, time: Date.now() }));
 
             document.getElementById('sessionLink').innerText = `https://calm-chebakia-9ddff4.netlify.app/chat.html?session=${sessionToken}`;
@@ -136,7 +151,7 @@
             document.getElementById('messageInput').value = '';
         }
 
-        // دالة فتح المحادثة
+        // دالة فتح المحادثة في نافذة جديدة
         function openChat() {
             if (currentSessionToken) window.open(`/chat.html?session=${currentSessionToken}`, '_blank');
             else alert('الرجاء إرسال رسالة أولاً');
