@@ -118,6 +118,7 @@
     let currentUser = null, currentVehicle = null, active = true, selectedMessageId = null, showPhone = false;
     let allMessages = [];
     let currentFilter = 'pending';
+    let lastNewCount = 0; // لحفظ آخر عدد رسائل جديدة
 
     if (window.supabase) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -125,7 +126,6 @@
         alert('خطأ في تحميل المكتبات.');
     }
 
-    // ... (دوال showToast و playNotificationSound و checkNewMessagesFromLocalStorage كما هي)
     function showToast(msg) {
         const old = document.querySelector('.toast');
         if (old) old.remove();
@@ -135,9 +135,15 @@
         document.body.appendChild(t);
         setTimeout(() => t.remove(), 3500);
     }
+
     function playNotificationSound() {
-        try { new Audio('notification.mp3').play().catch(()=>{}); } catch(e) {}
+        try {
+            const audio = new Audio('notification.mp3');
+            audio.play().catch(() => {});
+        } catch(e) {}
     }
+
+    // فحص localStorage عند التحميل الأول
     function checkNewMessagesFromLocalStorage() {
         const m = localStorage.getItem('safescan_new_message');
         if (m) {
@@ -171,7 +177,7 @@
             currentVehicle = newVehicle;
             document.getElementById('vehicleName').innerText = t('vehicle_default')||'سيارتي';
         }
-        loadMessages();
+        await loadMessages();
         checkNewMessagesFromLocalStorage();
     }
 
@@ -182,7 +188,6 @@
         else { toggle.classList.add('off'); label.innerHTML = '🔴 '+(t('status_off')||'متوقف (خصوصية تامة)'); }
     }
 
-    // ========== تعديل toggleStatus (يحدّث stickers أيضاً) ==========
     async function toggleStatus() {
         if (!supabaseClient || !currentVehicle) return;
         active = !active;
@@ -195,10 +200,9 @@
                 await supabaseClient.from('stickers').update({ status: newStatus }).eq('id', s.id);
             }
         }
-        loadMessages();
+        await loadMessages();
     }
 
-    // ========== تعديل toggleShowPhone (معالجة currentUser null) ==========
     async function toggleShowPhone() {
         if (!supabaseClient || !currentUser) {
             alert('يجب تسجيل الدخول أولاً');
@@ -221,8 +225,6 @@
         }
     }
 
-    // باقي الدوال (loadMessages, renderMessages, setFilter, selectMessage, showPhoneToVisitor, sendReply, cancelReply, logout) بدون تغيير
-    // ... (نفس الكود السابق لهم)
     function setFilter(filter) {
         currentFilter = filter;
         document.getElementById('tabPending').classList.toggle('active', filter==='pending');
@@ -269,8 +271,16 @@
         const { data: logs, error } = await supabaseClient.from('scan_logs').select('*').in('sticker_id',stickerIds).order('created_at',{ascending:false}).limit(50);
         if (error) { document.getElementById('inboxContainer').innerHTML = '<div class="loading">'+(t('error_loading')||'خطأ')+'</div>'; return; }
         allMessages = logs || [];
-        document.getElementById('newCount').innerText = allMessages.filter(l=>l.status==='pending').length;
+        const currentNew = allMessages.filter(l=>l.status==='pending').length;
+        document.getElementById('newCount').innerText = currentNew;
         document.getElementById('totalCount').innerText = allMessages.filter(l=>l.status==='closed').length;
+
+        // تشغيل الصوت إذا زادت الرسائل الجديدة
+        if (currentNew > lastNewCount) {
+            playNotificationSound();
+            showToast(`📩 لديك ${currentNew - lastNewCount} رسالة جديدة`);
+        }
+        lastNewCount = currentNew;
         renderMessages();
     }
 
@@ -309,6 +319,18 @@
     async function logout() { if(supabaseClient) await supabaseClient.auth.signOut(); window.location.href='/index.html'; }
 
     initDashboard();
+
+    // فحص دوري للرسائل الجديدة من localStorage (كل 5 ثوانٍ)
+    setInterval(() => {
+        const newMsg = localStorage.getItem('safescan_new_message');
+        if (newMsg) {
+            const data = JSON.parse(newMsg);
+            showToast(`📩 رسالة جديدة: "${data.message?.substring(0, 30)}..."`);
+            playNotificationSound();
+            localStorage.removeItem('safescan_new_message');
+            loadMessages(); // تحديث القائمة
+        }
+    }, 5000);
 </script>
 </body>
 </html>
