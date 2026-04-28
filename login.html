@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeScan - تسجيل دخول المالك</title>
+    <title>SafeScan - تسجيل الدخول</title>
     <link rel="stylesheet" href="base.css">
 </head>
 <body>
@@ -29,47 +29,31 @@
             <div id="errorMsg" class="error-text"></div>
         </form>
         <div class="footer-note">
-            <span data-key="no_account">ليس لديك حساب؟</span> <a href="/register.html" style="color: var(--color-primary);">فعّل استيكر جديد</a>
+            <span data-key="no_account">ليس لديك حساب؟</span> <a href="/register.html" style="color: var(--color-primary);">فعّل استيكر جديد</a><br>
+            <a href="/privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a> · 
+            <a href="/terms.html" style="color: var(--text-muted);">شروط الاستخدام</a>
         </div>
     </div>
 
-    <!-- المكتبات الأساسية -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
     <script src="translations.js"></script>
     <script>
-        // التأكد من تحميل المكتبة
-        if (!window.supabase) {
-            alert('خطأ في تحميل المكتبات. الرجاء المحاولة لاحقاً.');
-        } else {
-            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        if (!supabaseClient) alert('خطأ في تحميل المكتبات.');
 
-            document.getElementById('loginForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const phone = document.getElementById('phone').value.trim();
-                const password = document.getElementById('password').value;
-                const errorEl = document.getElementById('errorMsg');
-                errorEl.textContent = '';
-
-                if (!phone || !password) {
-                    errorEl.textContent = '❌ الرجاء إدخال رقم الجوال وكلمة المرور';
-                    return;
-                }
-
-                const email = `${phone}@safescan.local`;
-                const { error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
-
-                if (error) {
-                    errorEl.textContent = '❌ رقم الجوال أو كلمة المرور غير صحيحة';
-                    return;
-                }
-
-                window.location.href = '/dashboard.html';
-            });
-        }
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value;
+            const errorEl = document.getElementById('errorMsg');
+            errorEl.textContent = '';
+            if (!phone || !password) { errorEl.textContent = '❌ الرجاء إدخال البيانات'; return; }
+            const email = `${phone}@safescan.local`;
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) { errorEl.textContent = '❌ بيانات خاطئة'; return; }
+            window.location.href = '/dashboard.html';
+        });
     </script>
 </body>
 </html>
