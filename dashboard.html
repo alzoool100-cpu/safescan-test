@@ -28,85 +28,68 @@
         .toggle-switch::after { content: ""; width: 26px; height: 26px; background: white; border-radius: 50%; position: absolute; top: 3px; right: 3px; }
         .toggle-switch.off { background: #94a3b8; }
         .toggle-switch.off::after { right: 29px; }
-        .toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--color-primary); color: white; padding: 16px 24px;
-            border-radius: 40px; font-weight: 600; z-index: 9999; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            animation: slideDown 0.4s ease, fadeOut 0.4s ease 3s forwards;
-            max-width: 90%; text-align: center;
-        }
+        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--color-primary); color: white; padding: 16px 24px; border-radius: 40px; font-weight: 600; z-index: 9999; animation: slideDown 0.4s ease, fadeOut 0.4s ease 3s forwards; max-width: 90%; text-align: center; }
         @keyframes slideDown { from { top: -80px; opacity: 0; } to { top: 20px; opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; top: -80px; } }
-        #searchInput {
-            width: 100%; padding: 10px 16px; border-radius: 30px; border: 1px solid var(--border-color);
-            background: var(--bg-input); color: var(--text-primary); margin-bottom: 12px; font-size: 14px;
-        }
+        #searchInput { width: 100%; padding: 10px 16px; border-radius: 30px; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); margin-bottom: 12px; font-size: 14px; }
     </style>
 </head>
 <body>
 <div class="dashboard">
     <div class="header">
-        <div class="logo">
-            <span class="logo-icon">🛡️</span>
-            <span class="logo-text">SafeScan</span>
-        </div>
-        <div class="car-badge" id="vehicleName" data-key="vehicle_default">🚗 سيارتي</div>
+        <div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div>
+        <div class="car-badge" id="vehicleName">🚗 سيارتي</div>
     </div>
 
     <div class="card">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <span style="font-weight: 600; font-size: 18px;" id="statusLabel" data-key="status_active">🟢 حالة الاستقبال</span>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+            <span id="statusLabel">🟢 حالة الاستقبال</span>
             <div class="toggle-switch" id="statusToggle" onclick="toggleStatus()"></div>
         </div>
         <div class="stats">
-            <div class="stat-item active" id="tabPending" onclick="setFilter('pending')">
-                <div class="stat-number" id="newCount">0</div>
-                <div style="font-size:14px;" data-key="new_msgs">جديدة</div>
-            </div>
-            <div class="stat-item" id="tabClosed" onclick="setFilter('closed')">
-                <div class="stat-number" id="totalCount">0</div>
-                <div style="font-size:14px;" data-key="replied_msgs">تم الرد</div>
-            </div>
+            <div class="stat-item active" id="tabPending" onclick="setFilter('pending')"><div class="stat-number" id="newCount">0</div><div>جديدة</div></div>
+            <div class="stat-item" id="tabClosed" onclick="setFilter('closed')"><div class="stat-number" id="totalCount">0</div><div>تم الرد</div></div>
         </div>
-        <div style="margin-top:8px; color: var(--text-secondary);" id="notificationStatus" data-key="loading">📱 جار التحميل...</div>
+        <div id="notificationStatus">📱 جار التحميل...</div>
     </div>
 
     <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h3 style="font-size:18px;" data-key="inbox">📥 آخر الرسائل</h3>
-            <button onclick="loadMessages()" style="background:none; border:none; color: var(--color-primary); cursor:pointer;" data-key="refresh">🔄 تحديث</button>
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+            <h3>📥 آخر الرسائل</h3>
+            <button onclick="loadMessages()" style="background:none;border:none;color:var(--color-primary);cursor:pointer">🔄 تحديث</button>
         </div>
-        <input type="text" id="searchInput" placeholder="🔍 بحث في الرسائل..." oninput="renderMessages()" />
-        <div id="inboxContainer"><div class="loading" data-key="loading">جار تحميل الرسائل...</div></div>
+        <input type="text" id="searchInput" placeholder="🔍 بحث..." oninput="renderMessages()" />
+        <div id="inboxContainer"><div class="loading">جار التحميل...</div></div>
     </div>
 
-    <div class="card" id="replyCard" style="display:none;">
-        <h4 data-key="reply_title">💬 الرد على الرسالة</h4>
+    <div class="card" id="replyCard" style="display:none">
+        <h4>💬 الرد على الرسالة</h4>
         <div id="selectedMessagePreview"></div>
-        <textarea id="replyText" data-placeholder="reply_placeholder" placeholder="اكتب ردك هنا..."></textarea>
-        <button class="btn-outline" onclick="sendReply()" data-key="send_reply">إرسال الرد</button>
-        <button style="background:none; border:none; margin-top:8px; color: var(--text-muted);" onclick="cancelReply()" data-key="cancel">إلغاء</button>
+        <textarea id="replyText" placeholder="اكتب ردك..."></textarea>
+        <button class="btn-outline" onclick="sendReply()">إرسال الرد</button>
+        <button style="background:none;border:none;margin-top:8px;color:var(--text-muted)" onclick="cancelReply()">إلغاء</button>
         <div id="replyError" class="error-text"></div>
     </div>
 
     <div class="card">
-        <h3 style="margin-bottom:8px;" data-key="settings">⚙️ الإعدادات السريعة</h3>
+        <h3>⚙️ الإعدادات السريعة</h3>
         <div class="settings-row">
-            <span data-key="show_phone_setting">📱 إظهار رقمي للزوار</span>
-            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <span>📱 إظهار رقمي للزوار</span>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
                 <input type="checkbox" id="showPhoneToggle" onchange="toggleShowPhone()" />
-                <span id="showPhoneLabel" data-key="show_label_off">إخفاء</span>
+                <span id="showPhoneLabel">إخفاء</span>
             </label>
         </div>
-        <div class="settings-row"><span data-key="telegram_notify">🔔 إشعارات تيليجرام</span><span id="telegramStatus">⏳</span></div>
-        <div class="settings-row"><span data-key="phone_registered">📱 رقم الجوال المسجل</span><span id="phoneDisplay">---</span></div>
-        <div class="settings-row"><span data-key="auto_schedule">🕒 الجدولة التلقائية</span><span data-key="soon">قريباً</span></div>
-        <button class="btn-outline" style="margin-top:20px;" onclick="logout()" data-key="logout">تسجيل الخروج</button>
+        <div class="settings-row"><span>🔔 إشعارات تيليجرام</span><span>⏳</span></div>
+        <div class="settings-row"><span>📱 رقم الجوال</span><span id="phoneDisplay">---</span></div>
+        <div class="settings-row"><span>🕒 الجدولة</span><span>قريباً</span></div>
+        <button class="btn-outline" style="margin-top:20px" onclick="logout()">تسجيل الخروج</button>
     </div>
 
-    <div class="footer-note" style="text-align:center;">
-        <a href="#" style="color: var(--color-primary);" data-key="privacy">سياسة الخصوصية</a> · <a href="#" style="color: var(--color-primary);" data-key="support">مركز المساعدة</a>
-        <div style="margin-top:10px;">© SafeScan 2026</div>
+    <div class="footer-note" style="text-align:center">
+        <a href="/privacy.html" style="color:var(--color-primary)">سياسة الخصوصية</a> ·
+        <a href="/terms.html" style="color:var(--color-primary)">شروط الاستخدام</a>
+        <div style="margin-top:10px">© SafeScan 2026</div>
     </div>
 </div>
 
@@ -114,77 +97,16 @@
 <script src="config.js"></script>
 <script src="translations.js"></script>
 <script>
-    let supabaseClient;
-    let currentUser = null, currentVehicle = null, active = true, selectedMessageId = null, showPhone = false;
-    let allMessages = [];
-    let currentFilter = 'pending';
-    let lastNewCount = 0;
+    let supabaseClient, currentUser = null, currentVehicle = null, active = true, selectedMessageId = null, showPhone = false;
+    let allMessages = [], currentFilter = 'pending', lastNewCount = 0;
+    let audioElement = null;
 
-    // ========== نظام الصوت (معالجة Autoplay Policy) ==========
-    let audioUnlocked = false;
-    let audioCtx = null;
+    if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    else alert('خطأ في تحميل المكتبات.');
 
-    // فتح قفل الصوت عند أول نقرة من المستخدم
-    document.addEventListener('click', function unlockAudio() {
-        if (audioUnlocked) return;
-        try {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            // تشغيل صوت صامت قصير جداً لفتح القفل
-            const buffer = audioCtx.createBuffer(1, 1, 22050);
-            const source = audioCtx.createBufferSource();
-            source.buffer = buffer;
-            source.connect(audioCtx.destination);
-            source.start(0);
-            audioUnlocked = true;
-        } catch(e) {
-            console.warn('لم يتم فتح قفل الصوت:', e);
-        }
-    }, { once: true });
-
-    function playNotificationSound() {
-        if (!audioUnlocked || !audioCtx) {
-            // إذا لم يفتح القفل بعد، لا نفعل شيئاً (لن يعمل الصوت)
-            return;
-        }
-        // استخدام AudioContext لتشغيل الملف
-        fetch('notification.mp3')
-            .then(response => response.arrayBuffer())
-            .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
-            .then(audioBuffer => {
-                const source = audioCtx.createBufferSource();
-                source.buffer = audioBuffer;
-                source.connect(audioCtx.destination);
-                source.start(0);
-            })
-            .catch(err => console.warn('فشل تشغيل صوت الإشعار:', err));
-    }
-
-    // ========== الدوال الأخرى ==========
-    if (window.supabase) {
-        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } else {
-        alert('خطأ في تحميل المكتبات.');
-    }
-
-    function showToast(msg) {
-        const old = document.querySelector('.toast');
-        if (old) old.remove();
-        const t = document.createElement('div');
-        t.className = 'toast';
-        t.textContent = msg;
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 3500);
-    }
-
-    function checkNewMessagesFromLocalStorage() {
-        const m = localStorage.getItem('safescan_new_message');
-        if (m) {
-            const d = JSON.parse(m);
-            showToast(`📩 رسالة جديدة: "${d.message?.substring(0,30)}..."`);
-            playNotificationSound();
-            localStorage.removeItem('safescan_new_message');
-        }
-    }
+    function showToast(msg) { const old = document.querySelector('.toast'); if(old) old.remove(); const t = document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3500); }
+    function playNotificationSound() { if (audioElement) { audioElement.currentTime = 0; audioElement.play().catch(()=>{}); } }
+    function unlockAudioAndPlay() { if (!audioElement) audioElement = new Audio('notification.mp3'); audioElement.play().then(()=>{ document.getElementById('unlockAudioBtn').textContent='🔊'; }).catch(()=>{}); }
 
     async function initDashboard() {
         if (!supabaseClient) return;
@@ -196,73 +118,21 @@
             document.getElementById('phoneDisplay').innerText = profile.phone || 'غير مسجل';
             showPhone = profile.show_phone || false;
             document.getElementById('showPhoneToggle').checked = showPhone;
-            document.getElementById('showPhoneLabel').innerText = showPhone ? (t('show_label_on')||'إظهار') : (t('show_label_off')||'إخفاء');
+            document.getElementById('showPhoneLabel').innerText = showPhone ? 'إظهار' : 'إخفاء';
         }
         const { data: vehicles } = await supabaseClient.from('vehicles').select('*').eq('user_id', user.id).limit(1);
-        if (vehicles && vehicles.length > 0) {
-            currentVehicle = vehicles[0];
-            document.getElementById('vehicleName').innerText = currentVehicle.custom_name || t('vehicle_default');
-            active = currentVehicle.is_active;
-            updateToggleUI();
-        } else {
-            const { data: newVehicle } = await supabaseClient.from('vehicles').insert([{ user_id: user.id }]).select().single();
-            currentVehicle = newVehicle;
-            document.getElementById('vehicleName').innerText = t('vehicle_default')||'سيارتي';
-        }
+        if (vehicles?.length) { currentVehicle = vehicles[0]; document.getElementById('vehicleName').innerText = currentVehicle.custom_name || 'سيارتي'; active = currentVehicle.is_active; updateToggleUI(); }
+        else { const { data: newVehicle } = await supabaseClient.from('vehicles').insert([{ user_id: user.id }]).select().single(); currentVehicle = newVehicle; document.getElementById('vehicleName').innerText = 'سيارتي'; }
         await loadMessages();
         checkNewMessagesFromLocalStorage();
     }
 
-    function updateToggleUI() {
-        const toggle = document.getElementById('statusToggle');
-        const label = document.getElementById('statusLabel');
-        if (active) { toggle.classList.remove('off'); label.innerHTML = '🟢 '+(t('status_active')||'حالة الاستقبال'); }
-        else { toggle.classList.add('off'); label.innerHTML = '🔴 '+(t('status_off')||'متوقف (خصوصية تامة)'); }
-    }
+    function updateToggleUI() { const toggle = document.getElementById('statusToggle'); const label = document.getElementById('statusLabel'); if (active) { toggle.classList.remove('off'); label.innerHTML = '🟢 حالة الاستقبال'; } else { toggle.classList.add('off'); label.innerHTML = '🔴 متوقف'; } }
+    async function toggleStatus() { if (!supabaseClient || !currentVehicle) return; active = !active; updateToggleUI(); await supabaseClient.from('vehicles').update({ is_active: active }).eq('id', currentVehicle.id); const { data: stickers } = await supabaseClient.from('stickers').select('id').eq('vehicle_id', currentVehicle.id); if (stickers) for (const s of stickers) await supabaseClient.from('stickers').update({ status: active ? 'active' : 'inactive' }).eq('id', s.id); await loadMessages(); }
+    async function toggleShowPhone() { if (!supabaseClient || !currentUser) return; const newValue = document.getElementById('showPhoneToggle').checked; if (newValue && !confirm('⚠️ سيظهر رقمك للعامة. متأكد؟')) { document.getElementById('showPhoneToggle').checked = false; return; } showPhone = newValue; document.getElementById('showPhoneLabel').innerText = showPhone ? 'إظهار' : 'إخفاء'; await supabaseClient.from('profiles').update({ show_phone: showPhone }).eq('id', currentUser.id); }
 
-    async function toggleStatus() {
-        if (!supabaseClient || !currentVehicle) return;
-        active = !active;
-        updateToggleUI();
-        await supabaseClient.from('vehicles').update({ is_active: active }).eq('id', currentVehicle.id);
-        const { data: stickers } = await supabaseClient.from('stickers').select('id').eq('vehicle_id', currentVehicle.id);
-        if (stickers && stickers.length > 0) {
-            const newStatus = active ? 'active' : 'inactive';
-            for (const s of stickers) {
-                await supabaseClient.from('stickers').update({ status: newStatus }).eq('id', s.id);
-            }
-        }
-        await loadMessages();
-    }
-
-    async function toggleShowPhone() {
-        if (!supabaseClient || !currentUser) {
-            alert('يجب تسجيل الدخول أولاً');
-            document.getElementById('showPhoneToggle').checked = !document.getElementById('showPhoneToggle').checked;
-            return;
-        }
-        const newValue = document.getElementById('showPhoneToggle').checked;
-        if (newValue) {
-            if (!confirm(t('show_phone_warning') || '⚠️ تحذير: سيظهر رقمك للعامة. متأكد؟')) {
-                document.getElementById('showPhoneToggle').checked = false;
-                return;
-            }
-        }
-        showPhone = newValue;
-        document.getElementById('showPhoneLabel').innerText = showPhone ? (t('show_label_on')||'إظهار') : (t('show_label_off')||'إخفاء');
-        const { error } = await supabaseClient.from('profiles').update({ show_phone: showPhone }).eq('id', currentUser.id);
-        if (error) {
-            alert('فشل حفظ الإعداد');
-            document.getElementById('showPhoneToggle').checked = !newValue;
-        }
-    }
-
-    function setFilter(filter) {
-        currentFilter = filter;
-        document.getElementById('tabPending').classList.toggle('active', filter==='pending');
-        document.getElementById('tabClosed').classList.toggle('active', filter==='closed');
-        renderMessages();
-    }
+    function setFilter(filter) { currentFilter = filter; document.getElementById('tabPending').classList.toggle('active', filter==='pending'); document.getElementById('tabClosed').classList.toggle('active', filter==='closed'); renderMessages(); }
+    function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text || ''; return d.innerHTML; }
 
     function renderMessages() {
         const search = document.getElementById('searchInput')?.value?.toLowerCase() || '';
@@ -272,45 +142,28 @@
             if (search && !m.visitor_message?.toLowerCase().includes(search) && !m.owner_response?.toLowerCase().includes(search)) return false;
             return true;
         });
-        if (filtered.length===0) {
-            document.getElementById('inboxContainer').innerHTML = '<div class="loading">'+(t('no_messages')||'لا توجد رسائل')+'</div>';
-            return;
-        }
+        if (!filtered.length) { document.getElementById('inboxContainer').innerHTML = '<div class="loading">لا توجد رسائل</div>'; return; }
         let html = '';
         filtered.forEach(log => {
             const date = new Date(log.created_at);
-            const timeStr = date.toLocaleString('ar-SA', {hour:'2-digit',minute:'2-digit',day:'numeric',month:'numeric'});
-            const statusText = log.status==='pending' ? (t('new_badge')||'🆕 جديدة') : (t('replied_badge')||'✅ تم الرد');
-            html += `<div class="inbox-item" onclick="selectMessage('${log.id}')">
-                <div class="msg-preview">"${escapeHtml(log.visitor_message?.substring(0,50)||'')}${(log.visitor_message?.length||0)>50?'...':''}"</div>
-                <div class="msg-time">${timeStr} · ${statusText}</div>
-                <button onclick="event.stopPropagation(); showPhoneToVisitor('${log.id}')" style="background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:12px;margin-top:4px;">📞 إظهار رقمي لهذا الشخص</button>
-            </div>`;
+            const timeStr = date.toLocaleString('ar-SA', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'numeric' });
+            html += `<div class="inbox-item" onclick="selectMessage('${log.id}')"><div class="msg-preview">"${escapeHtml(log.visitor_message?.substring(0,50)||'')}${(log.visitor_message?.length||0)>50?'...':''}"</div><div class="msg-time">${timeStr} · ${log.status==='pending'?'🆕 جديدة':'✅ تم الرد'}</div><button onclick="event.stopPropagation();showPhoneToVisitor('${log.id}')" style="background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:12px;margin-top:4px">📞 إظهار رقمي لهذا الشخص</button></div>`;
         });
         document.getElementById('inboxContainer').innerHTML = html;
     }
 
-    function escapeHtml(text) { const d=document.createElement('div'); d.textContent=text||''; return d.innerHTML; }
-
     async function loadMessages() {
         if (!supabaseClient || !currentVehicle) return;
         const { data: stickers } = await supabaseClient.from('stickers').select('id').eq('vehicle_id', currentVehicle.id);
-        if (!stickers||stickers.length===0) {
-            document.getElementById('inboxContainer').innerHTML = '<div class="loading">'+(t('no_stickers')||'لا توجد استيكرات')+'</div>';
-            return;
-        }
+        if (!stickers?.length) { document.getElementById('inboxContainer').innerHTML = '<div class="loading">لا توجد استيكرات</div>'; return; }
         const stickerIds = stickers.map(s=>s.id);
         const { data: logs, error } = await supabaseClient.from('scan_logs').select('*').in('sticker_id',stickerIds).order('created_at',{ascending:false}).limit(50);
-        if (error) { document.getElementById('inboxContainer').innerHTML = '<div class="loading">'+(t('error_loading')||'خطأ')+'</div>'; return; }
+        if (error) { document.getElementById('inboxContainer').innerHTML = '<div class="loading">خطأ</div>'; return; }
         allMessages = logs || [];
         const currentNew = allMessages.filter(l=>l.status==='pending').length;
         document.getElementById('newCount').innerText = currentNew;
         document.getElementById('totalCount').innerText = allMessages.filter(l=>l.status==='closed').length;
-
-        if (currentNew > lastNewCount) {
-            playNotificationSound();
-            showToast(`📩 لديك ${currentNew - lastNewCount} رسالة جديدة`);
-        }
+        if (currentNew > lastNewCount) { playNotificationSound(); showToast(`📩 لديك ${currentNew - lastNewCount} رسالة جديدة`); }
         lastNewCount = currentNew;
         renderMessages();
     }
@@ -318,50 +171,19 @@
     window.selectMessage = function(messageId) {
         if (!supabaseClient) return;
         supabaseClient.from('scan_logs').select('*').eq('id',messageId).single().then(({data})=>{
-            if (data) {
-                selectedMessageId = data.id;
-                document.getElementById('selectedMessagePreview').innerHTML = `<div class="response-box"><strong>${t('message_label')||'الرسالة:'}</strong> ${data.visitor_message}<br>${data.owner_response?'<strong>'+(t('previous_reply')||'ردك السابق:')+'</strong> '+data.owner_response:''}</div>`;
-                document.getElementById('replyCard').style.display = 'block';
-            }
+            if (data) { selectedMessageId = data.id; document.getElementById('selectedMessagePreview').innerHTML = `<div class="response-box"><strong>الرسالة:</strong> ${data.visitor_message}<br>${data.owner_response ? '<strong>ردك السابق:</strong> '+data.owner_response : ''}</div>`; document.getElementById('replyCard').style.display = 'block'; }
         });
     };
 
-    async function showPhoneToVisitor(messageId) {
-        if (!supabaseClient) return;
-        if (!confirm(t('show_phone_to_visitor_warning')||'⚠️ سيظهر رقمك لهذا الشخص. متأكد؟')) return;
-        await supabaseClient.from('scan_logs').update({ show_phone_to_visitor: true }).eq('id', messageId);
-        alert('✅ '+(t('phone_revealed_success')||'سيظهر رقمك لهذا الزائر.'));
-    }
-
-    async function sendReply() {
-        if (!supabaseClient) return;
-        const reply = document.getElementById('replyText').value.trim();
-        if (!reply||!selectedMessageId) return;
-        const { error } = await supabaseClient.from('scan_logs').update({ owner_response: reply, status: 'closed' }).eq('id', selectedMessageId);
-        if (error) { document.getElementById('replyError').textContent = '❌ '+(t('reply_failed')||'فشل'); return; }
-        showToast('✅ '+(t('reply_sent')||'تم إرسال الرد'));
-        document.getElementById('replyCard').style.display = 'none';
-        document.getElementById('replyText').value = '';
-        loadMessages();
-    }
-
+    async function showPhoneToVisitor(messageId) { if (!supabaseClient) return; if (!confirm('⚠️ سيظهر رقمك لهذا الشخص. متأكد؟')) return; await supabaseClient.from('scan_logs').update({ show_phone_to_visitor: true }).eq('id', messageId); alert('✅ سيظهر رقمك لهذا الزائر.'); }
+    async function sendReply() { if (!supabaseClient) return; const reply = document.getElementById('replyText').value.trim(); if (!reply || !selectedMessageId) return; const { error } = await supabaseClient.from('scan_logs').update({ owner_response: reply, status: 'closed' }).eq('id', selectedMessageId); if (error) { document.getElementById('replyError').textContent = '❌ فشل'; return; } showToast('✅ تم الرد'); document.getElementById('replyCard').style.display = 'none'; document.getElementById('replyText').value = ''; loadMessages(); }
     window.cancelReply = function() { document.getElementById('replyCard').style.display = 'none'; selectedMessageId = null; };
+    async function logout() { if (supabaseClient) await supabaseClient.auth.signOut(); window.location.href = '/index.html'; }
 
-    async function logout() { if(supabaseClient) await supabaseClient.auth.signOut(); window.location.href='/index.html'; }
+    function checkNewMessagesFromLocalStorage() { const m = localStorage.getItem('safescan_new_message'); if (m) { const d = JSON.parse(m); showToast(`📩 رسالة جديدة: "${d.message?.substring(0,30)}..."`); playNotificationSound(); localStorage.removeItem('safescan_new_message'); } }
 
     initDashboard();
-
-    // فحص دوري للرسائل الجديدة من localStorage
-    setInterval(() => {
-        const newMsg = localStorage.getItem('safescan_new_message');
-        if (newMsg) {
-            const data = JSON.parse(newMsg);
-            showToast(`📩 رسالة جديدة: "${data.message?.substring(0, 30)}..."`);
-            playNotificationSound();
-            localStorage.removeItem('safescan_new_message');
-            loadMessages();
-        }
-    }, 5000);
+    setInterval(() => { const newMsg = localStorage.getItem('safescan_new_message'); if (newMsg) { const data = JSON.parse(newMsg); showToast(`📩 رسالة جديدة: "${data.message?.substring(0,30)}..."`); playNotificationSound(); localStorage.removeItem('safescan_new_message'); loadMessages(); } }, 5000);
 </script>
 </body>
-</html> 
+</html>
