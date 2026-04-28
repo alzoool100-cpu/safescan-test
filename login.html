@@ -1,25 +1,75 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>SafeScan</title><link rel="stylesheet" href="base.css"></head>
-<body><div class="card">
-<div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span><span class="nfc-badge">NFC</span></div>
-<h1 data-key="login_title">تسجيل الدخول</h1><div class="subtitle" data-key="login_sub">لأصحاب السيارات المسجلين</div>
-<form id="loginForm">
-<div class="input-group"><label data-key="phone_label">رقم الجوال</label><input type="tel" id="phone" placeholder="05xxxxxxxx" required></div>
-<div class="input-group"><label data-key="password_label">كلمة المرور</label><input type="password" id="password" placeholder="كلمة المرور" required></div>
-<button type="submit" class="btn btn-primary" data-key="login_btn">دخول</button>
-<div id="errorMsg" class="error-text"></div>
-</form>
-<div class="footer-note"><span data-key="no_account">ليس لديك حساب؟</span> <a href="/register.html" style="color:var(--color-primary)">فعّل استيكر جديد</a></div>
-</div>
-<script src="config.js"></script><script src="translations.js"></script>
-<script>
-const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-document.getElementById('loginForm').addEventListener('submit',async e=>{
-e.preventDefault();
-const ph=document.getElementById('phone').value.trim(),pw=document.getElementById('password').value,er=document.getElementById('errorMsg');
-er.textContent='';
-if(!ph||!pw){er.textContent='❌ الرجاء إدخال البيانات';return;}
-const {error}=await supabaseClient.auth.signInWithPassword({email:`${ph}@safescan.local`,password:pw});
-if(error){er.textContent='❌ بيانات خاطئة';return;}
-window.location.href='/dashboard.html';
-});
-</script></body></html>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeScan - تسجيل دخول المالك</title>
+    <link rel="stylesheet" href="base.css">
+</head>
+<body>
+    <div class="card">
+        <div class="logo">
+            <span class="logo-icon">🛡️</span>
+            <span class="logo-text">SafeScan</span>
+            <span class="nfc-badge">NFC</span>
+        </div>
+        <h1 data-key="login_title">تسجيل الدخول</h1>
+        <div class="subtitle" data-key="login_sub">لأصحاب السيارات المسجلين</div>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label data-key="phone_label">📱 رقم الجوال</label>
+                <input type="tel" id="phone" placeholder="05xxxxxxxx" required>
+            </div>
+            <div class="input-group">
+                <label data-key="password_label">🔒 كلمة المرور</label>
+                <input type="password" id="password" placeholder="كلمة المرور" required>
+            </div>
+            <button type="submit" class="btn btn-primary" data-key="login_btn">دخول</button>
+            <div id="errorMsg" class="error-text"></div>
+        </form>
+        <div class="footer-note">
+            <span data-key="no_account">ليس لديك حساب؟</span> <a href="/register.html" style="color: var(--color-primary);">فعّل استيكر جديد</a>
+        </div>
+    </div>
+
+    <!-- المكتبات الأساسية -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="translations.js"></script>
+    <script>
+        // التأكد من تحميل المكتبة
+        if (!window.supabase) {
+            alert('خطأ في تحميل المكتبات. الرجاء المحاولة لاحقاً.');
+        } else {
+            const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const phone = document.getElementById('phone').value.trim();
+                const password = document.getElementById('password').value;
+                const errorEl = document.getElementById('errorMsg');
+                errorEl.textContent = '';
+
+                if (!phone || !password) {
+                    errorEl.textContent = '❌ الرجاء إدخال رقم الجوال وكلمة المرور';
+                    return;
+                }
+
+                const email = `${phone}@safescan.local`;
+                const { error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) {
+                    errorEl.textContent = '❌ رقم الجوال أو كلمة المرور غير صحيحة';
+                    return;
+                }
+
+                window.location.href = '/dashboard.html';
+            });
+        }
+    </script>
+</body>
+</html>
