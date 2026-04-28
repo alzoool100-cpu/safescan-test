@@ -118,8 +118,48 @@
     let currentUser = null, currentVehicle = null, active = true, selectedMessageId = null, showPhone = false;
     let allMessages = [];
     let currentFilter = 'pending';
-    let lastNewCount = 0; // لحفظ آخر عدد رسائل جديدة
+    let lastNewCount = 0;
 
+    // ========== نظام الصوت (معالجة Autoplay Policy) ==========
+    let audioUnlocked = false;
+    let audioCtx = null;
+
+    // فتح قفل الصوت عند أول نقرة من المستخدم
+    document.addEventListener('click', function unlockAudio() {
+        if (audioUnlocked) return;
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            // تشغيل صوت صامت قصير جداً لفتح القفل
+            const buffer = audioCtx.createBuffer(1, 1, 22050);
+            const source = audioCtx.createBufferSource();
+            source.buffer = buffer;
+            source.connect(audioCtx.destination);
+            source.start(0);
+            audioUnlocked = true;
+        } catch(e) {
+            console.warn('لم يتم فتح قفل الصوت:', e);
+        }
+    }, { once: true });
+
+    function playNotificationSound() {
+        if (!audioUnlocked || !audioCtx) {
+            // إذا لم يفتح القفل بعد، لا نفعل شيئاً (لن يعمل الصوت)
+            return;
+        }
+        // استخدام AudioContext لتشغيل الملف
+        fetch('notification.mp3')
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => audioCtx.decodeAudioData(arrayBuffer))
+            .then(audioBuffer => {
+                const source = audioCtx.createBufferSource();
+                source.buffer = audioBuffer;
+                source.connect(audioCtx.destination);
+                source.start(0);
+            })
+            .catch(err => console.warn('فشل تشغيل صوت الإشعار:', err));
+    }
+
+    // ========== الدوال الأخرى ==========
     if (window.supabase) {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     } else {
@@ -136,14 +176,6 @@
         setTimeout(() => t.remove(), 3500);
     }
 
-    function playNotificationSound() {
-        try {
-            const audio = new Audio('notification.mp3');
-            audio.play().catch(() => {});
-        } catch(e) {}
-    }
-
-    // فحص localStorage عند التحميل الأول
     function checkNewMessagesFromLocalStorage() {
         const m = localStorage.getItem('safescan_new_message');
         if (m) {
@@ -275,7 +307,6 @@
         document.getElementById('newCount').innerText = currentNew;
         document.getElementById('totalCount').innerText = allMessages.filter(l=>l.status==='closed').length;
 
-        // تشغيل الصوت إذا زادت الرسائل الجديدة
         if (currentNew > lastNewCount) {
             playNotificationSound();
             showToast(`📩 لديك ${currentNew - lastNewCount} رسالة جديدة`);
@@ -320,7 +351,7 @@
 
     initDashboard();
 
-    // فحص دوري للرسائل الجديدة من localStorage (كل 5 ثوانٍ)
+    // فحص دوري للرسائل الجديدة من localStorage
     setInterval(() => {
         const newMsg = localStorage.getItem('safescan_new_message');
         if (newMsg) {
@@ -328,9 +359,9 @@
             showToast(`📩 رسالة جديدة: "${data.message?.substring(0, 30)}..."`);
             playNotificationSound();
             localStorage.removeItem('safescan_new_message');
-            loadMessages(); // تحديث القائمة
+            loadMessages();
         }
     }, 5000);
 </script>
 </body>
-</html>
+</html> 
