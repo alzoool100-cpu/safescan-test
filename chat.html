@@ -35,7 +35,7 @@
     }
 
     const urlParams = new URLSearchParams(window.location.search);
-    const sessionToken = urlParams.get('session');  // استخدمنا الاسم الكامل وليس اختصار
+    const sessionToken = urlParams.get('session');
     let autoRefreshInterval;
     let isReplied = false;
 
@@ -53,7 +53,8 @@
             .from('scan_logs')
             .select('visitor_message, owner_response, status, show_phone_to_visitor, sticker_id')
             .eq('session_token', sessionToken)
-            .maybeSingle();
+            .maybeSingle()
+            .setHeader('Accept', 'application/json');
 
         if (error || !data) {
             statusDiv.innerHTML = '<div class="error-text">❌ الجلسة غير موجودة أو انتهت</div>';
@@ -74,17 +75,36 @@
             statusDiv.innerHTML = '<div class="status-badge status-pending">⏳ ' + (t('waiting_reply') || 'في انتظار رد المالك') + '</div>';
         }
 
-        // إذا سمح المالك بإظهار رقمه
+        // إذا سمح المالك بإظهار رقمه لهذا الزائر
         if (data.show_phone_to_visitor && data.sticker_id) {
-            const { data: sticker } = await supabaseClient.from('stickers').select('vehicle_id').eq('id', data.sticker_id).single();
-            if (sticker) {
-                const { data: vehicle } = await supabaseClient.from('vehicles').select('user_id').eq('id', sticker.vehicle_id).single();
-                if (vehicle) {
-                    const { data: profile } = await supabaseClient.from('profiles').select('phone').eq('id', vehicle.user_id).single();
-                    if (profile?.phone) {
-                        html += `<div class="message-bubble owner-bubble">📱 ${t('phone_revealed_chat') || 'رقم المالك:'} <a href="tel:${profile.phone}" style="color: var(--color-primary); font-weight: 700;">${profile.phone}</a></div>`;
+            try {
+                const { data: sticker } = await supabaseClient
+                    .from('stickers')
+                    .select('vehicle_id')
+                    .eq('id', data.sticker_id)
+                    .maybeSingle()
+                    .setHeader('Accept', 'application/json');
+                if (sticker) {
+                    const { data: vehicle } = await supabaseClient
+                        .from('vehicles')
+                        .select('user_id')
+                        .eq('id', sticker.vehicle_id)
+                        .maybeSingle()
+                        .setHeader('Accept', 'application/json');
+                    if (vehicle) {
+                        const { data: profile } = await supabaseClient
+                            .from('profiles')
+                            .select('phone')
+                            .eq('id', vehicle.user_id)
+                            .maybeSingle()
+                            .setHeader('Accept', 'application/json');
+                        if (profile?.phone) {
+                            html += `<div class="message-bubble owner-bubble">📱 ${t('phone_revealed_chat') || 'رقم المالك:'} <a href="tel:${profile.phone}" style="color: var(--color-primary); font-weight: 700;">${profile.phone}</a></div>`;
+                        }
                     }
                 }
+            } catch (err) {
+                console.error('خطأ في جلب رقم المالك:', err);
             }
         }
 
