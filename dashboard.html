@@ -6,90 +6,239 @@
     <title>SafeScan - لوحة التحكم</title>
     <link rel="stylesheet" href="base.css">
     <style>
-        .dashboard { max-width: 480px; margin: 0 auto; width: 100%; }
-        .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
-        .car-badge { background: var(--bg-tag); padding: 6px 14px; border-radius: 40px; font-size: 14px; }
-        .stats { display: flex; gap: 12px; margin: 18px 0 8px; }
-        .stat-item { background: var(--bg-tag); padding: 10px 16px; border-radius: 20px; flex: 1; text-align: center; cursor: pointer; transition: background 0.2s; }
-        .stat-item.active { background: var(--color-primary); color: white; }
-        .stat-item.active .stat-number { color: white; }
-        .stat-number { font-size: 28px; font-weight: 700; color: var(--color-primary); }
-        .inbox-item { padding: 16px 0; border-bottom: 1px solid var(--border-color); cursor: pointer; }
+        :root {
+            --nav-height: 70px;
+        }
+        body {
+            padding-bottom: calc(var(--nav-height) + 20px);
+            display: block;
+            min-height: 100vh;
+        }
+        .page {
+            display: none;
+            max-width: 480px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .page.active {
+            display: block;
+        }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: var(--nav-height);
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
+        }
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 12px;
+            transition: color 0.2s;
+            padding: 8px 0;
+        }
+        .nav-item.active {
+            color: var(--color-primary);
+            font-weight: 600;
+        }
+        .nav-item .icon {
+            font-size: 22px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .car-badge {
+            background: var(--bg-tag);
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 14px;
+        }
+        .stats {
+            display: flex;
+            gap: 12px;
+            margin: 18px 0;
+        }
+        .stat-item {
+            background: var(--bg-tag);
+            padding: 14px 16px;
+            border-radius: 20px;
+            flex: 1;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--color-primary);
+        }
+        .inbox-item {
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
         .inbox-item:last-child { border-bottom: none; }
         .msg-preview { font-weight: 500; margin-bottom: 6px; }
         .msg-time { font-size: 12px; color: var(--text-muted); }
-        .settings-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border-color); align-items: center; }
+        .settings-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
         .loading { text-align: center; padding: 20px; color: var(--text-muted); }
-        .response-box { background: var(--bg-tag); padding: 12px; border-radius: 16px; margin: 12px 0; }
-        textarea { width: 100%; padding: 12px; border-radius: 16px; border: 1px solid var(--border-color); margin: 8px 0; background: var(--bg-input); color: var(--text-primary); }
-        .error-text { color: var(--color-danger); font-size: 14px; margin-top: 8px; }
-        .btn-outline { background: transparent; border: 1.5px solid var(--color-primary); color: var(--color-primary); padding: 12px 16px; border-radius: 40px; font-weight: 600; width: 100%; margin-top: 12px; cursor: pointer; }
-        .toggle-switch { width: 58px; height: 32px; background: var(--color-primary); border-radius: 40px; position: relative; cursor: pointer; }
-        .toggle-switch::after { content: ""; width: 26px; height: 26px; background: white; border-radius: 50%; position: absolute; top: 3px; right: 3px; }
-        .toggle-switch.off { background: #94a3b8; }
-        .toggle-switch.off::after { right: 29px; }
-        .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--color-primary); color: white; padding: 16px 24px; border-radius: 40px; font-weight: 600; z-index: 9999; animation: slideDown 0.4s ease, fadeOut 0.4s ease 3s forwards; max-width: 90%; text-align: center; }
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-primary);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 40px;
+            font-weight: 600;
+            z-index: 9999;
+            animation: slideDown 0.4s ease, fadeOut 0.4s ease 3s forwards;
+            max-width: 90%;
+            text-align: center;
+        }
         @keyframes slideDown { from { top: -80px; opacity: 0; } to { top: 20px; opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; top: -80px; } }
-        #searchInput { width: 100%; padding: 10px 16px; border-radius: 30px; border: 1px solid var(--border-color); background: var(--bg-input); color: var(--text-primary); margin-bottom: 12px; font-size: 14px; }
+
+        /* محادثة فردية */
+        #conversationPage {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg-body);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            padding: 16px;
+        }
+        #conversationPage.active {
+            display: flex;
+        }
+        .conv-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .conv-messages {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .conv-reply-area {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
     </style>
 </head>
 <body>
-<div class="dashboard">
+
+<!-- ========== الصفحات ========== -->
+<div id="homePage" class="page active">
     <div class="header">
-        <div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div>
+        <div class="logo">
+            <span class="logo-icon">🛡️</span>
+            <span class="logo-text">SafeScan</span>
+        </div>
         <div class="car-badge" id="vehicleName">🚗 سيارتي</div>
     </div>
-
     <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-            <span id="statusLabel">🟢 حالة الاستقبال</span>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-weight: 600; font-size: 18px;" id="statusLabel">🟢 حالة الاستقبال</span>
             <div class="toggle-switch" id="statusToggle" onclick="toggleStatus()"></div>
         </div>
         <div class="stats">
-            <div class="stat-item active" id="tabPending" onclick="setFilter('pending')"><div class="stat-number" id="newCount">0</div><div>جديدة</div></div>
-            <div class="stat-item" id="tabClosed" onclick="setFilter('closed')"><div class="stat-number" id="totalCount">0</div><div>تم الرد</div></div>
+            <div class="stat-item"><div class="stat-number" id="newCount">0</div><div>جديدة</div></div>
+            <div class="stat-item"><div class="stat-number" id="totalCount">0</div><div>تم الرد</div></div>
         </div>
-        <div id="notificationStatus">📱 جار التحميل...</div>
+        <div id="lastMessage" style="margin-top: 12px; color: var(--text-secondary);">لا توجد رسائل حالياً</div>
     </div>
+</div>
 
+<div id="inboxPage" class="page">
+    <div class="header">
+        <h3>📥 الرسائل</h3>
+        <button onclick="loadMessages()" style="background:none; border:none; color: var(--color-primary); cursor:pointer;">🔄 تحديث</button>
+    </div>
+    <div id="inboxContainer"><div class="loading">جار التحميل...</div></div>
+</div>
+
+<div id="settingsPage" class="page">
+    <div class="header"><h3>⚙️ الإعدادات</h3></div>
     <div class="card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:12px">
-            <h3>📥 آخر الرسائل</h3>
-            <button onclick="loadMessages()" style="background:none;border:none;color:var(--color-primary);cursor:pointer">🔄 تحديث</button>
-        </div>
-        <input type="text" id="searchInput" placeholder="🔍 بحث..." oninput="renderMessages()" />
-        <div id="inboxContainer"><div class="loading">جار التحميل...</div></div>
-    </div>
-
-    <div class="card" id="replyCard" style="display:none">
-        <h4>💬 الرد على الرسالة</h4>
-        <div id="selectedMessagePreview"></div>
-        <textarea id="replyText" placeholder="اكتب ردك..."></textarea>
-        <button class="btn-outline" onclick="sendReply()">إرسال الرد</button>
-        <button style="background:none;border:none;margin-top:8px;color:var(--text-muted)" onclick="cancelReply()">إلغاء</button>
-        <div id="replyError" class="error-text"></div>
-    </div>
-
-    <div class="card">
-        <h3>⚙️ الإعدادات السريعة</h3>
         <div class="settings-row">
             <span>📱 إظهار رقمي للزوار</span>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
                 <input type="checkbox" id="showPhoneToggle" onchange="toggleShowPhone()" />
                 <span id="showPhoneLabel">إخفاء</span>
             </label>
         </div>
-        <div class="settings-row"><span>🔔 إشعارات تيليجرام</span><span>⏳</span></div>
-        <div class="settings-row"><span>📱 رقم الجوال</span><span id="phoneDisplay">---</span></div>
-        <div class="settings-row"><span>🕒 الجدولة</span><span>قريباً</span></div>
-        <button class="btn-outline" style="margin-top:20px" onclick="logout()">تسجيل الخروج</button>
+        <div class="settings-row"><span>🔔 صوت الإشعارات</span><button class="btn-tag" onclick="unlockAudioAndPlay()">تفعيل الصوت</button></div>
+        <div class="settings-row"><span>🕒 الجدولة التلقائية</span><span>قريباً</span></div>
+        <div class="settings-row"><a href="/privacy.html" style="color: var(--text-primary); text-decoration: none;">📄 سياسة الخصوصية</a></div>
+        <div class="settings-row"><a href="/terms.html" style="color: var(--text-primary); text-decoration: none;">📄 شروط الاستخدام</a></div>
     </div>
+</div>
 
-    <div class="footer-note" style="text-align:center">
-        <a href="/privacy.html" style="color:var(--color-primary)">سياسة الخصوصية</a> ·
-        <a href="/terms.html" style="color:var(--color-primary)">شروط الاستخدام</a>
-        <div style="margin-top:10px">© SafeScan 2026</div>
+<div id="accountPage" class="page">
+    <div class="header"><h3>👤 حسابي</h3></div>
+    <div class="card">
+        <div class="settings-row"><span>📱 رقم الجوال</span><span id="phoneDisplay">---</span></div>
+        <div class="settings-row"><span>🚗 المركبة</span><span id="vehicleDisplay">---</span></div>
+        <button class="btn btn-outline" style="margin-top: 20px;" onclick="logout()">تسجيل الخروج</button>
+        <button class="btn btn-outline" style="margin-top: 10px; border-color: var(--color-danger); color: var(--color-danger);" onclick="deleteAccount()">حذف الحساب</button>
+    </div>
+</div>
+
+<!-- شريط التبويب السفلي -->
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="switchPage('home')">
+        <span class="icon">🏠</span>
+        <span>الرئيسية</span>
+    </div>
+    <div class="nav-item" onclick="switchPage('inbox')">
+        <span class="icon">💬</span>
+        <span>الرسائل</span>
+    </div>
+    <div class="nav-item" onclick="switchPage('settings')">
+        <span class="icon">⚙️</span>
+        <span>الإعدادات</span>
+    </div>
+    <div class="nav-item" onclick="switchPage('account')">
+        <span class="icon">👤</span>
+        <span>حسابي</span>
+    </div>
+</div>
+
+<!-- صفحة المحادثة الفردية -->
+<div id="conversationPage">
+    <div class="conv-header">
+        <button onclick="closeConversation()" style="background:none; border:none; font-size: 20px; cursor:pointer;">← رجوع</button>
+        <strong>💬 المحادثة</strong>
+    </div>
+    <div class="conv-messages" id="convMessages"></div>
+    <div class="conv-reply-area">
+        <textarea id="convReplyText" placeholder="اكتب ردك..." style="flex:1;"></textarea>
+        <button class="btn btn-primary" onclick="sendReplyFromConv()" style="width: auto;">إرسال</button>
     </div>
 </div>
 
@@ -97,22 +246,30 @@
 <script src="config.js"></script>
 <script src="translations.js"></script>
 <script>
-    let supabaseClient, currentUser = null, currentVehicle = null, active = true, selectedMessageId = null, showPhone = false;
-    let allMessages = [], currentFilter = 'pending', lastNewCount = 0;
+    const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    if (!supabaseClient) alert('خطأ في تحميل المكتبات.');
+
+    let currentUser = null, currentVehicle = null, active = true, selectedMessageId = null, showPhone = false;
+    let allMessages = [];
     let audioElement = null;
+    let lastNewCount = 0;
 
-    if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    else alert('خطأ في تحميل المكتبات.');
+    // ========== التنقل بين الصفحات ==========
+    function switchPage(page) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(page + 'Page').classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelector(`.nav-item[onclick="switchPage('${page}')"]`).classList.add('active');
+        if (page === 'inbox') loadMessages();
+        if (page === 'home') loadHomeStats();
+    }
 
-    function showToast(msg) { const old = document.querySelector('.toast'); if(old) old.remove(); const t = document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3500); }
-    function playNotificationSound() { if (audioElement) { audioElement.currentTime = 0; audioElement.play().catch(()=>{}); } }
-    function unlockAudioAndPlay() { if (!audioElement) audioElement = new Audio('notification.mp3'); audioElement.play().then(()=>{ document.getElementById('unlockAudioBtn').textContent='🔊'; }).catch(()=>{}); }
-
+    // ========== تهيئة ==========
     async function initDashboard() {
-        if (!supabaseClient) return;
         const { data: { user }, error } = await supabaseClient.auth.getUser();
         if (error || !user) { alert('الرجاء تسجيل الدخول'); window.location.href='/login.html'; return; }
         currentUser = user;
+
         const { data: profile } = await supabaseClient.from('profiles').select('phone, show_phone').eq('id', user.id).maybeSingle().setHeader('Accept','application/json');
         if (profile) {
             document.getElementById('phoneDisplay').innerText = profile.phone || 'غير مسجل';
@@ -120,40 +277,73 @@
             document.getElementById('showPhoneToggle').checked = showPhone;
             document.getElementById('showPhoneLabel').innerText = showPhone ? 'إظهار' : 'إخفاء';
         }
+
         const { data: vehicles } = await supabaseClient.from('vehicles').select('*').eq('user_id', user.id).limit(1);
-        if (vehicles?.length) { currentVehicle = vehicles[0]; document.getElementById('vehicleName').innerText = currentVehicle.custom_name || 'سيارتي'; active = currentVehicle.is_active; updateToggleUI(); }
-        else { const { data: newVehicle } = await supabaseClient.from('vehicles').insert([{ user_id: user.id }]).select().single(); currentVehicle = newVehicle; document.getElementById('vehicleName').innerText = 'سيارتي'; }
+        if (vehicles && vehicles.length > 0) {
+            currentVehicle = vehicles[0];
+            document.getElementById('vehicleName').innerText = currentVehicle.custom_name || 'سيارتي';
+            document.getElementById('vehicleDisplay').innerText = currentVehicle.custom_name + (currentVehicle.plate_number ? ' - ' + currentVehicle.plate_number : '');
+            active = currentVehicle.is_active;
+            updateToggleUI();
+        } else {
+            const { data: newVehicle } = await supabaseClient.from('vehicles').insert([{ user_id: user.id }]).select().single();
+            currentVehicle = newVehicle;
+            document.getElementById('vehicleName').innerText = 'سيارتي';
+        }
         await loadMessages();
+        loadHomeStats();
         checkNewMessagesFromLocalStorage();
     }
 
-    function updateToggleUI() { const toggle = document.getElementById('statusToggle'); const label = document.getElementById('statusLabel'); if (active) { toggle.classList.remove('off'); label.innerHTML = '🟢 حالة الاستقبال'; } else { toggle.classList.add('off'); label.innerHTML = '🔴 متوقف'; } }
-    async function toggleStatus() { if (!supabaseClient || !currentVehicle) return; active = !active; updateToggleUI(); await supabaseClient.from('vehicles').update({ is_active: active }).eq('id', currentVehicle.id); const { data: stickers } = await supabaseClient.from('stickers').select('id').eq('vehicle_id', currentVehicle.id); if (stickers) for (const s of stickers) await supabaseClient.from('stickers').update({ status: active ? 'active' : 'inactive' }).eq('id', s.id); await loadMessages(); }
-    async function toggleShowPhone() { if (!supabaseClient || !currentUser) return; const newValue = document.getElementById('showPhoneToggle').checked; if (newValue && !confirm('⚠️ سيظهر رقمك للعامة. متأكد؟')) { document.getElementById('showPhoneToggle').checked = false; return; } showPhone = newValue; document.getElementById('showPhoneLabel').innerText = showPhone ? 'إظهار' : 'إخفاء'; await supabaseClient.from('profiles').update({ show_phone: showPhone }).eq('id', currentUser.id); }
+    function updateToggleUI() {
+        const toggle = document.getElementById('statusToggle');
+        const label = document.getElementById('statusLabel');
+        if (active) { toggle.classList.remove('off'); label.innerHTML = '🟢 حالة الاستقبال'; }
+        else { toggle.classList.add('off'); label.innerHTML = '🔴 متوقف'; }
+    }
 
-    function setFilter(filter) { currentFilter = filter; document.getElementById('tabPending').classList.toggle('active', filter==='pending'); document.getElementById('tabClosed').classList.toggle('active', filter==='closed'); renderMessages(); }
-    function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text || ''; return d.innerHTML; }
+    // ========== الصوت ==========
+    function unlockAudioAndPlay() {
+        if (!audioElement) audioElement = new Audio('notification.mp3');
+        audioElement.play().then(() => showToast('✅ تم تفعيل صوت الإشعارات')).catch(() => showToast('❌ فشل تفعيل الصوت'));
+    }
+    function playNotificationSound() {
+        if (audioElement) { audioElement.currentTime = 0; audioElement.play().catch(()=>{}); }
+    }
+    function showToast(msg) {
+        const old = document.querySelector('.toast');
+        if (old) old.remove();
+        const t = document.createElement('div');
+        t.className = 'toast';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3500);
+    }
 
-    function renderMessages() {
-        const search = document.getElementById('searchInput')?.value?.toLowerCase() || '';
-        let filtered = allMessages.filter(m => {
-            if (currentFilter==='pending' && m.status!=='pending') return false;
-            if (currentFilter==='closed' && m.status!=='closed') return false;
-            if (search && !m.visitor_message?.toLowerCase().includes(search) && !m.owner_response?.toLowerCase().includes(search)) return false;
-            return true;
-        });
-        if (!filtered.length) { document.getElementById('inboxContainer').innerHTML = '<div class="loading">لا توجد رسائل</div>'; return; }
-        let html = '';
-        filtered.forEach(log => {
-            const date = new Date(log.created_at);
-            const timeStr = date.toLocaleString('ar-SA', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'numeric' });
-            html += `<div class="inbox-item" onclick="selectMessage('${log.id}')"><div class="msg-preview">"${escapeHtml(log.visitor_message?.substring(0,50)||'')}${(log.visitor_message?.length||0)>50?'...':''}"</div><div class="msg-time">${timeStr} · ${log.status==='pending'?'🆕 جديدة':'✅ تم الرد'}</div><button onclick="event.stopPropagation();showPhoneToVisitor('${log.id}')" style="background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:12px;margin-top:4px">📞 إظهار رقمي لهذا الشخص</button></div>`;
-        });
-        document.getElementById('inboxContainer').innerHTML = html;
+    // ========== إجراءات ==========
+    async function toggleStatus() {
+        if (!currentVehicle) return;
+        active = !active;
+        updateToggleUI();
+        await supabaseClient.from('vehicles').update({ is_active: active }).eq('id', currentVehicle.id);
+        const { data: stickers } = await supabaseClient.from('stickers').select('id').eq('vehicle_id', currentVehicle.id);
+        if (stickers) for (const s of stickers) await supabaseClient.from('stickers').update({ status: active ? 'active' : 'inactive' }).eq('id', s.id);
+        loadMessages();
+    }
+
+    async function toggleShowPhone() {
+        const newValue = document.getElementById('showPhoneToggle').checked;
+        if (newValue && !confirm('⚠️ سيظهر رقمك للعامة. متأكد؟')) {
+            document.getElementById('showPhoneToggle').checked = false;
+            return;
+        }
+        showPhone = newValue;
+        document.getElementById('showPhoneLabel').innerText = showPhone ? 'إظهار' : 'إخفاء';
+        await supabaseClient.from('profiles').update({ show_phone: showPhone }).eq('id', currentUser.id);
     }
 
     async function loadMessages() {
-        if (!supabaseClient || !currentVehicle) return;
+        if (!currentVehicle) return;
         const { data: stickers } = await supabaseClient.from('stickers').select('id').eq('vehicle_id', currentVehicle.id);
         if (!stickers?.length) { document.getElementById('inboxContainer').innerHTML = '<div class="loading">لا توجد استيكرات</div>'; return; }
         const stickerIds = stickers.map(s=>s.id);
@@ -165,25 +355,76 @@
         document.getElementById('totalCount').innerText = allMessages.filter(l=>l.status==='closed').length;
         if (currentNew > lastNewCount) { playNotificationSound(); showToast(`📩 لديك ${currentNew - lastNewCount} رسالة جديدة`); }
         lastNewCount = currentNew;
-        renderMessages();
+
+        let html = '';
+        allMessages.forEach(log => {
+            const date = new Date(log.created_at);
+            const timeStr = date.toLocaleString('ar-SA', { hour:'2-digit', minute:'2-digit', day:'numeric', month:'numeric' });
+            html += `<div class="inbox-item" onclick="openConversation('${log.id}')">
+                <div class="msg-preview">"${escapeHtml(log.visitor_message?.substring(0,50) || '')}"</div>
+                <div class="msg-time">${timeStr} · ${log.status==='pending'?'🆕 جديدة':'✅ تم الرد'}</div>
+            </div>`;
+        });
+        document.getElementById('inboxContainer').innerHTML = html || '<div class="loading">لا توجد رسائل</div>';
     }
 
-    window.selectMessage = function(messageId) {
-        if (!supabaseClient) return;
-        supabaseClient.from('scan_logs').select('*').eq('id',messageId).single().then(({data})=>{
-            if (data) { selectedMessageId = data.id; document.getElementById('selectedMessagePreview').innerHTML = `<div class="response-box"><strong>الرسالة:</strong> ${data.visitor_message}<br>${data.owner_response ? '<strong>ردك السابق:</strong> '+data.owner_response : ''}</div>`; document.getElementById('replyCard').style.display = 'block'; }
-        });
-    };
+    function loadHomeStats() {
+        const last = allMessages[0];
+        if (last) {
+            document.getElementById('lastMessage').innerHTML = `📩 آخر رسالة: " ${escapeHtml(last.visitor_message?.substring(0,40) || '')} " · ${last.status==='pending'?'جديدة':'تم الرد'}`;
+        }
+    }
 
-    async function showPhoneToVisitor(messageId) { if (!supabaseClient) return; if (!confirm('⚠️ سيظهر رقمك لهذا الشخص. متأكد؟')) return; await supabaseClient.from('scan_logs').update({ show_phone_to_visitor: true }).eq('id', messageId); alert('✅ سيظهر رقمك لهذا الزائر.'); }
-    async function sendReply() { if (!supabaseClient) return; const reply = document.getElementById('replyText').value.trim(); if (!reply || !selectedMessageId) return; const { error } = await supabaseClient.from('scan_logs').update({ owner_response: reply, status: 'closed' }).eq('id', selectedMessageId); if (error) { document.getElementById('replyError').textContent = '❌ فشل'; return; } showToast('✅ تم الرد'); document.getElementById('replyCard').style.display = 'none'; document.getElementById('replyText').value = ''; loadMessages(); }
-    window.cancelReply = function() { document.getElementById('replyCard').style.display = 'none'; selectedMessageId = null; };
-    async function logout() { if (supabaseClient) await supabaseClient.auth.signOut(); window.location.href = '/index.html'; }
+    function openConversation(messageId) {
+        selectedMessageId = messageId;
+        const msg = allMessages.find(m => m.id == messageId);
+        if (!msg) return;
+        let html = `<div class="message-bubble visitor-bubble">🧑 زائر: ${escapeHtml(msg.visitor_message)}</div>`;
+        if (msg.owner_response) html += `<div class="message-bubble owner-bubble">🚗 أنت: ${escapeHtml(msg.owner_response)}</div>`;
+        document.getElementById('convMessages').innerHTML = html;
+        document.getElementById('conversationPage').classList.add('active');
+    }
 
-    function checkNewMessagesFromLocalStorage() { const m = localStorage.getItem('safescan_new_message'); if (m) { const d = JSON.parse(m); showToast(`📩 رسالة جديدة: "${d.message?.substring(0,30)}..."`); playNotificationSound(); localStorage.removeItem('safescan_new_message'); } }
+    function closeConversation() {
+        document.getElementById('conversationPage').classList.remove('active');
+        selectedMessageId = null;
+    }
+
+    async function sendReplyFromConv() {
+        const reply = document.getElementById('convReplyText').value.trim();
+        if (!reply || !selectedMessageId) return;
+        const { error } = await supabaseClient.from('scan_logs').update({ owner_response: reply, status: 'closed' }).eq('id', selectedMessageId);
+        if (error) { showToast('❌ فشل الإرسال'); return; }
+        showToast('✅ تم الرد');
+        document.getElementById('convReplyText').value = '';
+        closeConversation();
+        loadMessages();
+    }
+
+    function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text || ''; return d.innerHTML; }
+
+    async function logout() { await supabaseClient.auth.signOut(); window.location.href = '/index.html'; }
+    async function deleteAccount() {
+        if (!confirm('⚠️ هل أنت متأكد من حذف حسابك نهائياً؟ لا يمكن التراجع.')) return;
+        // حذف البيانات المرتبطة (يمكن إضافته لاحقاً)
+        alert('سيتم تفعيل هذه الميزة قريباً.');
+    }
+
+    function checkNewMessagesFromLocalStorage() {
+        const m = localStorage.getItem('safescan_new_message');
+        if (m) {
+            const d = JSON.parse(m);
+            showToast(`📩 رسالة جديدة: "${d.message?.substring(0,30)}..."`);
+            playNotificationSound();
+            localStorage.removeItem('safescan_new_message');
+        }
+    }
+
+    setInterval(() => {
+        checkNewMessagesFromLocalStorage();
+    }, 5000);
 
     initDashboard();
-    setInterval(() => { const newMsg = localStorage.getItem('safescan_new_message'); if (newMsg) { const data = JSON.parse(newMsg); showToast(`📩 رسالة جديدة: "${data.message?.substring(0,30)}..."`); playNotificationSound(); localStorage.removeItem('safescan_new_message'); loadMessages(); } }, 5000);
 </script>
 </body>
 </html>
