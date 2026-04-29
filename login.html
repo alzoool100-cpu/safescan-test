@@ -5,14 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeScan - تسجيل الدخول</title>
     <link rel="stylesheet" href="base.css">
-    <link rel="manifest" href="/manifest.json">
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(reg => console.log('Service Worker registered', reg.scope))
-                .catch(err => console.error('Service Worker failed', err));
-        }
-    </script>
+    <style>
+        .input-group { position: relative; margin-bottom: 16px; text-align: right; }
+        .input-group label { display: block; font-weight: 500; margin-bottom: 6px; color: var(--text-secondary); }
+        .input-group input { padding-right: 45px; }
+        .input-group .icon { position: absolute; right: 15px; top: 40px; font-size: 18px; color: var(--text-muted); }
+    </style>
 </head>
 <body>
     <div class="card">
@@ -21,35 +19,33 @@
             <span class="logo-text">SafeScan</span>
             <span class="nfc-badge">NFC</span>
         </div>
-        <h1 data-key="login_title">تسجيل الدخول</h1>
-        <div class="subtitle" data-key="login_sub">لأصحاب السيارات المسجلين</div>
+        <h1>تسجيل الدخول</h1>
+        <div class="subtitle">لأصحاب السيارات المسجلين</div>
 
         <form id="loginForm">
             <div class="input-group">
-                <label data-key="phone_label">📱 رقم الجوال</label>
-                <input type="tel" id="phone" placeholder="05xxxxxxxx" required>
+                <label>رقم الجوال</label>
+                <span class="icon">📱</span>
+                <input type="tel" id="phone" placeholder="05xxxxxxxx">
             </div>
             <div class="input-group">
-                <label data-key="password_label">🔒 كلمة المرور</label>
-                <input type="password" id="password" placeholder="كلمة المرور" required>
+                <label>كلمة المرور</label>
+                <span class="icon">🔒</span>
+                <input type="password" id="password" placeholder="كلمة المرور">
             </div>
-            <button type="submit" class="btn btn-primary" data-key="login_btn">دخول</button>
+            <button type="submit" class="btn btn-primary">دخول</button>
             <div id="errorMsg" class="error-text"></div>
         </form>
         <div class="footer-note">
-            <span data-key="no_account">ليس لديك حساب؟</span> <a href="/register.html" style="color: var(--color-primary);">فعّل استيكر جديد</a><br>
-            <a href="/privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a> · 
-            <a href="/terms.html" style="color: var(--text-muted);">شروط الاستخدام</a>
+            ليس لديك حساب؟ <a href="/register.html" style="color: var(--color-primary);">فعّل استيكر جديد</a>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="config.js"></script>
-    <script src="translations.js"></script>
     <script>
         const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         if (!supabaseClient) alert('خطأ في تحميل المكتبات.');
-
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const phone = document.getElementById('phone').value.trim();
