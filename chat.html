@@ -5,8 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeScan - محادثة مؤقتة</title>
     <link rel="stylesheet" href="base.css">
+    <link rel="manifest" href="/manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(reg => console.log('Service Worker registered', reg.scope))
+                .catch(err => console.error('Service Worker failed', err));
+        }
+    </script>
     <style>
         .container { max-width: 500px; margin: 0 auto; }
+        h2 { text-align: center; margin-bottom: 16px; }
         .btn-secondary { background: var(--bg-tag); color: var(--text-primary); border: none; padding: 12px 24px; border-radius: 30px; font-weight: 600; cursor: pointer; }
     </style>
 </head>
@@ -75,7 +84,6 @@
             statusDiv.innerHTML = '<div class="status-badge status-pending">⏳ ' + (t('waiting_reply') || 'في انتظار رد المالك') + '</div>';
         }
 
-        // إذا سمح المالك بإظهار رقمه لهذا الزائر
         if (data.show_phone_to_visitor && data.sticker_id) {
             try {
                 const { data: sticker } = await supabaseClient
