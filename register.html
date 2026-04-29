@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeScan - تفعيل الاستيكر</title>
     <link rel="stylesheet" href="base.css">
+    <link rel="manifest" href="/manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(reg => console.log('Service Worker registered', reg.scope))
+                .catch(err => console.error('Service Worker failed', err));
+        }
+    </script>
     <style>
         .optional-badge { background: var(--bg-tag); color: var(--text-muted); font-size: 11px; padding: 2px 8px; border-radius: 12px; margin-right: 6px; }
         .privacy-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border-color); }
