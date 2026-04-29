@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeScan - سياسة الخصوصية</title>
     <link rel="stylesheet" href="base.css">
+    <link rel="manifest" href="/manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(reg => console.log('Service Worker registered', reg.scope))
+                .catch(err => console.error('Service Worker failed', err));
+        }
+    </script>
     <style>
         .content { max-width: 600px; margin: 0 auto; text-align: right; line-height: 1.8; }
         h2 { margin-top: 24px; color: var(--color-primary); }
