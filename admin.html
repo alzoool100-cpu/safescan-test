@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeScan - لوحة تحكم المشرف</title>
     <link rel="stylesheet" href="base.css">
+    <link rel="manifest" href="/manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(reg => console.log('Service Worker registered', reg.scope))
+                .catch(err => console.error('Service Worker failed', err));
+        }
+    </script>
     <style>
         .admin-container { max-width: 600px; margin: 0 auto; }
         .tab-buttons { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
@@ -24,49 +32,31 @@
     </style>
 </head>
 <body>
-
-<!-- شاشة القفل -->
-<div id="lockScreen" style="display:flex; align-items:center; justify-content:center; min-height:100vh; padding:16px;">
-    <div class="card" style="text-align:center;">
-        <h2>🔐 دخول المشرف</h2>
-        <div class="input-group" style="margin:20px 0;">
-            <input type="password" id="adminPassword" placeholder="رمز الدخول" />
+<div class="admin-container">
+    <div class="card" style="padding: 20px;">
+        <div class="logo">
+            <span class="logo-icon">🛡️</span>
+            <span class="logo-text">SafeScan</span>
+            <span class="nfc-badge" style="background: var(--color-danger);">ADMIN</span>
         </div>
-        <button class="btn btn-primary" onclick="unlock()">دخول</button>
-        <div id="lockError" class="error-text"></div>
-    </div>
-</div>
+        <h2>لوحة تحكم المشرف</h2>
 
-<!-- المحتوى الإداري (يظهر بعد فتح القفل) -->
-<div id="adminContent" style="display:none;">
-    <div class="admin-container">
-        <div class="card" style="padding: 20px;">
-            <div class="logo">
-                <span class="logo-icon">🛡️</span>
-                <span class="logo-text">SafeScan</span>
-                <span class="nfc-badge" style="background: var(--color-danger);">ADMIN</span>
-            </div>
-            <h2>لوحة تحكم المشرف</h2>
+        <div class="stats">
+            <div class="stat-box"><div class="number" id="totalUsers">-</div><div class="label">مستخدم</div></div>
+            <div class="stat-box"><div class="number" id="totalStickers">-</div><div class="label">استيكر</div></div>
+            <div class="stat-box"><div class="number" id="todayMessages">-</div><div class="label">رسالة اليوم</div></div>
+        </div>
 
-            <div class="stats">
-                <div class="stat-box"><div class="number" id="totalUsers">-</div><div class="label">مستخدم</div></div>
-                <div class="stat-box"><div class="number" id="totalStickers">-</div><div class="label">استيكر</div></div>
-                <div class="stat-box"><div class="number" id="todayMessages">-</div><div class="label">رسالة اليوم</div></div>
-            </div>
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="switchTab('users')">👥 المستخدمون</button>
+            <button class="tab-btn" onclick="switchTab('stickers')">🏷️ الاستيكرات</button>
+            <button class="tab-btn" onclick="switchTab('messages')">📋 الرسائل</button>
+        </div>
 
-            <div class="tab-buttons">
-                <button class="tab-btn active" onclick="switchTab('users')">👥 المستخدمون</button>
-                <button class="tab-btn" onclick="switchTab('stickers')">🏷️ الاستيكرات</button>
-                <button class="tab-btn" onclick="switchTab('messages')">📋 الرسائل</button>
-            </div>
+        <div id="tabContent"><div class="loading">جار التحميل...</div></div>
 
-            <div id="tabContent">
-                <div class="loading">جار التحميل...</div>
-            </div>
-
-            <div class="footer-note" style="margin-top: 24px; text-align: center;">
-                للتعديل أو الحذف، استخدم لوحة تحكم Supabase مباشرة.
-            </div>
+        <div class="footer-note" style="margin-top: 24px; text-align: center;">
+            للتعديل أو الحذف، استخدم لوحة تحكم Supabase مباشرة.
         </div>
     </div>
 </div>
@@ -74,38 +64,20 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
-    const ADMIN_KEY = 'SafeScanAdmin2026'; // يمكنك تغيير هذا الرمز
     const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     if (!supabaseClient) alert('خطأ في تحميل المكتبات.');
-
     let currentTab = 'users';
 
-    // فتح القفل
-    window.unlock = function() {
-        const input = document.getElementById('adminPassword').value;
-        if (input === ADMIN_KEY) {
-            document.getElementById('lockScreen').style.display = 'none';
-            document.getElementById('adminContent').style.display = 'block';
-            loadStats();
-            loadTabContent();
-        } else {
-            document.getElementById('lockError').textContent = '❌ رمز الدخول غير صحيح';
-        }
-    };
-
-    // تحميل الإحصائيات
     async function loadStats() {
         const { count: usersCount } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true });
         const { count: stickersCount } = await supabaseClient.from('stickers').select('*', { count: 'exact', head: true });
         const today = new Date().toISOString().split('T')[0];
         const { count: todayMessages } = await supabaseClient.from('scan_logs').select('*', { count: 'exact', head: true }).gte('created_at', today);
-
         document.getElementById('totalUsers').innerText = usersCount || 0;
         document.getElementById('totalStickers').innerText = stickersCount || 0;
         document.getElementById('todayMessages').innerText = todayMessages || 0;
     }
 
-    // تبديل التبويب
     window.switchTab = function(tab) {
         currentTab = tab;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -113,7 +85,6 @@
         loadTabContent();
     };
 
-    // تحميل محتوى التبويب
     async function loadTabContent() {
         const container = document.getElementById('tabContent');
         container.innerHTML = '<div class="loading">جار التحميل...</div>';
@@ -123,9 +94,7 @@
             if (error) { container.innerHTML = '<div class="error-text">خطأ في التحميل</div>'; return; }
             if (!profiles || profiles.length === 0) { container.innerHTML = '<p>لا يوجد مستخدمون بعد.</p>'; return; }
             let html = `<table class="data-table"><tr><th>رقم الجوال</th><th>إظهار الرقم</th></tr>`;
-            profiles.forEach(p => {
-                html += `<tr><td>${p.phone || 'غير مسجل'}</td><td>${p.show_phone ? '✅' : '❌'}</td></tr>`;
-            });
+            profiles.forEach(p => { html += `<tr><td>${p.phone || 'غير مسجل'}</td><td>${p.show_phone ? '✅' : '❌'}</td></tr>`; });
             html += '</table>';
             container.innerHTML = html;
         } else if (currentTab === 'stickers') {
@@ -154,6 +123,9 @@
             container.innerHTML = html;
         }
     }
+
+    loadStats();
+    loadTabContent();
 </script>
 </body>
 </html>
