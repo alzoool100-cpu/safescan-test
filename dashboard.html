@@ -35,11 +35,12 @@
         .conv-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
         .conv-messages { flex: 1; overflow-y: auto; }
         .conv-reply-area { display: flex; gap: 8px; margin-top: 12px; }
+        .btn-tag.active { background: var(--color-primary); color: white; }
     </style>
 </head>
 <body>
 
-<!-- صفحة الرئيسية (لمحة سريعة) -->
+<!-- صفحة الرئيسية -->
 <div id="homePage" class="page active">
     <div class="header">
         <div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div>
@@ -58,7 +59,7 @@
     </div>
 </div>
 
-<!-- صفحة الرسائل (مع تبويبات) -->
+<!-- صفحة الرسائل -->
 <div id="inboxPage" class="page">
     <div class="header">
         <h3>📥 الرسائل</h3>
@@ -76,7 +77,10 @@
     <div class="header"><h3>⚙️ الإعدادات</h3></div>
     <div class="card">
         <div class="settings-row"><span>📱 إظهار رقمي للزوار</span><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="showPhoneToggle" onchange="toggleShowPhone()"><span id="showPhoneLabel">إخفاء</span></label></div>
-        <div class="settings-row"><span>🔔 صوت الإشعارات</span><button class="btn-tag" onclick="unlockAudioAndPlay()">تفعيل</button></div>
+        <div class="settings-row">
+            <span>🔔 صوت الإشعارات</span>
+            <button class="btn-tag" id="audioToggleBtn" onclick="toggleAudioSetting()">🔇 تفعيل الصوت</button>
+        </div>
         <div class="settings-row"><a href="/privacy.html" style="color:var(--text-primary);text-decoration:none;">📄 سياسة الخصوصية</a></div>
         <div class="settings-row"><a href="/terms.html" style="color:var(--text-primary);text-decoration:none;">📄 شروط الاستخدام</a></div>
     </div>
@@ -136,6 +140,7 @@
         if(vehicles?.length){currentVehicle=vehicles[0];document.getElementById('vehicleName').innerText=currentVehicle.custom_name||'سيارتي';document.getElementById('vehicleDisplay').innerText=currentVehicle.custom_name+(currentVehicle.plate_number?' - '+currentVehicle.plate_number:'');active=currentVehicle.is_active;updateToggleUI();}
         else{const {data:newVehicle}=await supabaseClient.from('vehicles').insert([{user_id:user.id}]).select().single();currentVehicle=newVehicle;document.getElementById('vehicleName').innerText='سيارتي';}
         await loadMessages(); loadHomeStats(); checkNewMessagesFromLocalStorage();
+        restoreAudioSetting(); // استعادة حالة زر الصوت
     }
 
     function updateToggleUI(){const t=document.getElementById('statusToggle'),l=document.getElementById('statusLabel');if(active){t.classList.remove('off');l.innerHTML='🟢 حالة الاستقبال';}else{t.classList.add('off');l.innerHTML='🔴 متوقف';}}
@@ -174,7 +179,31 @@
     function closeConversation(){document.getElementById('conversationPage').classList.remove('active');selectedMessageId=null;}
     async function sendReplyFromConv(){const reply=document.getElementById('convReplyText').value.trim();if(!reply||!selectedMessageId)return;const {error}=await supabaseClient.from('scan_logs').update({owner_response:reply,status:'closed'}).eq('id',selectedMessageId);if(error){showToast('❌ فشل');return;}showToast('✅ تم الرد');document.getElementById('convReplyText').value='';closeConversation();loadMessages();}
 
-    function unlockAudioAndPlay(){if(!audioElement)audioElement=new Audio('notification.mp3');audioElement.play().then(()=>showToast('✅ تم تفعيل الصوت')).catch(()=>showToast('❌ فشل'));}
+    // ========== نظام الصوت المحسّن ==========
+    function toggleAudioSetting() {
+        const btn = document.getElementById('audioToggleBtn');
+        if (!audioElement) audioElement = new Audio('notification.mp3');
+        const isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
+        if (isEnabled) {
+            localStorage.setItem('safescan_audio_enabled', 'false');
+            btn.textContent = '🔇 تفعيل الصوت';
+            btn.classList.remove('active');
+        } else {
+            audioElement.play().then(() => {
+                localStorage.setItem('safescan_audio_enabled', 'true');
+                btn.textContent = '🔊 الصوت مفعل';
+                btn.classList.add('active');
+            }).catch(() => showToast('❌ فشل تفعيل الصوت'));
+        }
+    }
+    function restoreAudioSetting() {
+        const btn = document.getElementById('audioToggleBtn');
+        if (localStorage.getItem('safescan_audio_enabled') === 'true') {
+            btn.textContent = '🔊 الصوت مفعل';
+            btn.classList.add('active');
+            if (!audioElement) audioElement = new Audio('notification.mp3');
+        }
+    }
     function playNotificationSound(){if(audioElement){audioElement.currentTime=0;audioElement.play().catch(()=>{});}}
     function showToast(msg){const old=document.querySelector('.toast');if(old)old.remove();const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3500);}
     function checkNewMessagesFromLocalStorage(){const m=localStorage.getItem('safescan_new_message');if(m){const d=JSON.parse(m);showToast(`📩 رسالة جديدة: "${d.message?.substring(0,30)}..."`);playNotificationSound();localStorage.removeItem('safescan_new_message');}}
