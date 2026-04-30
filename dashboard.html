@@ -48,6 +48,9 @@
 </head>
 <body>
 
+<!-- زر الوضع الليلي -->
+<button id="darkModeToggle" style="position: fixed; top: 15px; left: 15px; z-index: 9999; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; box-shadow: var(--shadow-card);" title="تبديل الوضع الليلي">🌙</button>
+
 <!-- صفحة الرئيسية -->
 <div id="homePage" class="page active">
     <div class="header">
@@ -116,6 +119,10 @@
     <div class="conv-messages" id="convMessages"></div>
     <div class="conv-reply-area"><textarea id="convReplyText" placeholder="اكتب ردك..." style="flex:1;"></textarea><button class="btn btn-primary" onclick="sendReplyFromConv()" style="width:auto;">إرسال</button></div>
 </div>
+
+<!-- Driver.js (الدليل التفاعلي) -->
+<script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.0/dist/driver.js.iife.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.0/dist/driver.css">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
@@ -194,6 +201,40 @@
     async function deleteAccount(){if(!confirm('⚠️ هل أنت متأكد من حذف حسابك نهائياً؟'))return;alert('سيتم تفعيل هذه الميزة قريباً.');}
 
     setInterval(()=>{checkNewMessagesFromLocalStorage();},5000);
+
+    // الوضع الليلي
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const htmlElement = document.documentElement;
+    if (localStorage.getItem('darkMode') === 'true') {
+        htmlElement.classList.add('dark-mode');
+        darkModeToggle.textContent = '☀️';
+    }
+    darkModeToggle.addEventListener('click', () => {
+        htmlElement.classList.toggle('dark-mode');
+        const isDark = htmlElement.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDark);
+        darkModeToggle.textContent = isDark ? '☀️' : '🌙';
+    });
+
+    // دليل تفاعلي (Onboarding)
+    if (!localStorage.getItem('onboarding_done')) {
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const driverObj = driver({
+                    showProgress: true,
+                    steps: [
+                        { element: '#statusLabel', popover: { title: 'حالة الاستقبال', description: 'هنا يمكنك تشغيل أو إيقاف استقبال الرسائل من الزوار' } },
+                        { element: '#newCount', popover: { title: 'الرسائل الجديدة', description: 'عدد الرسائل التي لم تقرأها بعد' } },
+                        { element: '#inboxPage', popover: { title: 'صندوق الرسائل', description: 'هنا تجد كل رسائلك وتستطيع الرد عليها مباشرة' } },
+                        { element: '.bottom-nav', popover: { title: 'شريط التنقل', description: 'استخدم هذا الشريط للتنقل بين الرئيسية، الرسائل، الإعدادات، وحسابك' } }
+                    ]
+                });
+                driverObj.drive();
+                localStorage.setItem('onboarding_done', 'true');
+            }, 800);
+        });
+    }
+
     initDashboard();
 </script>
 </body>
