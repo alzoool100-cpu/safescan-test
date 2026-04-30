@@ -3,10 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-key="privacy_title">سياسة الخصوصية</title>
+    <title>SafeScan - سياسة الخصوصية</title>
     <link rel="stylesheet" href="base.css">
+    <link rel="manifest" href="/manifest.json">
+    <style>
+        .content { max-width: 650px; margin: 0 auto; text-align: right; line-height: 1.9; }
+        h2 { color: var(--color-primary); margin-top: 28px; font-size: 1.3rem; }
+        p, li { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 12px; }
+        ul { padding-right: 20px; }
+    </style>
 </head>
 <body>
+
+<button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
+
 <div class="lang-dropdown">
   <select id="langSelect" onchange="setLanguage(this.value)">
     <option value="ar">العربية</option>
@@ -16,18 +26,86 @@
   </select>
 </div>
 
-<div class="card" style="max-width:600px;text-align:right;line-height:1.8">
+<div class="card content">
+    <div class="logo">
+        <span class="logo-icon">🛡️</span>
+        <span class="logo-text">SafeScan</span>
+    </div>
     <h1 data-key="privacy_title">سياسة الخصوصية</h1>
-    <p data-key="privacy_content">نحن نحمي خصوصيتك...</p>
+    <p style="color: var(--text-muted);">آخر تحديث: 1 مايو 2026</p>
+
+    <h2>1. مقدمة</h2>
+    <p>في SafeScan، نولي خصوصيتك أهمية قصوى. تشرح سياسة الخصوصية هذه كيفية جمعنا واستخدامنا وحمايتنا لمعلوماتك الشخصية عند استخدامك لخدمة SafeScan (الموقع الإلكتروني والاستيكر الذكي).</p>
+
+    <h2>2. المعلومات التي نجمعها</h2>
+    <p>نقوم بجمع الحد الأدنى من المعلومات الضرورية لتقديم الخدمة:</p>
+    <ul>
+        <li><strong>رقم الجوال:</strong> يُستخدم للتحقق من حسابك وإرسال الإشعارات إليك عند تلقي رسالة من شخص يرغب في التواصل معك.</li>
+        <li><strong>بيانات المركبة (اختياري):</strong> مثل اسم المركبة، رقم اللوحة، والموديل، والتي يمكنك إضافتها أثناء التسجيل أو لاحقًا من لوحة التحكم.</li>
+    </ul>
+    <p>لا نقوم بجمع: الاسم الكامل، عنوان البريد الإلكتروني (نستخدم بريدًا تقنيًا داخليًا فقط)، أو أي معلومات ديموغرافية أخرى.</p>
+
+    <h2>3. كيفية استخدام المعلومات</h2>
+    <p>نستخدم رقم جوالك فقط من أجل:</p>
+    <ul>
+        <li>إرسال إشعارات عند وصول رسالة جديدة.</li>
+        <li>إظهاره للزائرين <strong>فقط إذا قمت بتفعيل خيار "إظهار رقمي للزوار"</strong>. أنت تتحكم كليًا في هذا الإعداد.</li>
+        <li>تسهيل التواصل المباشر عبر واتساب أو الاتصال الهاتفي (إذا اخترت ذلك).</li>
+    </ul>
+
+    <h2>4. مشاركة المعلومات</h2>
+    <p>نحن لا نشارك، لا نبيع، ولا نؤجر رقم جوالك أو أي بيانات أخرى مع أطراف ثالثة. معلوماتك تبقى خاصة بك وحدك، ولا تُستخدم لأي غرض غير تشغيل الخدمة.</p>
+
+    <h2>5. حماية البيانات</h2>
+    <p>نستخدم قاعدة بيانات Supabase المُدارة، والتي توفر:</p>
+    <ul>
+        <li>تشفيرًا للبيانات في حالة السكون (AES-256).</li>
+        <li>تشفيرًا أثناء النقل (TLS 1.3).</li>
+        <li>جدران نارية وقواعد أمان صارمة.</li>
+    </ul>
+    <p>جميع الاتصالات بين متصفحك وخوادمنا مشفرة بالكامل.</p>
+
+    <h2>6. ملفات تعريف الارتباط (Cookies)</h2>
+    <p>نستخدم ملفات تعريف ارتباط ضرورية فقط لحفظ جلسة تسجيل الدخول الخاصة بك وتفضيلات اللغة والوضع الليلي. لا نستخدم أي ملفات تعريف ارتباط للتتبع، الإعلانات، أو التحليلات.</p>
+
+    <h2>7. حقوقك</h2>
+    <p>بموجب هذه السياسة، يحق لك:</p>
+    <ul>
+        <li>الوصول إلى بياناتك وتصحيحها من خلال لوحة التحكم.</li>
+        <li>إخفاء رقم جوالك عن الزوار في أي وقت.</li>
+        <li>طلب حذف حسابك وجميع بياناتك المرتبطة به بشكل نهائي.</li>
+    </ul>
+    <p>لحذف حسابك، يرجى التواصل معنا عبر <a href="/support.html" style="color: var(--color-primary);">صفحة الدعم الفني</a>.</p>
+
+    <h2>8. الاحتفاظ بالبيانات</h2>
+    <p>نحتفظ برقم جوالك والرسائل المتبادلة طالما كان حسابك نشطًا. عند حذف حسابك، يتم حذف جميع بياناتك الشخصية بشكل دائم من خوادمنا خلال 30 يومًا.</p>
+
+    <h2>9. تعديلات على سياسة الخصوصية</h2>
+    <p>قد نقوم بتحديث هذه السياسة من وقت لآخر. سيتم إخطارك بالتغييرات الجوهرية عبر رسالة تظهر في لوحة التحكم الخاصة بك، أو عبر واتساب (إذا كان مفعلاً).</p>
+
+    <h2>10. اتصل بنا</h2>
+    <p>لأي استفسارات حول هذه السياسة، يرجى التواصل معنا عبر:</p>
+    <ul>
+        <li>واتساب: <span dir="ltr">+966 54 105 4516</span></li>
+        <li>بريد إلكتروني: <span dir="ltr">privacy@safescan.app</span></li>
+    </ul>
+
+    <div style="margin-top: 32px; text-align: center; border-top: 1px solid var(--border-color); padding-top: 20px;">
+        <a href="/" style="color: var(--color-primary);">العودة إلى الرئيسية</a>
+    </div>
 </div>
 
 <script src="translations.js"></script>
 <script>
-    document.getElementById('langSelect').value = currentLang;
-    applyTranslations();
-    document.getElementById('langSelect').addEventListener('change', function() {
-        setLanguage(this.value);
-    });
+    const dt = document.getElementById('darkModeToggle');
+    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
+    dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
+
+    const langSelect = document.getElementById('langSelect');
+    if (langSelect) {
+        langSelect.value = currentLang || 'ar';
+        langSelect.addEventListener('change', function() { setLanguage(this.value); });
+    }
 </script>
 </body>
 </html>
