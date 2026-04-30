@@ -8,8 +8,10 @@
     <link rel="manifest" href="/manifest.json">
 </head>
 <body>
+<!-- زر الوضع الليلي -->
 <button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
 
+<!-- القائمة المنسدلة للغة -->
 <div class="lang-dropdown">
   <select id="langSelect" onchange="setLanguage(this.value)">
     <option value="ar">العربية</option>
@@ -19,19 +21,26 @@
   </select>
 </div>
 
-<div class="card">
+<div class="card" style="position:relative;z-index:1;">
     <div class="logo"><span class="logo-icon">🚗</span><span class="logo-text">SafeScan</span><span class="nfc-badge">NFC</span></div>
     <h1 data-key="contact_owner">تواصل مع مالك السيارة</h1>
     <div class="subtitle"><span data-key="scan_contact">المسح للتواصل مع مالك السيارة</span></div>
     <div style="background:var(--bg-tag);padding:8px 12px;border-radius:40px;font-size:13px;margin-bottom:20px;display:inline-block" data-key="safe_message">🔔 رسالتك آمنة ولن يظهر رقمك</div>
 
+    <!-- منطقة إظهار رقم المالك -->
     <div id="ownerPhoneArea" style="display:none; background: var(--bg-tag); padding: 12px; border-radius: 20px; margin: 16px 0;">
-        <p data-key="phone_revealed">📱 رقم مالك السيارة:</p>
-        <a id="ownerPhoneLink" href="#" style="font-size:18px;font-weight:700;color:var(--color-primary);text-decoration:none;"></a>
+        <p style="font-weight: 600; margin-bottom: 8px;" data-key="phone_revealed">📱 رقم مالك السيارة:</p>
+        <a id="ownerPhoneLink" href="#" style="font-size: 18px; font-weight: 700; color: var(--color-primary); text-decoration: none;"></a>
+        <div id="whatsappArea" style="display:none; margin-top: 12px;">
+            <a id="whatsappLink" href="#" target="_blank" style="text-decoration: none;">
+                <button class="btn btn-success" style="background: #25D366; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">💬 تواصل عبر واتساب</button>
+            </a>
+        </div>
     </div>
 
     <textarea id="messageInput" data-placeholder="message_placeholder" placeholder="اكتب رسالتك هنا..."></textarea>
 
+    <!-- أزرار سريعة -->
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin:18px 0;justify-content:center;">
         <button class="btn-tag" data-key="quick_block" onclick="setMessage(this.textContent)">🚫 تسد الطريق</button>
         <button class="btn-tag" data-key="quick_lights" onclick="setMessage(this.textContent)">💡 الأضواء</button>
@@ -44,24 +53,37 @@
     <button class="btn btn-primary" onclick="sendMessage()" data-key="send_btn">📨 إرسال الرسالة</button>
     <div id="errorMsg" class="error-text"></div>
 
+    <!-- منطقة المحادثة المؤقتة -->
     <div id="sessionArea" class="session-area" style="display:none;">
         <p style="font-weight:600;margin-bottom:12px" data-key="send_success">✅ تم إرسال رسالتك</p>
         <button class="btn btn-success" onclick="openChat()" data-key="chat_open">💬 فتح المحادثة الآن</button>
-        <div style="background:var(--bg-card);padding:10px;border-radius:30px;margin:10px 0;word-break:break-all;border:1px dashed var(--text-muted);">
+        <div style="background: var(--bg-card); padding: 10px; border-radius: 30px; margin: 10px 0; word-break: break-all; border: 1px dashed var(--text-muted);">
             <span data-key="copy_manual">أو يمكنك نسخ الرابط يدوياً:</span><br>
             <span id="sessionLink" style="font-size:14px;"></span>
         </div>
         <p class="info-text" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
     </div>
 
-    <div style="margin-top:16px;font-size:13px;">
-        <a href="/login.html" data-key="owner_login">🔐 مالك السيارة؟ سجل دخولك</a>
+    <!-- رابط تسجيل الدخول -->
+    <div style="margin-top:16px; font-size:13px;">
+        <a href="/login.html" style="color: var(--text-muted);" data-key="owner_login">🔐 مالك السيارة؟ سجل دخولك</a>
     </div>
-    <div style="margin-top:20px;border-top:1px solid var(--border-color);padding-top:16px;">
-        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px" data-key="get_sticker_desc">هل تريد استيكر لسيارتك؟</p>
+
+    <!-- رابط المتجر -->
+    <div style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:16px;">
+        <p style="font-size:14px; color:var(--text-secondary); margin-bottom:8px;" data-key="get_sticker_desc">هل تريد استيكر لسيارتك؟</p>
         <a href="https://safescan.app/store" target="_blank" style="text-decoration:none;">
             <button class="btn btn-outline" style="width:100%;" data-key="get_sticker">🛒 احصل على استيكر SafeScan</button>
         </a>
+    </div>
+
+    <!-- شريط التذييل: سياسة الخصوصية، شروط الاستخدام، الدعم -->
+    <div style="text-align:center; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--border-color); font-size: 13px; color: var(--text-muted);">
+        <a href="/privacy.html" style="color: var(--text-muted); text-decoration: none;" data-key="privacy_title">سياسة الخصوصية</a>
+        &nbsp;·&nbsp;
+        <a href="/terms.html" style="color: var(--text-muted); text-decoration: none;" data-key="terms_title">شروط الاستخدام</a>
+        &nbsp;·&nbsp;
+        <a href="/support.html" style="color: var(--text-muted); text-decoration: none;" data-key="support_title">الدعم</a>
     </div>
 </div>
 
@@ -71,10 +93,13 @@
 <script>
     let supabaseClient;
     if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    else alert('خطأ في تحميل المكتبات.');
+
     const urlParams = new URLSearchParams(window.location.search);
     const stickerToken = urlParams.get('token');
     let currentSessionToken = '';
 
+    // توجيه إذا كان الاستيكر غير مفعّل
     async function checkStickerAndRedirect() {
         if (!stickerToken || !supabaseClient) return;
         try {
@@ -84,6 +109,7 @@
     }
     checkStickerAndRedirect();
 
+    // إظهار رقم المالك إذا سمح
     async function checkOwnerPhone() {
         if (!stickerToken || !supabaseClient) return;
         const { data: sticker } = await supabaseClient.from('stickers').select('vehicle_id').eq('qr_token', stickerToken).single();
@@ -95,12 +121,17 @@
             document.getElementById('ownerPhoneLink').href = 'tel:' + profile.phone;
             document.getElementById('ownerPhoneLink').innerText = profile.phone;
             document.getElementById('ownerPhoneArea').style.display = 'block';
+            const wa = profile.phone.replace(/[^0-9]/g, '');
+            document.getElementById('whatsappLink').href = 'https://wa.me/' + wa + '?text=السلام%20عليكم%20،%20أريد%20التواصل%20بخصوص%20سيارتك';
+            document.getElementById('whatsappArea').style.display = 'block';
         }
     }
     checkOwnerPhone();
 
+    // تعبئة مربع الرسالة
     function setMessage(text) { document.getElementById('messageInput').value = text; }
 
+    // إرسال الرسالة
     async function sendMessage() {
         if (!supabaseClient) return;
         const msg = document.getElementById('messageInput').value.trim();
@@ -109,6 +140,7 @@
         if (!msg) { errEl.textContent = '❌ ' + t('error_msg'); return; }
         if (!stickerToken) { errEl.textContent = '❌ ' + t('error_token'); return; }
 
+        // منع تعدد الرسائل
         const existing = localStorage.getItem('safescan_last_session');
         if (existing) {
             const { data: open } = await supabaseClient.from('scan_logs').select('id').eq('session_token', existing).eq('status', 'pending').maybeSingle();
@@ -127,7 +159,9 @@
         currentSessionToken = sTok;
         const { error: insertError } = await supabaseClient.from('scan_logs').insert([{sticker_id: sticker.id, visitor_message: msg, session_token: sTok, status: 'pending'}]);
         if (insertError) { errEl.textContent = '❌ فشل'; return; }
+
         localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
+        localStorage.setItem('safescan_last_session', sTok);
         document.getElementById('sessionLink').innerText = 'https://calm-chebakia-9ddff4.netlify.app/chat.html?session=' + sTok;
         document.getElementById('sessionArea').style.display = 'block';
         document.getElementById('messageInput').value = '';
@@ -137,7 +171,7 @@
         if (currentSessionToken) window.open('/chat.html?session=' + currentSessionToken, '_blank');
     }
 
-    // Dark Mode
+    // الوضع الليلي
     const dt = document.getElementById('darkModeToggle');
     if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
     dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
