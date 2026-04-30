@@ -3,20 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeScan - الدعم الفني</title>
+    <title data-key="support_title">الدعم الفني</title>
     <link rel="stylesheet" href="base.css">
 </head>
 <body>
-    <div class="card" style="max-width:450px;text-align:center">
-        <div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div>
-        <h1 data-key="support_title">📞 الدعم الفني</h1>
-        <p data-key="support_intro" style="margin:16px 0;color:var(--text-secondary)">نحن هنا لخدمتك. تواصل معنا عبر أي من القنوات التالية:</p>
-        <div style="display:flex;flex-direction:column;gap:12px">
-            <a href="https://wa.me/966541054516" target="_blank" style="text-decoration:none"><button class="btn btn-success" style="background:#25D366">💬 واتساب</button></a>
-            <a href="mailto:support@safescan.app" style="text-decoration:none"><button class="btn btn-outline">📧 بريد إلكتروني</button></a>
-            <a href="tel:+966541054516" style="text-decoration:none"><button class="btn btn-outline">📞 اتصال هاتفي</button></a>
-        </div>
-        <p style="margin-top:24px;font-size:13px;color:var(--text-muted)">© SafeScan 2026</p>
+<div class="lang-dropdown">
+  <select id="langSelect" onchange="setLanguage(this.value)">
+    <option value="ar">العربية</option>
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+    <option value="ur">اردو</option>
+  </select>
+</div>
+
+<div class="card" style="max-width:450px;text-align:center">
+    <h1 data-key="support_title">📞 الدعم الفني</h1>
+    <p data-key="support_intro" style="margin:16px 0;color:var(--text-secondary)">نحن هنا لخدمتك. تواصل معنا عبر:</p>
+    <div style="display:flex;flex-direction:column;gap:12px">
+        <a href="https://wa.me/966541054516" target="_blank" style="text-decoration:none"><button class="btn btn-success" style="background:#25D366" data-key="support_whatsapp">💬 واتساب</button></a>
+        <a href="mailto:support@safescan.app" style="text-decoration:none"><button class="btn btn-outline" data-key="support_email">📧 بريد إلكتروني</button></a>
+        <a href="tel:+966541054516" style="text-decoration:none"><button class="btn btn-outline" data-key="support_phone">📞 اتصال هاتفي</button></a>
     </div>
+</div>
+
+<script src="translations.js"></script>
+<script>
+    document.getElementById('langSelect').value = currentLang;
+    applyTranslations();
+    document.getElementById('langSelect').addEventListener('change', function() {
+        setLanguage(this.value);
+    });
+</script>
 </body>
 </html>
