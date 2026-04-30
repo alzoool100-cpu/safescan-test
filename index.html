@@ -6,6 +6,9 @@
     <title>SafeScan - تواصل مع مالك السيارة</title>
     <link rel="stylesheet" href="base.css">
     <link rel="manifest" href="/manifest.json">
+    <script>
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/service-worker.js').catch(()=>{}); }
+    </script>
     <style>
         .quick-msgs { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; justify-content: center; }
     </style>
@@ -91,18 +94,27 @@
             if (!sticker) return;
             const { data: vehicle } = await supabaseClient.from('vehicles').select('user_id').eq('id', sticker.vehicle_id).single();
             if (!vehicle) return;
-            const { data: profile } = await supabaseClient.from('profiles').select('phone, show_phone').eq('id', vehicle.user_id).maybeSingle();
+            const { data: profile } = await supabaseClient.from('profiles').select('phone, show_phone, contact_method').eq('id', vehicle.user_id).maybeSingle();
             if (!profile || !profile.show_phone || !profile.phone) return;
 
+            const method = profile.contact_method || 'all';
             const phone = profile.phone;
-            document.getElementById('ownerContactArea').style.display = 'block';
-            document.getElementById('ownerPhoneLink').href = 'tel:' + phone;
-            document.getElementById('ownerPhoneLink').innerText = phone;
-            document.getElementById('ownerPhoneSection').style.display = 'block';
 
-            const wa = phone.replace(/[^0-9]/g, '');
-            document.getElementById('whatsappLink').href = 'https://wa.me/' + wa;
-            document.getElementById('whatsappSection').style.display = 'block';
+            document.getElementById('ownerContactArea').style.display = 'block';
+
+            // إظهار رقم الهاتف إذا كانت الطريقة "all" أو "phone"
+            if (method === 'all' || method === 'phone') {
+                document.getElementById('ownerPhoneLink').href = 'tel:' + phone;
+                document.getElementById('ownerPhoneLink').innerText = phone;
+                document.getElementById('ownerPhoneSection').style.display = 'block';
+            }
+
+            // إظهار زر واتساب إذا كانت الطريقة "all" أو "whatsapp"
+            if (method === 'all' || method === 'whatsapp') {
+                const wa = phone.replace(/[^0-9]/g, '');
+                document.getElementById('whatsappLink').href = 'https://wa.me/' + wa + '?text=السلام%20عليكم%20،%20أريد%20التواصل%20بخصوص%20سيارتك';
+                document.getElementById('whatsappSection').style.display = 'block';
+            }
         } catch(e) {}
     }
     checkOwnerPhone();
@@ -135,12 +147,10 @@
         if (currentSessionToken) window.open('/chat.html?session=' + currentSessionToken, '_blank');
     }
 
-    // الوضع الليلي
     const dt = document.getElementById('darkModeToggle');
     if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
     dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
 
-    // اللغة
     const langSelect = document.getElementById('langSelect');
     if (langSelect) {
         langSelect.value = currentLang || 'ar';
