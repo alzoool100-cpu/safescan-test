@@ -9,8 +9,8 @@
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/service-worker.js')
-                .then(reg => console.log('Service Worker registered', reg.scope))
-                .catch(err => console.error('Service Worker failed', err));
+                .then(reg => console.log('SW registered'))
+                .catch(err => console.error('SW failed', err));
         }
     </script>
     <style>
@@ -18,7 +18,9 @@
     </style>
 </head>
 <body>
-    <div class="card">
+    <button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
+
+    <div class="card" style="position:relative;z-index:1;">
         <div class="logo">
             <span class="logo-icon">🚗</span>
             <span class="logo-text">SafeScan</span>
@@ -46,27 +48,36 @@
         <textarea id="messageInput" data-placeholder="message_placeholder" placeholder="اكتب رسالتك هنا..."></textarea>
 
         <div class="quick-msgs">
-            <button class="btn-tag" onclick="setMessage('أنت تسد الممر')" data-key="quick_block">🚫 تسد الطريق</button>
-            <button class="btn-tag" onclick="setMessage('الأضواء مشتعلة')" data-key="quick_lights">💡 الأضواء</button>
-            <button class="btn-tag" onclick="setMessage('حادث بسيط')" data-key="quick_accident">⚠️ حادث</button>
+            <button class="btn-tag" onclick="setMessage('أنت تسد الممر')">🚫 تسد الطريق</button>
+            <button class="btn-tag" onclick="setMessage('الأضواء مشتعلة')">💡 الأضواء</button>
+            <button class="btn-tag" onclick="setMessage('حادث بسيط')">⚠️ حادث</button>
         </div>
 
         <button class="btn btn-primary" onclick="sendMessage()" data-key="send_btn">📨 إرسال الرسالة</button>
         <div id="errorMsg" class="error-text"></div>
 
         <div id="sessionArea" class="session-area" style="display:none;">
-            <p style="font-weight:600;margin-bottom:12px" data-key="send_success">✅ تم إرسال رسالتك</p>
-            <button class="btn btn-success" onclick="openChat()" data-key="chat_open">💬 فتح المحادثة الآن</button>
+            <p style="font-weight:600;margin-bottom:12px">✅ تم إرسال رسالتك</p>
+            <button class="btn btn-success" onclick="openChat()">💬 فتح المحادثة الآن</button>
             <div style="background: var(--bg-card); padding: 10px; border-radius: 30px; margin: 10px 0; word-break: break-all; border: 1px dashed var(--text-muted);">
-                <span data-key="copy_manual">أو يمكنك نسخ الرابط يدوياً:</span><br>
+                <span>أو يمكنك نسخ الرابط يدوياً:</span><br>
                 <span id="sessionLink" style="font-size:14px;"></span>
             </div>
-            <p class="info-text" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
+            <p class="info-text">⏱️ الرابط صالح لمدة ساعة واحدة</p>
         </div>
 
         <div style="margin-top:16px; font-size:13px;">
-            <a href="/login.html" style="color: var(--text-muted);" data-key="owner_login">🔐 مالك السيارة؟ سجل دخولك</a>
+            <a href="/login.html" style="color: var(--text-muted);">🔐 مالك السيارة؟ سجل دخولك</a>
         </div>
+
+        <!-- رابط المتجر -->
+        <div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 16px;">
+            <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">هل تريد استيكر لسيارتك؟</p>
+            <a href="https://safescan.app/store" target="_blank" style="text-decoration: none;">
+                <button class="btn btn-outline" style="width:100%;">🛒 احصل على استيكر SafeScan</button>
+            </a>
+        </div>
+
         <div style="text-align:center; margin-top: 20px; font-size: 12px; color: var(--text-muted);">
             <a href="/privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a> · 
             <a href="/terms.html" style="color: var(--text-muted);">شروط الاستخدام</a>
@@ -91,15 +102,10 @@
         async function checkStickerAndRedirect() {
             if (!stickerToken || !supabaseClient) return;
             try {
-                const { data: sticker, error } = await supabaseClient
-                    .from('stickers')
-                    .select('status')
-                    .eq('qr_token', stickerToken)
-                    .single();
-                if (!error && sticker && sticker.status === 'factory_new') {
-                    window.location.href = '/register.html?token=' + stickerToken;
-                }
-            } catch (err) { console.error('خطأ في التوجيه:', err); }
+                const { data: sticker } = await supabaseClient.from('stickers').select('status').eq('qr_token', stickerToken).single();
+                if (!sticker) return;
+                if (sticker.status === 'factory_new') window.location.href = '/register.html?token=' + stickerToken;
+            } catch (err) { console.error(err); }
         }
         checkStickerAndRedirect();
 
@@ -114,8 +120,8 @@
                 document.getElementById('ownerPhoneLink').href = `tel:${profile.phone}`;
                 document.getElementById('ownerPhoneLink').innerText = profile.phone;
                 document.getElementById('ownerPhoneArea').style.display = 'block';
-                const whatsappNumber = profile.phone.replace(/[^0-9]/g, '');
-                document.getElementById('whatsappLink').href = `https://wa.me/${whatsappNumber}?text=السلام%20عليكم%20،%20أريد%20التواصل%20بخصوص%20سيارتك`;
+                const wa = profile.phone.replace(/[^0-9]/g, '');
+                document.getElementById('whatsappLink').href = `https://wa.me/${wa}?text=السلام%20عليكم%20،%20أريد%20التواصل%20بخصوص%20سيارتك`;
                 document.getElementById('whatsappArea').style.display = 'block';
             }
         }
@@ -131,12 +137,22 @@
             if (!msg) { errorEl.textContent = '❌ ' + (t('error_msg') || 'الرجاء كتابة رسالة'); return; }
             if (!stickerToken) { errorEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف على الاستيكر'); return; }
 
+            // ==== منع تعدد الرسائل من نفس الزائر ====
+            const existing = localStorage.getItem('safescan_last_session');
+            if (existing) {
+                const { data: openSession } = await supabaseClient.from('scan_logs').select('id').eq('session_token', existing).eq('status', 'pending').maybeSingle();
+                if (openSession) {
+                    errorEl.textContent = '❌ لديك محادثة مفتوحة بالفعل. انتظر رد المالك أولاً.';
+                    return;
+                }
+            }
+
             const { data: sticker, error: stickerError } = await supabaseClient.from('stickers').select('id, status, vehicle_id').eq('qr_token', stickerToken).single();
-            if (stickerError || !sticker) { errorEl.textContent = '❌ ' + (t('sticker_invalid') || 'استيكر غير صالح'); return; }
-            if (sticker.status !== 'active') { errorEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
+            if (stickerError || !sticker) { errorEl.textContent = '❌ استيكر غير صالح'; return; }
+            if (sticker.status !== 'active') { errorEl.textContent = '❌ المالك غير متاح'; return; }
             if (sticker.vehicle_id) {
                 const { data: vehicle } = await supabaseClient.from('vehicles').select('is_active').eq('id', sticker.vehicle_id).maybeSingle().setHeader('Accept', 'application/json');
-                if (vehicle && !vehicle.is_active) { errorEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
+                if (vehicle && !vehicle.is_active) { errorEl.textContent = '❌ المالك غير متاح'; return; }
             }
 
             const sessionToken = Math.random().toString(36).substring(2,10) + Date.now().toString(36);
@@ -145,6 +161,8 @@
             if (insertError) { errorEl.textContent = '❌ فشل إرسال الرسالة'; return; }
 
             localStorage.setItem('safescan_new_message', JSON.stringify({ message: msg, time: Date.now() }));
+            localStorage.setItem('safescan_last_session', sessionToken);
+
             document.getElementById('sessionLink').innerText = `https://calm-chebakia-9ddff4.netlify.app/chat.html?session=${sessionToken}`;
             document.getElementById('sessionArea').style.display = 'block';
             document.getElementById('messageInput').value = '';
@@ -154,6 +172,16 @@
             if (currentSessionToken) window.open(`/chat.html?session=${currentSessionToken}`, '_blank');
             else alert('الرجاء إرسال رسالة أولاً');
         }
+
+        // الوضع الليلي
+        const darkToggle = document.getElementById('darkModeToggle');
+        if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); darkToggle.textContent = '☀️'; }
+        darkToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark-mode');
+            const isDark = document.documentElement.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', isDark);
+            darkToggle.textContent = isDark ? '☀️' : '🌙';
+        });
     </script>
 </body>
 </html>
