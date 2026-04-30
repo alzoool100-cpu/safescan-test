@@ -102,3 +102,47 @@ input:focus, textarea:focus {
   background: var(--text-primary); color: var(--bg-card);
   font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 30px;
 }
+
+/* ========== خلفية شفافة مزخرفة ========== */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.03;
+    background-image: 
+        radial-gradient(circle at 20% 80%, var(--color-primary) 1px, transparent 1px),
+        radial-gradient(circle at 80% 20%, var(--color-primary) 1px, transparent 1px),
+        radial-gradient(circle at 50% 50%, var(--color-primary) 2px, transparent 2px);
+    background-size: 60px 60px, 80px 80px, 100px 100px;
+    background-position: 0 0, 30px 30px, 60px 60px;
+    transition: opacity 0.3s;
+}
+
+.dark-mode body::before {
+    opacity: 0.06;
+    background-image: 
+        radial-gradient(circle at 20% 80%, var(--color-primary) 1px, transparent 1px),
+        radial-gradient(circle at 80% 20%, var(--color-primary) 1px, transparent 1px),
+        radial-gradient(circle at 50% 50%, var(--color-primary) 2px, transparent 2px);
+}
+
+/* ========== الوضع الليلي (Dark Mode) ========== */
+.dark-mode {
+  --bg-body: #121212;
+  --bg-card: #1e1e1e;
+  --bg-input: #2c2c2c;
+  --bg-tag: #2c2c2c;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-muted: #808080;
+  --border-color: #333333;
+  --border-input: #444444;
+  --shadow-card: 0 4px 15px rgba(0, 0, 0, 0.4);
+  --color-primary: #4a90e2;
+  --color-primary-hover: #357abd;
+}
