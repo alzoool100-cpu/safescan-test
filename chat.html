@@ -115,7 +115,16 @@
                 console.error('خطأ في جلب رقم المالك:', err);
             }
         }
-
+// إظهار بيانات المركبة إذا سمح المالك
+if (data.sticker_id) {
+    const { data: sticker } = await supabaseClient.from('stickers').select('vehicle_id').eq('id', data.sticker_id).maybeSingle();
+    if (sticker) {
+        const { data: vehicle } = await supabaseClient.from('vehicles').select('custom_name, plate_number, model, show_details').eq('id', sticker.vehicle_id).maybeSingle();
+        if (vehicle && vehicle.show_details) {
+            html += `<div class="message-bubble owner-bubble">🚗 المركبة: ${vehicle.custom_name || ''} ${vehicle.model || ''}<br>لوحة: ${vehicle.plate_number || ''}</div>`;
+        }
+    }
+}
         messagesDiv.innerHTML = html;
     }
 
