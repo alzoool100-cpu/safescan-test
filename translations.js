@@ -106,7 +106,17 @@ const translations = {
     phone_revealed_chat: "📱 رقم المالك:",
     phone_revealed_success: "سيظهر رقمك لهذا الزائر عند زيارته لرابط المحادثة.",
     show_label_on: "إظهار",
-    show_label_off: "إخفاء"
+    show_label_off: "إخفاء",
+
+    // --- المرحلة الثامنة: خصوصية متقدمة ومتجر ---
+    show_number_only: "رقم فقط",
+    show_whatsapp_only: "واتساب فقط",
+    show_sms_only: "رسائل نصية",
+    show_all_contact: "إظهار الكل",
+    contact_options: "خيارات التواصل",
+    get_sticker: "🛒 احصل على استيكر SafeScan",
+    store_url: "https://safescan.app/store",
+    already_open_session: "لديك محادثة مفتوحة. انتظر الرد أولاً."
   },
 
   en: {
@@ -212,7 +222,17 @@ const translations = {
     phone_revealed_chat: "📱 Owner's Phone:",
     phone_revealed_success: "Your number will be shown to this visitor when they open the chat link.",
     show_label_on: "Show",
-    show_label_off: "Hide"
+    show_label_off: "Hide",
+
+    // --- Phase 8: Advanced Privacy & Store ---
+    show_number_only: "Phone Only",
+    show_whatsapp_only: "WhatsApp Only",
+    show_sms_only: "SMS Only",
+    show_all_contact: "Show All",
+    contact_options: "Contact Options",
+    get_sticker: "🛒 Get SafeScan Sticker",
+    store_url: "https://safescan.app/store",
+    already_open_session: "You have an active conversation. Wait for reply."
   }
 };
 
