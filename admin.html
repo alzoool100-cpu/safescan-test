@@ -8,32 +8,30 @@
     <link rel="manifest" href="/manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(reg => console.log('Service Worker registered', reg.scope))
-                .catch(err => console.error('Service Worker failed', err));
+            navigator.serviceWorker.register('/service-worker.js');
         }
     </script>
     <style>
-        .admin-container { max-width: 600px; margin: 0 auto; }
-        .tab-buttons { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab-btn { background: var(--bg-tag); border: 1px solid var(--border-color); padding: 10px 18px; border-radius: 40px; cursor: pointer; font-weight: 500; }
-        .tab-btn.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
-        .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
-        .data-table th, .data-table td { padding: 12px; border-bottom: 1px solid var(--border-color); text-align: right; }
-        .data-table th { color: var(--text-secondary); font-weight: 600; }
+        .admin-container { max-width: 700px; margin: 0 auto; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab { background: var(--bg-tag); border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 40px; cursor: pointer; font-weight: 500; }
+        .tab.active { background: var(--color-primary); color: white; }
+        .stat-box { background: var(--bg-card); border-radius: 16px; padding: 16px; text-align: center; border: 1px solid var(--border-color); }
+        .stat-box .number { font-size: 28px; font-weight: 700; color: var(--color-primary); }
+        .stat-box .label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 12px; border-bottom: 1px solid var(--border-color); text-align: right; }
+        th { color: var(--text-secondary); font-weight: 600; }
         .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; }
         .badge-active { background: #dcfce7; color: #166534; }
         .badge-new { background: #fef9c3; color: #854d0e; }
         .badge-closed { background: #f1f5f9; color: #475569; }
-        .stats { display: flex; gap: 12px; margin-bottom: 24px; }
-        .stat-box { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; flex: 1; text-align: center; }
-        .stat-box .number { font-size: 32px; font-weight: 700; color: var(--color-primary); }
-        .stat-box .label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
     </style>
 </head>
 <body>
 <div class="admin-container">
-    <div class="card" style="padding: 20px;">
+    <div class="card" style="padding: 20px; max-width: 700px;">
         <div class="logo">
             <span class="logo-icon">🛡️</span>
             <span class="logo-text">SafeScan</span>
@@ -41,23 +39,25 @@
         </div>
         <h2>لوحة تحكم المشرف</h2>
 
-        <div class="stats">
+        <!-- إحصائيات موسعة -->
+        <div class="stats-grid" id="statsContainer">
+            <div class="stat-box"><div class="number" id="totalScans">-</div><div class="label">مسح اليوم</div></div>
+            <div class="stat-box"><div class="number" id="weekScans">-</div><div class="label">مسح الأسبوع</div></div>
+            <div class="stat-box"><div class="number" id="monthScans">-</div><div class="label">مسح الشهر</div></div>
+            <div class="stat-box"><div class="number" id="yearScans">-</div><div class="label">مسح السنة</div></div>
             <div class="stat-box"><div class="number" id="totalUsers">-</div><div class="label">مستخدم</div></div>
             <div class="stat-box"><div class="number" id="totalStickers">-</div><div class="label">استيكر</div></div>
-            <div class="stat-box"><div class="number" id="todayMessages">-</div><div class="label">رسالة اليوم</div></div>
         </div>
 
-        <div class="tab-buttons">
-            <button class="tab-btn active" onclick="switchTab('users')">👥 المستخدمون</button>
-            <button class="tab-btn" onclick="switchTab('stickers')">🏷️ الاستيكرات</button>
-            <button class="tab-btn" onclick="switchTab('messages')">📋 الرسائل</button>
+        <!-- تبويبات -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('users')">👥 المستخدمون</button>
+            <button class="tab" onclick="switchTab('stickers')">🏷️ الاستيكرات</button>
+            <button class="tab" onclick="switchTab('messages')">📋 الرسائل</button>
+            <button class="tab" onclick="switchTab('audit')">📊 سجل الزوار</button>
         </div>
 
         <div id="tabContent"><div class="loading">جار التحميل...</div></div>
-
-        <div class="footer-note" style="margin-top: 24px; text-align: center;">
-            للتعديل أو الحذف، استخدم لوحة تحكم Supabase مباشرة.
-        </div>
     </div>
 </div>
 
@@ -69,18 +69,30 @@
     let currentTab = 'users';
 
     async function loadStats() {
+        const now = new Date();
+        const today = now.toISOString().split('T')[0];
+        const weekAgo = new Date(now.getTime() - 7*86400000).toISOString();
+        const monthAgo = new Date(now.getTime() - 30*86400000).toISOString();
+        const yearAgo = new Date(now.getTime() - 365*86400000).toISOString();
+
+        const { count: todayScans } = await supabaseClient.from('audit_logs').select('*', { count: 'exact', head: true }).gte('scanned_at', today);
+        const { count: weekScans } = await supabaseClient.from('audit_logs').select('*', { count: 'exact', head: true }).gte('scanned_at', weekAgo);
+        const { count: monthScans } = await supabaseClient.from('audit_logs').select('*', { count: 'exact', head: true }).gte('scanned_at', monthAgo);
+        const { count: yearScans } = await supabaseClient.from('audit_logs').select('*', { count: 'exact', head: true }).gte('scanned_at', yearAgo);
         const { count: usersCount } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true });
         const { count: stickersCount } = await supabaseClient.from('stickers').select('*', { count: 'exact', head: true });
-        const today = new Date().toISOString().split('T')[0];
-        const { count: todayMessages } = await supabaseClient.from('scan_logs').select('*', { count: 'exact', head: true }).gte('created_at', today);
+
+        document.getElementById('totalScans').innerText = todayScans || 0;
+        document.getElementById('weekScans').innerText = weekScans || 0;
+        document.getElementById('monthScans').innerText = monthScans || 0;
+        document.getElementById('yearScans').innerText = yearScans || 0;
         document.getElementById('totalUsers').innerText = usersCount || 0;
         document.getElementById('totalStickers').innerText = stickersCount || 0;
-        document.getElementById('todayMessages').innerText = todayMessages || 0;
     }
 
     window.switchTab = function(tab) {
         currentTab = tab;
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
         document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
         loadTabContent();
     };
@@ -93,36 +105,58 @@
             const { data: profiles, error } = await supabaseClient.from('profiles').select('id, phone, show_phone');
             if (error) { container.innerHTML = '<div class="error-text">خطأ في التحميل</div>'; return; }
             if (!profiles || profiles.length === 0) { container.innerHTML = '<p>لا يوجد مستخدمون بعد.</p>'; return; }
-            let html = `<table class="data-table"><tr><th>رقم الجوال</th><th>إظهار الرقم</th></tr>`;
-            profiles.forEach(p => { html += `<tr><td>${p.phone || 'غير مسجل'}</td><td>${p.show_phone ? '✅' : '❌'}</td></tr>`; });
+            let html = `<table><tr><th>#</th><th>رقم الجوال</th><th>إظهار الرقم</th><th>حظر</th></tr>`;
+            profiles.forEach((p, i) => {
+                html += `<tr><td>${i+1}</td><td>${p.phone || 'غير مسجل'}</td><td>${p.show_phone ? '✅' : '❌'}</td><td><button onclick="blockUser('${p.id}')" style="background:none;border:none;color:var(--color-danger);cursor:pointer">🚫 حظر</button></td></tr>`;
+            });
             html += '</table>';
             container.innerHTML = html;
         } else if (currentTab === 'stickers') {
-            const { data: stickers, error } = await supabaseClient.from('stickers').select('id, qr_token, activation_code, status, activated_at');
+            const { data: stickers, error } = await supabaseClient.from('stickers').select('id, qr_token, activation_code, status');
             if (error) { container.innerHTML = '<div class="error-text">خطأ في التحميل</div>'; return; }
             if (!stickers || stickers.length === 0) { container.innerHTML = '<p>لا توجد استيكرات بعد.</p>'; return; }
-            let html = `<table class="data-table"><tr><th>QR Token</th><th>رمز التفعيل</th><th>الحالة</th><th>تاريخ التفعيل</th></tr>`;
-            stickers.forEach(s => {
-                const statusBadge = s.status === 'active' ? '<span class="badge badge-active">مفعل</span>' :
-                                    s.status === 'factory_new' ? '<span class="badge badge-new">جديد</span>' :
-                                    '<span class="badge badge-closed">' + s.status + '</span>';
-                html += `<tr><td>${s.qr_token || '-'}</td><td>${s.activation_code || '-'}</td><td>${statusBadge}</td><td>${s.activated_at ? new Date(s.activated_at).toLocaleDateString('ar-SA') : '-'}</td></tr>`;
+            let html = `<table><tr><th>#</th><th>QR Token</th><th>رمز التفعيل</th><th>الحالة</th></tr>`;
+            stickers.forEach((s, i) => {
+                const badge = s.status === 'active' ? '<span class="badge badge-active">مفعل</span>' : s.status === 'factory_new' ? '<span class="badge badge-new">جديد</span>' : '<span class="badge badge-closed">' + s.status + '</span>';
+                html += `<tr><td>${i+1}</td><td>${s.qr_token || '-'}</td><td>${s.activation_code || '-'}</td><td>${badge}</td></tr>`;
             });
             html += '</table>';
             container.innerHTML = html;
         } else if (currentTab === 'messages') {
-            const { data: logs, error } = await supabaseClient.from('scan_logs').select('visitor_message, owner_response, status, created_at').order('created_at', { ascending: false }).limit(50);
+            const { data: logs, error } = await supabaseClient.from('scan_logs').select('visitor_message, owner_response, status, created_at').order('created_at', { ascending: false }).limit(100);
             if (error) { container.innerHTML = '<div class="error-text">خطأ في التحميل</div>'; return; }
             if (!logs || logs.length === 0) { container.innerHTML = '<p>لا توجد رسائل بعد.</p>'; return; }
-            let html = `<table class="data-table"><tr><th>الزائر</th><th>المالك</th><th>الحالة</th><th>التاريخ</th></tr>`;
-            logs.forEach(l => {
-                const statusBadge = l.status === 'closed' ? '<span class="badge badge-closed">تم الرد</span>' : '<span class="badge badge-new">جديدة</span>';
-                html += `<tr><td>${l.visitor_message?.substring(0, 40) || '-'}</td><td>${l.owner_response?.substring(0, 40) || '-'}</td><td>${statusBadge}</td><td>${new Date(l.created_at).toLocaleString('ar-SA')}</td></tr>`;
+            let html = `<table><tr><th>#</th><th>الزائر</th><th>المالك</th><th>الحالة</th><th>التاريخ</th></tr>`;
+            logs.forEach((l, i) => {
+                const badge = l.status === 'closed' ? '<span class="badge badge-closed">تم الرد</span>' : '<span class="badge badge-new">جديدة</span>';
+                html += `<tr><td>${i+1}</td><td>${l.visitor_message?.substring(0, 40) || '-'}</td><td>${l.owner_response?.substring(0, 40) || '-'}</td><td>${badge}</td><td>${new Date(l.created_at).toLocaleString('ar-SA')}</td></tr>`;
+            });
+            html += '</table>';
+            container.innerHTML = html;
+        } else if (currentTab === 'audit') {
+            const { data: logs, error } = await supabaseClient.from('audit_logs').select('*').order('scanned_at', { ascending: false }).limit(500);
+            if (error) { container.innerHTML = '<div class="error-text">خطأ في التحميل</div>'; return; }
+            if (!logs || logs.length === 0) { container.innerHTML = '<p>لا يوجد سجل بعد.</p>'; return; }
+            let html = `<table><tr><th>#</th><th>IP</th><th>الجهاز</th><th>الموقع</th><th>التاريخ</th></tr>`;
+            logs.forEach((l, i) => {
+                html += `<tr><td>${i+1}</td><td>${l.visitor_ip || '-'}</td><td>${l.user_agent?.substring(0, 30) || '-'}</td><td>${l.geo_info || '-'}</td><td>${new Date(l.scanned_at).toLocaleString('ar-SA')}</td></tr>`;
             });
             html += '</table>';
             container.innerHTML = html;
         }
     }
+
+    window.blockUser = async function(userId) {
+        if (!confirm('هل أنت متأكد من حظر هذا المستخدم؟')) return;
+        const { data: profile } = await supabaseClient.from('profiles').select('blocked_ips').eq('id', userId).single();
+        const ip = prompt('أدخل عنوان IP للحظر (أو اتركه فارغاً لحظر الجميع):');
+        if (!ip) return;
+        let blocked = [];
+        try { blocked = JSON.parse(profile?.blocked_ips || '[]'); } catch(e) {}
+        if (!blocked.includes(ip)) blocked.push(ip);
+        await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blocked) }).eq('id', userId);
+        alert('تم الحظر');
+    };
 
     loadStats();
     loadTabContent();
