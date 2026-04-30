@@ -3,59 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeScan - شروط الاستخدام</title>
+    <title data-key="terms_title">شروط الاستخدام</title>
     <link rel="stylesheet" href="base.css">
-    <link rel="manifest" href="/manifest.json">
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(reg => console.log('Service Worker registered', reg.scope))
-                .catch(err => console.error('Service Worker failed', err));
-        }
-    </script>
-    <style>
-        .content { max-width: 600px; margin: 0 auto; text-align: right; line-height: 1.8; }
-        h2 { margin-top: 24px; color: var(--color-primary); }
-        p { margin: 12px 0; }
-    </style>
 </head>
 <body>
-    <div class="card content">
-        <div class="logo">
-            <span class="logo-icon">🛡️</span>
-            <span class="logo-text">SafeScan</span>
-        </div>
-        <h1>شروط الاستخدام</h1>
-        <p>آخر تحديث: 2026</p>
+<div class="lang-dropdown">
+  <select id="langSelect" onchange="setLanguage(this.value)">
+    <option value="ar">العربية</option>
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+    <option value="ur">اردو</option>
+  </select>
+</div>
 
-        <h2>1. قبول الشروط</h2>
-        <p>باستخدامك لخدمة SafeScan (الاستيكر والموقع الإلكتروني)، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا كنت لا توافق على أي بند، يُرجى عدم استخدام الخدمة.</p>
+<div class="card" style="max-width:600px;text-align:right;line-height:1.8">
+    <h1 data-key="terms_title">شروط الاستخدام</h1>
+    <p data-key="terms_content">باستخدامك للخدمة فإنك توافق على...</p>
+</div>
 
-        <h2>2. وصف الخدمة</h2>
-        <p>SafeScan هي خدمة تتيح لأصحاب المركبات وضع استيكر ذكي على مركباتهم يمكّن الآخرين من التواصل معهم بشكل آمن ومجهول عبر مسح رمز QR أو تقنية NFC.</p>
-
-        <h2>3. مسؤوليات المستخدم</h2>
-        <ul>
-            <li>أنت مسؤول عن الحفاظ على سرية رمز التفعيل وكلمة المرور الخاصة بحسابك.</li>
-            <li>أنت توافق على استخدام الخدمة لأغراض مشروعة فقط، ولا يجوز استخدامها للمضايقة أو إرسال رسائل غير مرغوب فيها.</li>
-            <li>أنت توافق على عدم استخدام الخدمة لأي نشاط غير قانوني.</li>
-        </ul>
-
-        <h2>4. حدود المسؤولية</h2>
-        <p>نحن لا نضمن خلو الخدمة من الأخطاء أو الانقطاعات. لا نتحمل أي مسؤولية عن أي أضرار تنشأ عن استخدامك للخدمة.</p>
-
-        <h2>5. إنهاء الخدمة</h2>
-        <p>نحتفظ بالحق في إنهاء أو تعليق حساب أي مستخدم ينتهك هذه الشروط دون إشعار مسبق.</p>
-
-        <h2>6. تعديل الشروط</h2>
-        <p>يجوز لنا تعديل هذه الشروط في أي وقت. سيتم إخطار المستخدمين المسجلين بأي تغييرات جوهرية عبر البريد الإلكتروني المسجل.</p>
-
-        <h2>7. الاتصال بنا</h2>
-        <p>لأي استفسار حول هذه الشروط، يمكنك التواصل معنا عبر البريد الإلكتروني: support@safescan.app</p>
-
-        <div style="margin-top: 24px; text-align: center;">
-            <a href="/" style="color: var(--color-primary);">العودة للرئيسية</a>
-        </div>
-    </div>
+<script src="translations.js"></script>
+<script>
+    document.getElementById('langSelect').value = currentLang;
+    applyTranslations();
+    document.getElementById('langSelect').addEventListener('change', function() {
+        setLanguage(this.value);
+    });
+</script>
 </body>
 </html>
