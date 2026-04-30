@@ -61,16 +61,10 @@
 <div id="settingsPage" class="page">
     <div class="header"><h3 data-key="settings_tab">⚙️ الإعدادات</h3></div>
     <div class="card">
-        <div class="settings-row">
-            <span data-key="settings_show_phone">📱 إظهار رقمي للزوار</span>
-            <label style="display:flex;align-items:center;gap:8px">
-                <input type="checkbox" id="showPhoneToggle" onchange="toggleShowPhone()">
-                <span id="showPhoneLabel" data-key="show_label_off">إخفاء</span>
-            </label>
-        </div>
-        <div class="settings-row" id="contactOptionsRow" style="display:none;">
+        <div class="settings-row"><span data-key="settings_show_phone">📱 إظهار رقمي للزوار</span><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showPhoneToggle" onchange="toggleShowPhone()"><span id="showPhoneLabel" data-key="show_label_off">إخفاء</span></label></div>
+        <div class="settings-row" id="contactOptionsRow" style="display:none">
             <span data-key="contact_options">خيارات التواصل</span>
-            <select id="contactMethod" onchange="updateContactMethod()" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px;font-size:14px;color:var(--text-primary);">
+            <select id="contactMethod" onchange="updateContactMethod()" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px;font-size:14px;color:var(--text-primary)">
                 <option value="all" data-key="show_all_contact">🌐 إظهار الكل</option>
                 <option value="phone" data-key="phone_only">📞 رقم فقط</option>
                 <option value="whatsapp" data-key="whatsapp_only">💬 واتساب فقط</option>
@@ -79,7 +73,7 @@
         </div>
         <div class="settings-row"><span data-key="audio_toggle_label">🔔 صوت الإشعارات</span><button class="btn-tag" id="audioToggleBtn" onclick="toggleAudioSetting()" data-key="audio_off">🔇 تفعيل الصوت</button></div>
         <div class="settings-row"><span data-key="language_label">🌐 اللغة</span>
-            <select id="langSelect" onchange="setLanguage(this.value)" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px 16px;font-size:14px;color:var(--text-primary);">
+            <select id="langSelect" onchange="setLanguage(this.value)" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px 16px;font-size:14px;color:var(--text-primary)">
                 <option value="ar">العربية</option><option value="en">English</option><option value="hi">हिन्दी</option><option value="ur">اردو</option>
             </select>
         </div>
@@ -95,15 +89,15 @@
     <div class="card">
         <div class="settings-row"><span data-key="phone_registered">📱 رقم الجوال المسجل</span><span id="phoneDisplay">---</span></div>
         <div class="settings-row"><span data-key="vehicle_info">🚗 المركبة</span><span id="vehicleDisplay">---</span></div>
-        <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px;">
+        <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px">
             <h4 data-key="edit_profile">تعديل البيانات</h4>
-            <input type="text" id="editCarName" class="edit-input" placeholder="اسم المركبة" />
-            <input type="text" id="editPlate" class="edit-input" placeholder="رقم اللوحة" />
-            <input type="text" id="editModel" class="edit-input" placeholder="الموديل" />
-            <input type="text" id="editDriver" class="edit-input" placeholder="اسم السائق" />
-            <button class="btn btn-primary" style="margin-top:12px;" onclick="saveProfile()" data-key="save_changes">حفظ التعديلات</button>
+            <input type="text" id="editCarName" class="edit-input" placeholder="اسم المركبة">
+            <input type="text" id="editPlate" class="edit-input" placeholder="رقم اللوحة">
+            <input type="text" id="editModel" class="edit-input" placeholder="الموديل">
+            <input type="text" id="editDriver" class="edit-input" placeholder="اسم السائق">
+            <button class="btn btn-primary" style="margin-top:12px" onclick="saveProfile()" data-key="save_changes">حفظ التعديلات</button>
         </div>
-        <button class="btn btn-outline" style="margin-top:20px;" onclick="logout()" data-key="logout_btn">تسجيل الخروج</button>
+        <button class="btn btn-outline" style="margin-top:20px" onclick="logout()" data-key="logout_btn">تسجيل الخروج</button>
         <button class="btn btn-outline" style="margin-top:10px;border-color:var(--color-danger);color:var(--color-danger)" onclick="deleteAccount()" data-key="delete_account_btn">حذف الحساب</button>
     </div>
 </div>
@@ -145,47 +139,56 @@
         const {data:{user},error}=await supabaseClient.auth.getUser();
         if(error||!user){alert(t('login_required'));window.location.href='/login.html';return;}
         currentUser=user;
-        const {data:profile}=await supabaseClient.from('profiles').select('phone,show_phone').eq('id',user.id).maybeSingle().setHeader('Accept','application/json');
+
+        // استعادة جميع الإعدادات من Supabase
+        const {data:profile}=await supabaseClient.from('profiles').select('phone,show_phone,contact_method').eq('id',user.id).maybeSingle().setHeader('Accept','application/json');
         if(profile){
             document.getElementById('phoneDisplay').innerText=profile.phone||'---';
             showPhone=profile.show_phone||false;
             document.getElementById('showPhoneToggle').checked=showPhone;
             document.getElementById('showPhoneLabel').innerText=showPhone?t('show_label_on'):t('show_label_off');
-            document.getElementById('contactOptionsRow').style.display = showPhone ? 'block' : 'none';
+            // إظهار/إخفاء خيارات التواصل
+            document.getElementById('contactOptionsRow').style.display=showPhone?'block':'none';
+            if(profile.contact_method){
+                document.getElementById('contactMethod').value=profile.contact_method;
+            }
         }
+
+        // جلب بيانات المركبة وعرضها
         const {data:vehicles}=await supabaseClient.from('vehicles').select('*').eq('user_id',user.id).limit(1);
         if(vehicles?.length){
             currentVehicle=vehicles[0];
             active=currentVehicle.is_active;
             document.getElementById('vehicleDisplay').innerText=currentVehicle.custom_name||t('vehicle_default');
+            document.getElementById('vehicleName').innerText='🚗 '+(currentVehicle.custom_name||t('vehicle_default'));
             // تعبئة حقول التعديل
-            document.getElementById('editCarName').value = currentVehicle.custom_name || '';
-            document.getElementById('editPlate').value = currentVehicle.plate_number || '';
-            document.getElementById('editModel').value = currentVehicle.model || '';
-            document.getElementById('editDriver').value = currentVehicle.driver_name || '';
+            document.getElementById('editCarName').value=currentVehicle.custom_name||'';
+            document.getElementById('editPlate').value=currentVehicle.plate_number||'';
+            document.getElementById('editModel').value=currentVehicle.model||'';
+            document.getElementById('editDriver').value=currentVehicle.driver_name||'';
         } else {
             const {data:newVehicle}=await supabaseClient.from('vehicles').insert([{user_id:user.id}]).select().single();
             currentVehicle=newVehicle;
         }
+
         updateToggleUI();
+        
+        // استعادة الوضع الليلي
+        const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+        document.getElementById('darkModeToggle').checked = savedDarkMode;
+        document.getElementById('darkModeLabel').textContent = savedDarkMode ? t('show_label_on') : t('show_label_off');
+        if(savedDarkMode) document.documentElement.classList.add('dark-mode');
+
+        // استعادة إعداد الصوت
+        restoreAudioSetting();
+        
+        // اللغة
+        const langSelect = document.getElementById('langSelect');
+        if(langSelect) langSelect.value = currentLang || 'ar';
+        
         await loadMessages();
         loadHomeStats();
-        checkNewMessagesFromLocalStorage();
-        restoreAudioSetting();
         setupRealtime();
-        // وضع ليلي
-        if(localStorage.getItem('darkMode')==='true'){
-            document.documentElement.classList.add('dark-mode');
-            document.getElementById('darkModeToggle').checked = true;
-            document.getElementById('darkModeLabel').textContent = t('show_label_on');
-        } else {
-            document.getElementById('darkModeLabel').textContent = t('show_label_off');
-        }
-        // لغة
-        if(document.getElementById('langSelect')) {
-            document.getElementById('langSelect').value = currentLang || 'ar';
-            document.getElementById('langSelect').addEventListener('change', function() { setLanguage(this.value); updateToggleUI(); });
-        }
         applyTranslations();
     }
 
@@ -199,7 +202,7 @@
             realtimeChannel = supabaseClient.channel('scan_logs_live')
                 .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'scan_logs', filter: `sticker_id=in.(${ids.join(',')})` }, (payload) => {
                     allMessages.unshift(payload.new);
-                    let pending = allMessages.filter(l => l.status === 'pending').length;
+                    const pending = allMessages.filter(l => l.status === 'pending').length;
                     document.getElementById('newCount').innerText = pending;
                     document.getElementById('inboxNew').innerText = pending;
                     document.getElementById('totalCount').innerText = allMessages.filter(l => l.status === 'closed').length;
@@ -208,13 +211,15 @@
                     renderMessages();
                     loadHomeStats();
                 })
-                .subscribe((status) => { if (status === 'SUBSCRIBED') console.log('✅ Realtime مفعل'); });
+                .subscribe((status) => {
+                    if (status === 'SUBSCRIBED') console.log('✅ Realtime مفعل');
+                });
         }, 2000);
     }
 
     function updateToggleUI(){const t=document.getElementById('statusToggle'),l=document.getElementById('statusLabel');if(active){t.classList.remove('off');l.innerHTML=t('status_active');}else{t.classList.add('off');l.innerHTML=t('status_off');}}
     async function toggleStatus(){if(!currentVehicle)return;active=!active;updateToggleUI();await supabaseClient.from('vehicles').update({is_active:active}).eq('id',currentVehicle.id);const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);if(stickers)for(const s of stickers)await supabaseClient.from('stickers').update({status:active?'active':'inactive'}).eq('id',s.id);loadMessages();}
-    
+
     async function toggleShowPhone(){
         const newValue = document.getElementById('showPhoneToggle').checked;
         if (newValue) {
@@ -226,12 +231,14 @@
         showPhone = newValue;
         document.getElementById('showPhoneLabel').innerText = showPhone ? t('show_label_on') : t('show_label_off');
         document.getElementById('contactOptionsRow').style.display = showPhone ? 'block' : 'none';
+        // حفظ في Supabase
         await supabaseClient.from('profiles').update({ show_phone: showPhone }).eq('id', currentUser.id);
     }
 
     async function updateContactMethod(){
         const method = document.getElementById('contactMethod').value;
         await supabaseClient.from('profiles').update({contact_method: method}).eq('id', currentUser.id);
+        showToast('✅ تم حفظ خيارات التواصل');
     }
 
     async function saveProfile(){
@@ -309,6 +316,7 @@
             }).catch(()=> showToast('❌ فشل'));
         }
     }
+    
     function restoreAudioSetting(){
         const btn=document.getElementById('audioToggleBtn');
         const isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
@@ -321,9 +329,9 @@
             btn.classList.remove('active');
         }
     }
+    
     function playNotificationSound(){if(audioElement){audioElement.currentTime=0;audioElement.play().catch(()=>{});}}
     function showToast(msg){const old=document.querySelector('.toast');if(old)old.remove();const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3500);}
-    function checkNewMessagesFromLocalStorage(){const m=localStorage.getItem('safescan_new_message');if(m){const d=JSON.parse(m);showToast(`📩 رسالة جديدة: "${d.message?.substring(0,30)}..."`);playNotificationSound();localStorage.removeItem('safescan_new_message');}}
 
     async function logout(){await supabaseClient.auth.signOut();window.location.href='/index.html';}
     async function deleteAccount(){if(!confirm('⚠️ هل أنت متأكد من حذف حسابك نهائياً؟'))return;alert('قريباً');}
@@ -335,7 +343,12 @@
         document.getElementById('darkModeLabel').textContent = isDark ? t('show_label_on') : t('show_label_off');
     }
 
-    setInterval(()=>{checkNewMessagesFromLocalStorage();},5000);
+    // مستمع لتغيير اللغة
+    const langSelectEl = document.getElementById('langSelect');
+    if(langSelectEl){
+        langSelectEl.addEventListener('change', function(){ setLanguage(this.value); });
+    }
+
     initDashboard();
 </script>
 </body>
