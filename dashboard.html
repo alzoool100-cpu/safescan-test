@@ -9,8 +9,8 @@
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/service-worker.js')
-                .then(reg => console.log('Service Worker registered', reg.scope))
-                .catch(err => console.error('Service Worker failed', err));
+                .then(reg => console.log('SW registered'))
+                .catch(err => console.error('SW failed', err));
         }
     </script>
     <style>
@@ -42,17 +42,25 @@
         .conv-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
         .conv-messages { flex: 1; overflow-y: auto; }
         .conv-reply-area { display: flex; gap: 8px; margin-top: 12px; }
-        .btn-tag.active { background: var(--color-primary); color: white; }
     </style>
 </head>
 <body>
 
 <button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
 
+<div class="lang-dropdown">
+  <select id="langSelect" onchange="setLanguage(this.value)">
+    <option value="ar">العربية</option>
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+    <option value="ur">اردو</option>
+  </select>
+</div>
+
 <div id="homePage" class="page active">
     <div class="header"><div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div><div class="car-badge" id="vehicleName">🚗 سيارتي</div></div>
     <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between"><span id="statusLabel">🟢 حالة الاستقبال</span><div class="toggle-switch" id="statusToggle" onclick="toggleStatus()"></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-weight:600;font-size:18px" id="statusLabel">🟢 حالة الاستقبال</span><div class="toggle-switch" id="statusToggle" onclick="toggleStatus()"></div></div>
         <div class="stats"><div class="stat-item"><div class="stat-number" id="newCount">0</div><div>جديدة</div></div><div class="stat-item"><div class="stat-number" id="totalCount">0</div><div>تم الرد</div></div></div>
         <div id="lastMessage" style="margin-top:12px;color:var(--text-secondary)">لا توجد رسائل حالياً</div>
     </div>
@@ -105,7 +113,7 @@
     if (!supabaseClient) alert('خطأ في تحميل المكتبات.');
 
     let currentUser=null, currentVehicle=null, active=true, selectedMessageId=null, showPhone=false;
-    let allMessages=[], currentFilter='pending', audioElement=null, lastNewCount=0;
+    let allMessages=[], currentFilter='pending', audioElement=null;
     let realtimeChannel = null;
 
     function switchPage(page) {
@@ -141,15 +149,14 @@
         supabaseClient.from('stickers').select('id').eq('vehicle_id', currentVehicle.id).then(({data:stickers})=>{
             if(!stickers?.length) return;
             const ids = stickers.map(s=>s.id);
-            realtimeChannel = supabaseClient.channel('scan_logs_changes')
+            realtimeChannel = supabaseClient.channel('scan_logs_'+currentVehicle.id)
                 .on('postgres_changes', {event:'INSERT', schema:'public', table:'scan_logs', filter:`sticker_id=in.(${ids.join(',')})`}, (payload)=>{
                     allMessages.unshift(payload.new);
                     const pending = allMessages.filter(l=>l.status==='pending').length;
                     document.getElementById('newCount').innerText = pending;
                     document.getElementById('inboxNew').innerText = pending;
                     document.getElementById('totalCount').innerText = allMessages.filter(l=>l.status==='closed').length;
-                    if (pending > lastNewCount) { playNotificationSound(); showToast(`📩 رسالة جديدة`); }
-                    lastNewCount = pending;
+                    if (pending > 0) { playNotificationSound(); showToast(`📩 رسالة جديدة`); }
                     renderMessages();
                     loadHomeStats();
                 })
@@ -182,7 +189,6 @@
         const pending=allMessages.filter(l=>l.status==='pending').length;
         document.getElementById('newCount').innerText=pending;document.getElementById('totalCount').innerText=allMessages.filter(l=>l.status==='closed').length;
         document.getElementById('inboxNew').innerText=pending;document.getElementById('inboxTotal').innerText=allMessages.filter(l=>l.status==='closed').length;
-        if(pending>lastNewCount){playNotificationSound();showToast(`📩 لديك ${pending-lastNewCount} رسالة جديدة`);}
         lastNewCount=pending;
         renderMessages();
     }
@@ -203,9 +209,24 @@
 
     setInterval(()=>{checkNewMessagesFromLocalStorage();},5000);
 
-    const darkToggle = document.getElementById('darkModeToggle');
-    if (localStorage.getItem('darkMode')==='true') { document.documentElement.classList.add('dark-mode'); darkToggle.textContent='☀️'; }
-    darkToggle.addEventListener('click',()=>{document.documentElement.classList.toggle('dark-mode');const isDark=document.documentElement.classList.contains('dark-mode');localStorage.setItem('darkMode',isDark);darkToggle.textContent=isDark?'☀️':'🌙';});
+    const dt = document.getElementById('darkModeToggle');
+    if (localStorage.getItem('darkMode')==='true') { document.documentElement.classList.add('dark-mode'); dt.textContent='☀️'; }
+    dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode',is); dt.textContent=is?'☀️':'🌙'; };
+
+    const langSelect = document.getElementById('langSelect');
+    if (langSelect) {
+        langSelect.value = currentLang || 'ar';
+        langSelect.addEventListener('change', function() { setLanguage(this.value); });
+    }
+
+    // روابط التذييل
+    document.addEventListener('DOMContentLoaded', () => {
+        const footer = document.createElement('div');
+        footer.style.cssText = 'text-align:center;margin-top:30px;padding-top:16px;border-top:1px solid var(--border-color);font-size:13px;color:var(--text-muted);';
+        footer.innerHTML = '<a href="/privacy.html" style="color:var(--text-muted);text-decoration:none" data-key="privacy_title">سياسة الخصوصية</a>&nbsp;·&nbsp;<a href="/terms.html" style="color:var(--text-muted);text-decoration:none" data-key="terms_title">شروط الاستخدام</a>&nbsp;·&nbsp;<a href="/support.html" style="color:var(--text-muted);text-decoration:none" data-key="support_title">الدعم</a>';
+        document.body.appendChild(footer);
+        applyTranslations();
+    });
 
     initDashboard();
 </script>
