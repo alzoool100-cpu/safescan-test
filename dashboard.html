@@ -131,8 +131,14 @@
         const savedAudio = localStorage.getItem('safescan_audio_enabled') === 'true';
         const btn = document.getElementById('audioToggleBtn');
         if (btn) {
-            if (savedAudio) { if(!audioElement) audioElement=new Audio('notification.mp3'); btn.textContent='🔊 '+safeT('audio_on'); btn.classList.add('active'); }
-            else { btn.textContent='🔇 '+safeT('audio_off'); btn.classList.remove('active'); }
+            if (savedAudio) {
+                if (!audioElement) audioElement = new Audio('notification.mp3');
+                btn.textContent = '🔊 ' + safeT('audio_on');
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '🔇 ' + safeT('audio_off');
+                btn.classList.remove('active');
+            }
         }
         const savedDark = localStorage.getItem('darkMode') === 'true';
         document.getElementById('darkModeToggle').checked = savedDark;
@@ -211,12 +217,30 @@
         document.getElementById('showPhoneLabel').innerText = newValue ? safeT('show_label_on') : safeT('show_label_off');
         document.getElementById('contactOptionsRow').style.display = newValue ? 'block' : 'none';
     }
-    function updateContactMethod(){ localStorage.setItem('safescan_contact_method', document.getElementById('contactMethod').value); showToast('✅ '+safeT('changes_saved')); }
+    function updateContactMethod(){
+        const method = document.getElementById('contactMethod').value;
+        localStorage.setItem('safescan_contact_method', method);
+        // الحفظ في Supabase
+        if (currentUser) supabaseClient.from('profiles').update({contact_method: method}).eq('id', currentUser.id).then(() => showToast('✅ ' + safeT('changes_saved')));
+        else showToast('✅ ' + safeT('changes_saved'));
+    }
     function toggleAudioSetting(){
         const btn = document.getElementById('audioToggleBtn');
-        const isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
-        if(isEnabled){ localStorage.setItem('safescan_audio_enabled','false'); btn.textContent='🔇 '+safeT('audio_off'); btn.classList.remove('active'); }
-        else { if(!audioElement) audioElement=new Audio('notification.mp3'); audioElement.play().then(()=>{ localStorage.setItem('safescan_audio_enabled','true'); btn.textContent='🔊 '+safeT('audio_on'); btn.classList.add('active'); }).catch(()=>showToast('❌ فشل')); }
+        const currentState = localStorage.getItem('safescan_audio_enabled') === 'true';
+        if (currentState) {
+            // تعطيل
+            localStorage.setItem('safescan_audio_enabled', 'false');
+            btn.textContent = '🔇 ' + safeT('audio_off');
+            btn.classList.remove('active');
+        } else {
+            // تفعيل
+            if (!audioElement) audioElement = new Audio('notification.mp3');
+            audioElement.play().then(() => {
+                localStorage.setItem('safescan_audio_enabled', 'true');
+                btn.textContent = '🔊 ' + safeT('audio_on');
+                btn.classList.add('active');
+            }).catch(() => showToast('❌ فشل'));
+        }
     }
     function toggleDarkMode(){ document.documentElement.classList.toggle('dark-mode'); const is=document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode',is); document.getElementById('darkModeLabel').textContent = is ? safeT('show_label_on') : safeT('show_label_off'); }
 
