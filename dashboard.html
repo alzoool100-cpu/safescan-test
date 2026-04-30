@@ -30,7 +30,6 @@
         .stat-item.active .stat-number { color: white; }
         .stat-number { font-size: 28px; font-weight: 700; color: var(--color-primary); }
         .inbox-item { padding: 16px 0; border-bottom: 1px solid var(--border-color); cursor: pointer; }
-        .inbox-item:last-child { border-bottom: none; }
         .msg-preview { font-weight: 500; margin-bottom: 6px; }
         .msg-time { font-size: 12px; color: var(--text-muted); }
         .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border-color); }
@@ -48,64 +47,43 @@
 </head>
 <body>
 
-<!-- زر الوضع الليلي -->
-<button id="darkModeToggle" style="position: fixed; top: 15px; left: 15px; z-index: 9999; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; box-shadow: var(--shadow-card);" title="تبديل الوضع الليلي">🌙</button>
+<button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
 
-<!-- صفحة الرئيسية -->
 <div id="homePage" class="page active">
-    <div class="header">
-        <div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div>
-        <div class="car-badge" id="vehicleName">🚗 سيارتي</div>
-    </div>
+    <div class="header"><div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div><div class="car-badge" id="vehicleName">🚗 سيارتي</div></div>
     <div class="card">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <span style="font-weight: 600; font-size: 18px;" id="statusLabel">🟢 حالة الاستقبال</span>
-            <div class="toggle-switch" id="statusToggle" onclick="toggleStatus()"></div>
-        </div>
-        <div class="stats">
-            <div class="stat-item"><div class="stat-number" id="newCount">0</div><div>جديدة</div></div>
-            <div class="stat-item"><div class="stat-number" id="totalCount">0</div><div>تم الرد</div></div>
-        </div>
-        <div id="lastMessage" style="margin-top: 12px; color: var(--text-secondary);">لا توجد رسائل حالياً</div>
+        <div style="display:flex;align-items:center;justify-content:space-between"><span id="statusLabel">🟢 حالة الاستقبال</span><div class="toggle-switch" id="statusToggle" onclick="toggleStatus()"></div></div>
+        <div class="stats"><div class="stat-item"><div class="stat-number" id="newCount">0</div><div>جديدة</div></div><div class="stat-item"><div class="stat-number" id="totalCount">0</div><div>تم الرد</div></div></div>
+        <div id="lastMessage" style="margin-top:12px;color:var(--text-secondary)">لا توجد رسائل حالياً</div>
     </div>
 </div>
 
-<!-- صفحة الرسائل -->
 <div id="inboxPage" class="page">
-    <div class="header">
-        <h3>📥 الرسائل</h3>
-        <button onclick="loadMessages()" style="background:none; border:none; color: var(--color-primary); cursor:pointer;">🔄 تحديث</button>
-    </div>
-    <div class="stats" style="margin-bottom: 0;">
-        <div class="stat-item active" id="tabPending" onclick="setFilter('pending')"><div class="stat-number" id="inboxNew">0</div><div>جديدة</div></div>
-        <div class="stat-item" id="tabClosed" onclick="setFilter('closed')"><div class="stat-number" id="inboxTotal">0</div><div>تم الرد</div></div>
-    </div>
-    <div id="inboxContainer" style="margin-top: 8px;"><div class="loading">جار التحميل...</div></div>
+    <div class="header"><h3>📥 الرسائل</h3><button onclick="loadMessages()" style="background:none;border:none;color:var(--color-primary);cursor:pointer">🔄 تحديث</button></div>
+    <div class="stats" style="margin-bottom:0"><div class="stat-item active" id="tabPending" onclick="setFilter('pending')"><div class="stat-number" id="inboxNew">0</div><div>جديدة</div></div><div class="stat-item" id="tabClosed" onclick="setFilter('closed')"><div class="stat-number" id="inboxTotal">0</div><div>تم الرد</div></div></div>
+    <div id="inboxContainer" style="margin-top:8px"><div class="loading">جار التحميل...</div></div>
 </div>
 
-<!-- صفحة الإعدادات -->
 <div id="settingsPage" class="page">
     <div class="header"><h3>⚙️ الإعدادات</h3></div>
     <div class="card">
-        <div class="settings-row"><span>📱 إظهار رقمي للزوار</span><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="showPhoneToggle" onchange="toggleShowPhone()"><span id="showPhoneLabel">إخفاء</span></label></div>
+        <div class="settings-row"><span>📱 إظهار رقمي للزوار</span><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showPhoneToggle" onchange="toggleShowPhone()"><span id="showPhoneLabel">إخفاء</span></label></div>
         <div class="settings-row"><span>🔔 صوت الإشعارات</span><button class="btn-tag" id="audioToggleBtn" onclick="toggleAudioSetting()">🔇 تفعيل الصوت</button></div>
-        <div class="settings-row"><a href="/privacy.html" style="color:var(--text-primary);text-decoration:none;">📄 سياسة الخصوصية</a></div>
-        <div class="settings-row"><a href="/terms.html" style="color:var(--text-primary);text-decoration:none;">📄 شروط الاستخدام</a></div>
+        <div class="settings-row"><a href="/privacy.html" style="color:var(--text-primary);text-decoration:none">📄 سياسة الخصوصية</a></div>
+        <div class="settings-row"><a href="/terms.html" style="color:var(--text-primary);text-decoration:none">📄 شروط الاستخدام</a></div>
     </div>
 </div>
 
-<!-- صفحة الحساب -->
 <div id="accountPage" class="page">
     <div class="header"><h3>👤 حسابي</h3></div>
     <div class="card">
         <div class="settings-row"><span>📱 رقم الجوال</span><span id="phoneDisplay">---</span></div>
         <div class="settings-row"><span>🚗 المركبة</span><span id="vehicleDisplay">---</span></div>
-        <button class="btn btn-outline" style="margin-top:20px;" onclick="logout()">تسجيل الخروج</button>
-        <button class="btn btn-outline" style="margin-top:10px;border-color:var(--color-danger);color:var(--color-danger);" onclick="deleteAccount()">حذف الحساب</button>
+        <button class="btn btn-outline" style="margin-top:20px" onclick="logout()">تسجيل الخروج</button>
+        <button class="btn btn-outline" style="margin-top:10px;border-color:var(--color-danger);color:var(--color-danger)" onclick="deleteAccount()">حذف الحساب</button>
     </div>
 </div>
 
-<!-- شريط التبويب السفلي -->
 <div class="bottom-nav">
     <div class="nav-item active" onclick="switchPage('home')"><span class="icon">🏠</span><span>الرئيسية</span></div>
     <div class="nav-item" onclick="switchPage('inbox')"><span class="icon">💬</span><span>الرسائل</span></div>
@@ -113,16 +91,11 @@
     <div class="nav-item" onclick="switchPage('account')"><span class="icon">👤</span><span>حسابي</span></div>
 </div>
 
-<!-- المحادثة الفردية -->
 <div id="conversationPage">
-    <div class="conv-header"><button onclick="closeConversation()" style="background:none;border:none;font-size:20px;cursor:pointer;">← رجوع</button><strong>💬 المحادثة</strong></div>
+    <div class="conv-header"><button onclick="closeConversation()" style="background:none;border:none;font-size:20px;cursor:pointer">← رجوع</button><strong>💬 المحادثة</strong></div>
     <div class="conv-messages" id="convMessages"></div>
-    <div class="conv-reply-area"><textarea id="convReplyText" placeholder="اكتب ردك..." style="flex:1;"></textarea><button class="btn btn-primary" onclick="sendReplyFromConv()" style="width:auto;">إرسال</button></div>
+    <div class="conv-reply-area"><textarea id="convReplyText" placeholder="اكتب ردك..." style="flex:1"></textarea><button class="btn btn-primary" onclick="sendReplyFromConv()" style="width:auto">إرسال</button></div>
 </div>
-
-<!-- Driver.js (الدليل التفاعلي) -->
-<script src="https://cdn.jsdelivr.net/npm/driver.js@1.0.0/dist/driver.js.iife.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.0.0/dist/driver.css">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
@@ -130,16 +103,19 @@
 <script>
     const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     if (!supabaseClient) alert('خطأ في تحميل المكتبات.');
+
     let currentUser=null, currentVehicle=null, active=true, selectedMessageId=null, showPhone=false;
     let allMessages=[], currentFilter='pending', audioElement=null, lastNewCount=0;
+    let realtimeChannel = null;
 
     function switchPage(page) {
         document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
         document.getElementById(page+'Page').classList.add('active');
         document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-        document.querySelector(`.nav-item[onclick="switchPage('${page}')"]`).classList.add('active');
-        if(page==='inbox') loadMessages();
-        if(page==='home') loadHomeStats();
+        const nav = document.querySelector(`.nav-item[onclick="switchPage('${page}')"]`);
+        if (nav) nav.classList.add('active');
+        if (page==='inbox') loadMessages();
+        if (page==='home') { loadHomeStats(); updateToggleUI(); }
     }
 
     async function initDashboard() {
@@ -149,10 +125,36 @@
         const {data:profile}=await supabaseClient.from('profiles').select('phone,show_phone').eq('id',user.id).maybeSingle().setHeader('Accept','application/json');
         if(profile){document.getElementById('phoneDisplay').innerText=profile.phone||'غير مسجل';showPhone=profile.show_phone||false;document.getElementById('showPhoneToggle').checked=showPhone;document.getElementById('showPhoneLabel').innerText=showPhone?'إظهار':'إخفاء';}
         const {data:vehicles}=await supabaseClient.from('vehicles').select('*').eq('user_id',user.id).limit(1);
-        if(vehicles?.length){currentVehicle=vehicles[0];document.getElementById('vehicleName').innerText=currentVehicle.custom_name||'سيارتي';document.getElementById('vehicleDisplay').innerText=currentVehicle.custom_name+(currentVehicle.plate_number?' - '+currentVehicle.plate_number:'');active=currentVehicle.is_active;updateToggleUI();}
+        if(vehicles?.length){currentVehicle=vehicles[0];document.getElementById('vehicleName').innerText=currentVehicle.custom_name||'سيارتي';document.getElementById('vehicleDisplay').innerText=currentVehicle.custom_name+(currentVehicle.plate_number?' - '+currentVehicle.plate_number:'');active=currentVehicle.is_active;}
         else{const {data:newVehicle}=await supabaseClient.from('vehicles').insert([{user_id:user.id}]).select().single();currentVehicle=newVehicle;document.getElementById('vehicleName').innerText='سيارتي';}
-        await loadMessages(); loadHomeStats(); checkNewMessagesFromLocalStorage();
+        updateToggleUI();
+        await loadMessages();
+        loadHomeStats();
+        checkNewMessagesFromLocalStorage();
         restoreAudioSetting();
+        setupRealtime();
+    }
+
+    function setupRealtime() {
+        if (!currentVehicle) return;
+        if (realtimeChannel) supabaseClient.removeChannel(realtimeChannel);
+        supabaseClient.from('stickers').select('id').eq('vehicle_id', currentVehicle.id).then(({data:stickers})=>{
+            if(!stickers?.length) return;
+            const ids = stickers.map(s=>s.id);
+            realtimeChannel = supabaseClient.channel('scan_logs_changes')
+                .on('postgres_changes', {event:'INSERT', schema:'public', table:'scan_logs', filter:`sticker_id=in.(${ids.join(',')})`}, (payload)=>{
+                    allMessages.unshift(payload.new);
+                    const pending = allMessages.filter(l=>l.status==='pending').length;
+                    document.getElementById('newCount').innerText = pending;
+                    document.getElementById('inboxNew').innerText = pending;
+                    document.getElementById('totalCount').innerText = allMessages.filter(l=>l.status==='closed').length;
+                    if (pending > lastNewCount) { playNotificationSound(); showToast(`📩 رسالة جديدة`); }
+                    lastNewCount = pending;
+                    renderMessages();
+                    loadHomeStats();
+                })
+                .subscribe();
+        });
     }
 
     function updateToggleUI(){const t=document.getElementById('statusToggle'),l=document.getElementById('statusLabel');if(active){t.classList.remove('off');l.innerHTML='🟢 حالة الاستقبال';}else{t.classList.add('off');l.innerHTML='🔴 متوقف';}}
@@ -163,7 +165,8 @@
     function renderMessages(){
         let filtered=allMessages.filter(m=>{if(currentFilter==='pending'&&m.status!=='pending')return false;if(currentFilter==='closed'&&m.status!=='closed')return false;return true;});
         if(!filtered.length){document.getElementById('inboxContainer').innerHTML='<div class="loading">لا توجد رسائل</div>';return;}
-        let html='';filtered.forEach(log=>{const date=new Date(log.created_at);const timeStr=date.toLocaleString('ar-SA',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'numeric'});html+=`<div class="inbox-item" onclick="openConversation('${log.id}')"><div class="msg-preview">"${escapeHtml(log.visitor_message?.substring(0,50)||'')}"</div><div class="msg-time">${timeStr} · ${log.status==='pending'?'🆕 جديدة':'✅ تم الرد'}</div></div>`;});document.getElementById('inboxContainer').innerHTML=html;
+        let html='';filtered.forEach(log=>{const date=new Date(log.created_at);const timeStr=date.toLocaleString('ar-SA',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'numeric'});html+=`<div class="inbox-item" onclick="openConversation('${log.id}')"><div class="msg-preview">"${escapeHtml(log.visitor_message?.substring(0,50)||'')}"</div><div class="msg-time">${timeStr} · ${log.status==='pending'?'🆕 جديدة':'✅ تم الرد'}</div></div>`;});
+        document.getElementById('inboxContainer').innerHTML=html;
     }
 
     function escapeHtml(text){const d=document.createElement('div');d.textContent=text||'';return d.innerHTML;}
@@ -177,16 +180,14 @@
         if(error){document.getElementById('inboxContainer').innerHTML='<div class="loading">خطأ</div>';return;}
         allMessages=logs||[];
         const pending=allMessages.filter(l=>l.status==='pending').length;
-        const closed=allMessages.filter(l=>l.status==='closed').length;
-        document.getElementById('newCount').innerText=pending;document.getElementById('totalCount').innerText=closed;
-        document.getElementById('inboxNew').innerText=pending;document.getElementById('inboxTotal').innerText=closed;
+        document.getElementById('newCount').innerText=pending;document.getElementById('totalCount').innerText=allMessages.filter(l=>l.status==='closed').length;
+        document.getElementById('inboxNew').innerText=pending;document.getElementById('inboxTotal').innerText=allMessages.filter(l=>l.status==='closed').length;
         if(pending>lastNewCount){playNotificationSound();showToast(`📩 لديك ${pending-lastNewCount} رسالة جديدة`);}
         lastNewCount=pending;
         renderMessages();
     }
 
     function loadHomeStats(){const last=allMessages[0];if(last)document.getElementById('lastMessage').innerHTML=`📩 آخر رسالة: "${escapeHtml(last.visitor_message?.substring(0,40)||'')}" · ${last.status==='pending'?'جديدة':'تم الرد'}`;}
-
     function openConversation(messageId){selectedMessageId=messageId;const msg=allMessages.find(m=>m.id==messageId);if(!msg)return;let html=`<div class="message-bubble visitor-bubble">🧑 زائر: ${escapeHtml(msg.visitor_message)}</div>`;if(msg.owner_response)html+=`<div class="message-bubble owner-bubble">🚗 أنت: ${escapeHtml(msg.owner_response)}</div>`;document.getElementById('convMessages').innerHTML=html;document.getElementById('conversationPage').classList.add('active');}
     function closeConversation(){document.getElementById('conversationPage').classList.remove('active');selectedMessageId=null;}
     async function sendReplyFromConv(){const reply=document.getElementById('convReplyText').value.trim();if(!reply||!selectedMessageId)return;const {error}=await supabaseClient.from('scan_logs').update({owner_response:reply,status:'closed'}).eq('id',selectedMessageId);if(error){showToast('❌ فشل');return;}showToast('✅ تم الرد');document.getElementById('convReplyText').value='';closeConversation();loadMessages();}
@@ -202,38 +203,9 @@
 
     setInterval(()=>{checkNewMessagesFromLocalStorage();},5000);
 
-    // الوضع الليلي
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    const htmlElement = document.documentElement;
-    if (localStorage.getItem('darkMode') === 'true') {
-        htmlElement.classList.add('dark-mode');
-        darkModeToggle.textContent = '☀️';
-    }
-    darkModeToggle.addEventListener('click', () => {
-        htmlElement.classList.toggle('dark-mode');
-        const isDark = htmlElement.classList.contains('dark-mode');
-        localStorage.setItem('darkMode', isDark);
-        darkModeToggle.textContent = isDark ? '☀️' : '🌙';
-    });
-
-    // دليل تفاعلي (Onboarding)
-    if (!localStorage.getItem('onboarding_done')) {
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const driverObj = driver({
-                    showProgress: true,
-                    steps: [
-                        { element: '#statusLabel', popover: { title: 'حالة الاستقبال', description: 'هنا يمكنك تشغيل أو إيقاف استقبال الرسائل من الزوار' } },
-                        { element: '#newCount', popover: { title: 'الرسائل الجديدة', description: 'عدد الرسائل التي لم تقرأها بعد' } },
-                        { element: '#inboxPage', popover: { title: 'صندوق الرسائل', description: 'هنا تجد كل رسائلك وتستطيع الرد عليها مباشرة' } },
-                        { element: '.bottom-nav', popover: { title: 'شريط التنقل', description: 'استخدم هذا الشريط للتنقل بين الرئيسية، الرسائل، الإعدادات، وحسابك' } }
-                    ]
-                });
-                driverObj.drive();
-                localStorage.setItem('onboarding_done', 'true');
-            }, 800);
-        });
-    }
+    const darkToggle = document.getElementById('darkModeToggle');
+    if (localStorage.getItem('darkMode')==='true') { document.documentElement.classList.add('dark-mode'); darkToggle.textContent='☀️'; }
+    darkToggle.addEventListener('click',()=>{document.documentElement.classList.toggle('dark-mode');const isDark=document.documentElement.classList.contains('dark-mode');localStorage.setItem('darkMode',isDark);darkToggle.textContent=isDark?'☀️':'🌙';});
 
     initDashboard();
 </script>
