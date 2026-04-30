@@ -1,5 +1,5 @@
 // ===========================
-// SafeScan - Translations
+// SafeScan - Translations (المرحلة 9)
 // ===========================
 
 const translations = {
@@ -41,6 +41,7 @@ const translations = {
     logout: "تسجيل الخروج",
     privacy: "سياسة الخصوصية",
     support: "مركز المساعدة",
+    blocked_message: "❌ تم حظرك من قبل مالك السيارة",
 
     // --- صفحة التواصل (index.html) ---
     contact_owner: "تواصل مع مالك السيارة",
@@ -116,7 +117,16 @@ const translations = {
     contact_options: "خيارات التواصل",
     get_sticker: "🛒 احصل على استيكر SafeScan",
     store_url: "https://safescan.app/store",
-    already_open_session: "لديك محادثة مفتوحة. انتظر الرد أولاً."
+    already_open_session: "لديك محادثة مفتوحة. انتظر الرد أولاً.",
+
+    // --- المرحلة التاسعة: دعم ولغة ---
+    support_title: "📞 الدعم الفني",
+    support_intro: "نحن هنا لخدمتك. تواصل معنا عبر أي من القنوات التالية:",
+    support_whatsapp: "💬 تواصل عبر واتساب",
+    support_email: "📧 راسلنا عبر البريد الإلكتروني",
+    support_phone: "📞 اتصل بنا",
+    lang_switch: "English",
+    lang_switch_hint: "English"
   },
 
   en: {
@@ -156,7 +166,8 @@ const translations = {
     soon: "Soon",
     logout: "Logout",
     privacy: "Privacy Policy",
-    support: "Help Center",
+    support: "Support",
+    blocked_message: "❌ You have been blocked by the car owner",
 
     // --- Contact Page (index.html) ---
     contact_owner: "Contact Car Owner",
@@ -232,24 +243,159 @@ const translations = {
     contact_options: "Contact Options",
     get_sticker: "🛒 Get SafeScan Sticker",
     store_url: "https://safescan.app/store",
-    already_open_session: "You have an active conversation. Wait for reply."
+    already_open_session: "You have an active conversation. Wait for reply.",
+
+    // --- Phase 9: Support & Language ---
+    support_title: "📞 Support",
+    support_intro: "We are here to help. Contact us via:",
+    support_whatsapp: "💬 WhatsApp",
+    support_email: "📧 Email Us",
+    support_phone: "📞 Call Us",
+    lang_switch: "العربية",
+    lang_switch_hint: "العربية"
+  },
+
+  hi: {
+    // --- General ---
+    error_msg: "कृपया एक संदेश लिखें",
+    error_token: "स्टिकर पहचाना नहीं गया",
+    sticker_invalid: "अमान्य स्टिकर",
+    owner_unavailable: "मालिक उपलब्ध नहीं है",
+    login_required: "कृपया पहले लॉग इन करें",
+    not_registered: "पंजीकृत नहीं है",
+    error_loading: "लोड करने में त्रुटि",
+    no_stickers: "कोई जुड़ा हुआ स्टिकर नहीं",
+    no_messages: "अभी तक कोई संदेश नहीं",
+    new_badge: "🆕 नया",
+    replied_badge: "✅ उत्तर दिया",
+    replied_msgs: "उत्तर दिया",
+    message_label: "संदेश:",
+    previous_reply: "आपका पिछला उत्तर:",
+    reply_failed: "उत्तर भेजने में विफल",
+    reply_sent: "उत्तर भेज दिया गया",
+    will_notify: "संदेश आने पर आपको सूचित किया जाएगा",
+    notifications_off: "सूचनाएं बंद",
+    vehicle_default: "🚗 मेरी गाड़ी",
+    status_active: "🟢 सक्रिय",
+    status_off: "🔴 बंद (पूर्ण गोपनीयता)",
+    loading: "लोड हो रहा है...",
+    refresh: "🔄 ताज़ा करें",
+    inbox: "📥 इनबॉक्स",
+    reply_title: "💬 संदेश का उत्तर दें",
+    reply_placeholder: "अपना उत्तर लिखें...",
+    send_reply: "उत्तर भेजें",
+    cancel: "रद्द करें",
+    settings: "⚙️ त्वरित सेटिंग्स",
+    telegram_notify: "🔔 टेलीग्राम सूचनाएं",
+    phone_registered: "📱 पंजीकृत फ़ोन",
+    auto_schedule: "🕒 स्वचालित समय",
+    soon: "जल्द ही",
+    logout: "लॉग आउट",
+    privacy: "गोपनीयता नीति",
+    support: "सहायता",
+    blocked_message: "❌ आपको मालिक द्वारा ब्लॉक कर दिया गया है",
+
+    // --- Contact Page (index.html) ---
+    contact_owner: "कार मालिक से संपर्क करें",
+    scan_contact: "कार मालिक से संपर्क करने के लिए स्कैन करें",
+    urdu_text: "گاڑی کے مالک سے رابطہ کریں",
+    safe_message: "आपका संदेश सुरक्षित है और नंबर छिपा है",
+    message_placeholder: "अपना संदेश लिखें...",
+    quick_block: "🚫 रास्ता रोकना",
+    quick_lights: "💡 लाइट चालू",
+    quick_accident: "⚠️ दुर्घटना",
+    send_btn: "📨 भेजें",
+    chat_open: "💬 चैट खोलें",
+    send_success: "संदेश भेजा गया",
+    copy_manual: "या लिंक मैन्युअली कॉपी करें",
+    link_valid: "लिंक 1 घंटे के लिए वैध",
+    owner_login: "🔐 मालिक? लॉगिन करें",
+
+    // --- Registration Page (register.html) ---
+    activate_title: "स्टिकर सक्रिय करें",
+    activate_sub: "अपना स्टिकर सक्रिय करें",
+    phone_label: "फ़ोन नंबर",
+    token_label: "सक्रियण कोड",
+    password_label: "पासवर्ड",
+    activate_btn: "सक्रिय करें",
+    encrypted_msg: "आपका नंबर एन्क्रिप्टेड है",
+    additional_info: "📝 अतिरिक्त वाहन जानकारी",
+    optional: "वैकल्पिक",
+    car_name_label: "वाहन का नाम",
+    plate_label: "प्लेट नंबर",
+    model_label: "मॉडल",
+    driver_label: "चालक का नाम",
+    image_label: "वाहन की छवि",
+    car_name_placeholder: "जैसे: ऑफिस कार",
+    plate_placeholder: "जैसे: ABC 1234",
+    model_placeholder: "जैसे: कैमरी 2024",
+    driver_placeholder: "जैसे: अहमद",
+    show_public: "सार्वजनिक दिखाएं",
+    otp_label: "OTP कोड",
+    otp_sent: "आपके फ़ोन पर सत्यापन कोड भेजा गया",
+    otp_placeholder: "6 अंकों का कोड दर्ज करें",
+
+    // --- Login Page (login.html) ---
+    login_title: "लॉगिन",
+    login_sub: "पंजीकृत मालिकों के लिए",
+    login_btn: "लॉगिन",
+    no_account: "कोई खाता नहीं? नया स्टिकर सक्रिय करें",
+
+    // --- Chat Page (chat.html) ---
+    chat_title: "अस्थायी चैट",
+    session_ended: "उत्तर दिया - समाप्त",
+    waiting_reply: "मालिक के उत्तर की प्रतीक्षा",
+    refresh_btn: "ताज़ा करें",
+    session_info: "सत्र 1 घंटे बाद समाप्त होगा",
+    identity_hidden: "आपकी पहचान छिपी है",
+    no_reply: "आगंतुक उत्तर नहीं दे सकता",
+
+    // --- Privacy ---
+    show_phone_setting: "📱 आगंतुकों को मेरा फ़ोन दिखाएं",
+    show_phone_warning: "⚠️ चेतावनी: यह स्टिकर स्कैन करने वाले किसी भी व्यक्ति को आपका फ़ोन नंबर दिखाएगा। क्या आप निश्चित हैं?",
+    show_phone_to_visitor: "📞 इस व्यक्ति को मेरा नंबर दिखाएं",
+    show_phone_to_visitor_warning: "⚠️ आपका नंबर केवल इस व्यक्ति को चैट में दिखाया जाएगा। यह 1 घंटे बाद समाप्त हो जाएगा। क्या आप निश्चित हैं?",
+    phone_revealed: "📱 मालिक का फ़ोन:",
+    phone_revealed_chat: "📱 मालिक का फ़ोन:",
+    phone_revealed_success: "जब आगंतुक चैट लिंक खोलेगा तो आपका नंबर उसे दिखाया जाएगा।",
+    show_label_on: "दिखाएं",
+    show_label_off: "छिपाएं",
+
+    // --- Phase 8: Advanced Privacy & Store ---
+    show_number_only: "केवल फ़ोन",
+    show_whatsapp_only: "केवल व्हाट्सएप",
+    show_sms_only: "केवल SMS",
+    show_all_contact: "सभी दिखाएं",
+    contact_options: "संपर्क विकल्प",
+    get_sticker: "🛒 SafeScan स्टिकर प्राप्त करें",
+    store_url: "https://safescan.app/store",
+    already_open_session: "आपकी पहले से एक सक्रिय बातचीत चल रही है। कृपया उत्तर की प्रतीक्षा करें।",
+
+    // --- Phase 9: Support & Language ---
+    support_title: "📞 सहायता",
+    support_intro: "हम मदद के लिए यहां हैं। हमसे संपर्क करें:",
+    support_whatsapp: "💬 व्हाट्सएप",
+    support_email: "📧 ईमेल",
+    support_phone: "📞 कॉल",
+    lang_switch: "العربية",
+    lang_switch_hint: "العربية"
   }
 };
 
-// دالة الترجمة - تكتشف لغة المتصفح تلقائياً
+// دالة الترجمة (مطورة - تسمح بالتخصيص اليدوي)
+let currentLang = localStorage.getItem('safescan_lang') || (navigator.language?.startsWith('ar') ? 'ar' : (navigator.language?.startsWith('hi') ? 'hi' : 'en'));
 function t(key) {
-  const lang = navigator.language?.startsWith('ar') ? 'ar' : 'en';
-  return translations[lang]?.[key] || translations.en[key] || key;
+  return translations[currentLang]?.[key] || translations.en[key] || key;
+}
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('safescan_lang', lang);
+  applyTranslations();
 }
 
-// تطبيق الترجمة على جميع العناصر التي تحمل data-key أو data-placeholder
+// تطبيق الترجمة
 function applyTranslations() {
-  document.querySelectorAll('[data-key]').forEach(el => {
-    el.textContent = t(el.getAttribute('data-key'));
-  });
-  document.querySelectorAll('[data-placeholder]').forEach(el => {
-    el.placeholder = t(el.getAttribute('data-placeholder'));
-  });
+  document.querySelectorAll('[data-key]').forEach(el => { el.textContent = t(el.getAttribute('data-key')); });
+  document.querySelectorAll('[data-placeholder]').forEach(el => { el.placeholder = t(el.getAttribute('data-placeholder')); });
 }
-
 document.addEventListener('DOMContentLoaded', applyTranslations);
