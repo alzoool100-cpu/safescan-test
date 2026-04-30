@@ -3,64 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeScan - سياسة الخصوصية</title>
+    <title data-key="privacy_title">سياسة الخصوصية</title>
     <link rel="stylesheet" href="base.css">
-    <link rel="manifest" href="/manifest.json">
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(reg => console.log('Service Worker registered', reg.scope))
-                .catch(err => console.error('Service Worker failed', err));
-        }
-    </script>
-    <style>
-        .content { max-width: 600px; margin: 0 auto; text-align: right; line-height: 1.8; }
-        h2 { margin-top: 24px; color: var(--color-primary); }
-        p { margin: 12px 0; }
-    </style>
 </head>
 <body>
-    <div class="card content">
-        <div class="logo">
-            <span class="logo-icon">🛡️</span>
-            <span class="logo-text">SafeScan</span>
-        </div>
-        <h1>سياسة الخصوصية</h1>
-        <p>آخر تحديث: 2026</p>
+<div class="lang-dropdown">
+  <select id="langSelect" onchange="setLanguage(this.value)">
+    <option value="ar">العربية</option>
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+    <option value="ur">اردو</option>
+  </select>
+</div>
 
-        <h2>1. المعلومات التي نجمعها</h2>
-        <p>عند تفعيل استيكر SafeScan، نقوم بجمع رقم الجوال الخاص بك فقط. لا نقوم بجمع اسمك، عنوانك، أو أي بيانات شخصية أخرى. رقم جوالك يُستخدم حصرياً لإشعارك عند استلام رسالة من شخص يرغب في التواصل معك بخصوص سيارتك.</p>
+<div class="card" style="max-width:600px;text-align:right;line-height:1.8">
+    <h1 data-key="privacy_title">سياسة الخصوصية</h1>
+    <p data-key="privacy_content">نحن نحمي خصوصيتك...</p>
+</div>
 
-        <h2>2. كيفية استخدام المعلومات</h2>
-        <p>رقم جوالك يُستخدم فقط للأغراض التالية:</p>
-        <ul>
-            <li>إرسال إشعارات عند استلام رسالة جديدة.</li>
-            <li>إظهار رقمك للزوار فقط إذا قمت بتفعيل خيار "إظهار رقمي للزوار" من لوحة التحكم.</li>
-        </ul>
-
-        <h2>3. مشاركة المعلومات</h2>
-        <p>نحن لا نشارك رقم جوالك مع أي طرف ثالث. رقمك مشفر ولا يمكن لأي شخص آخر الاطلاع عليه بدون إذنك الصريح.</p>
-
-        <h2>4. حماية البيانات</h2>
-        <p>نستخدم قاعدة بيانات Supabase التي توفر تشفيراً للبيانات في حالة السكون والنقل. نطبق أفضل ممارسات الأمان لحماية معلوماتك.</p>
-
-        <h2>5. ملفات تعريف الارتباط (Cookies)</h2>
-        <p>نستخدم ملفات تعريف الارتباط الضرورية فقط لحفظ جلسة تسجيل الدخول الخاصة بك. لا نستخدم أي ملفات تعريف ارتباط للتتبع أو الإعلانات.</p>
-
-        <h2>6. حقوقك</h2>
-        <p>يمكنك في أي وقت:</p>
-        <ul>
-            <li>تعديل رقم جوالك من لوحة التحكم.</li>
-            <li>تعطيل خيار "إظهار رقمي للزوار".</li>
-            <li>حذف حسابك وجميع بياناتك بالكامل.</li>
-        </ul>
-
-        <h2>7. الاتصال بنا</h2>
-        <p>إذا كان لديك أي استفسار حول سياسة الخصوصية، يمكنك التواصل معنا عبر البريد الإلكتروني: support@safescan.app</p>
-
-        <div style="margin-top: 24px; text-align: center;">
-            <a href="/" style="color: var(--color-primary);">العودة للرئيسية</a>
-        </div>
-    </div>
+<script src="translations.js"></script>
+<script>
+    document.getElementById('langSelect').value = currentLang;
+    applyTranslations();
+    document.getElementById('langSelect').addEventListener('change', function() {
+        setLanguage(this.value);
+    });
+</script>
 </body>
 </html>
