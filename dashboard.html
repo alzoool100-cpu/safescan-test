@@ -7,9 +7,7 @@
     <link rel="stylesheet" href="base.css">
     <link rel="manifest" href="/manifest.json">
     <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
-        }
+        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/service-worker.js').catch(()=>{}); }
     </script>
     <style>
         :root { --nav-height: 70px; }
@@ -40,43 +38,26 @@
         .conv-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
         .conv-messages { flex: 1; overflow-y: auto; }
         .conv-reply-area { display: flex; gap: 8px; margin-top: 12px; }
+        .edit-input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 4px; background: var(--bg-input); color: var(--text-primary); }
     </style>
 </head>
 <body>
 
-<!-- صفحة الرئيسية -->
 <div id="homePage" class="page active">
-    <div class="header">
-        <div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div>
-        <div class="car-badge" id="vehicleName">🚗 <span data-key="vehicle_default">سيارتي</span></div>
-    </div>
+    <div class="header"><div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div><div class="car-badge" id="vehicleName">🚗 <span data-key="vehicle_default">سيارتي</span></div></div>
     <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between">
-            <span style="font-weight:600;font-size:18px" id="statusLabel" data-key="status_active">🟢 حالة الاستقبال</span>
-            <div class="toggle-switch" id="statusToggle" onclick="toggleStatus()"></div>
-        </div>
-        <div class="stats">
-            <div class="stat-item"><div class="stat-number" id="newCount">0</div><div data-key="new_msgs">جديدة</div></div>
-            <div class="stat-item"><div class="stat-number" id="totalCount">0</div><div data-key="replied_msgs">تم الرد</div></div>
-        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-weight:600;font-size:18px" id="statusLabel" data-key="status_active">🟢 حالة الاستقبال</span><div class="toggle-switch" id="statusToggle" onclick="toggleStatus()"></div></div>
+        <div class="stats"><div class="stat-item"><div class="stat-number" id="newCount">0</div><div data-key="new_msgs">جديدة</div></div><div class="stat-item"><div class="stat-number" id="totalCount">0</div><div data-key="replied_msgs">تم الرد</div></div></div>
         <div id="lastMessage" style="margin-top:12px;color:var(--text-secondary)" data-key="last_message_none">لا توجد رسائل حالياً</div>
     </div>
 </div>
 
-<!-- صفحة الرسائل -->
 <div id="inboxPage" class="page">
-    <div class="header">
-        <h3 data-key="inbox_tab">📥 الرسائل</h3>
-        <button onclick="loadMessages()" style="background:none;border:none;color:var(--color-primary);cursor:pointer" data-key="refresh">🔄 تحديث</button>
-    </div>
-    <div class="stats">
-        <div class="stat-item active" id="tabPending" onclick="setFilter('pending')"><div class="stat-number" id="inboxNew">0</div><div data-key="new_msgs">جديدة</div></div>
-        <div class="stat-item" id="tabClosed" onclick="setFilter('closed')"><div class="stat-number" id="inboxTotal">0</div><div data-key="replied_msgs">تم الرد</div></div>
-    </div>
+    <div class="header"><h3 data-key="inbox_tab">📥 الرسائل</h3><button onclick="loadMessages()" style="background:none;border:none;color:var(--color-primary);cursor:pointer" data-key="refresh">🔄 تحديث</button></div>
+    <div class="stats"><div class="stat-item active" id="tabPending" onclick="setFilter('pending')"><div class="stat-number" id="inboxNew">0</div><div data-key="new_msgs">جديدة</div></div><div class="stat-item" id="tabClosed" onclick="setFilter('closed')"><div class="stat-number" id="inboxTotal">0</div><div data-key="replied_msgs">تم الرد</div></div></div>
     <div id="inboxContainer"><div class="loading" data-key="no_messages_inbox">لا توجد رسائل بعد</div></div>
 </div>
 
-<!-- صفحة الإعدادات -->
 <div id="settingsPage" class="page">
     <div class="header"><h3 data-key="settings_tab">⚙️ الإعدادات</h3></div>
     <div class="card">
@@ -87,7 +68,7 @@
                 <span id="showPhoneLabel" data-key="show_label_off">إخفاء</span>
             </label>
         </div>
-        <div class="settings-row">
+        <div class="settings-row" id="contactOptionsRow" style="display:none;">
             <span data-key="contact_options">خيارات التواصل</span>
             <select id="contactMethod" onchange="updateContactMethod()" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px;font-size:14px;color:var(--text-primary);">
                 <option value="all" data-key="show_all_contact">🌐 إظهار الكل</option>
@@ -96,44 +77,37 @@
                 <option value="sms" data-key="sms_only">📨 رسائل نصية فقط</option>
             </select>
         </div>
-        <div class="settings-row">
-            <span data-key="audio_toggle_label">🔔 صوت الإشعارات</span>
-            <button class="btn-tag" id="audioToggleBtn" onclick="toggleAudioSetting()" data-key="audio_off">🔇 تفعيل الصوت</button>
-        </div>
-        <div class="settings-row">
-            <span data-key="language_label">🌐 اللغة</span>
+        <div class="settings-row"><span data-key="audio_toggle_label">🔔 صوت الإشعارات</span><button class="btn-tag" id="audioToggleBtn" onclick="toggleAudioSetting()" data-key="audio_off">🔇 تفعيل الصوت</button></div>
+        <div class="settings-row"><span data-key="language_label">🌐 اللغة</span>
             <select id="langSelect" onchange="setLanguage(this.value)" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px 16px;font-size:14px;color:var(--text-primary);">
-                <option value="ar">العربية</option>
-                <option value="en">English</option>
-                <option value="hi">हिन्दी</option>
-                <option value="ur">اردو</option>
+                <option value="ar">العربية</option><option value="en">English</option><option value="hi">हिन्दी</option><option value="ur">اردو</option>
             </select>
         </div>
-        <div class="settings-row">
-            <span data-key="dark_mode_label">🌙 الوضع الليلي</span>
-            <label style="display:flex;align-items:center;gap:8px">
-                <input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()">
-                <span id="darkModeLabel"></span>
-            </label>
-        </div>
+        <div class="settings-row"><span data-key="dark_mode_label">🌙 الوضع الليلي</span><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()"><span id="darkModeLabel"></span></label></div>
         <div class="settings-row"><a href="/privacy.html" style="color:var(--text-primary);text-decoration:none" data-key="privacy_policy_link">📄 سياسة الخصوصية</a></div>
         <div class="settings-row"><a href="/terms.html" style="color:var(--text-primary);text-decoration:none" data-key="terms_of_service_link">📄 شروط الاستخدام</a></div>
         <div class="settings-row"><a href="/support.html" style="color:var(--text-primary);text-decoration:none" data-key="support_link">📞 الدعم</a></div>
     </div>
 </div>
 
-<!-- صفحة الحساب -->
 <div id="accountPage" class="page">
     <div class="header"><h3 data-key="account_tab">👤 حسابي</h3></div>
     <div class="card">
         <div class="settings-row"><span data-key="phone_registered">📱 رقم الجوال المسجل</span><span id="phoneDisplay">---</span></div>
         <div class="settings-row"><span data-key="vehicle_info">🚗 المركبة</span><span id="vehicleDisplay">---</span></div>
-        <button class="btn btn-outline" style="margin-top:20px" onclick="logout()" data-key="logout_btn">تسجيل الخروج</button>
+        <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px;">
+            <h4 data-key="edit_profile">تعديل البيانات</h4>
+            <input type="text" id="editCarName" class="edit-input" placeholder="اسم المركبة" />
+            <input type="text" id="editPlate" class="edit-input" placeholder="رقم اللوحة" />
+            <input type="text" id="editModel" class="edit-input" placeholder="الموديل" />
+            <input type="text" id="editDriver" class="edit-input" placeholder="اسم السائق" />
+            <button class="btn btn-primary" style="margin-top:12px;" onclick="saveProfile()" data-key="save_changes">حفظ التعديلات</button>
+        </div>
+        <button class="btn btn-outline" style="margin-top:20px;" onclick="logout()" data-key="logout_btn">تسجيل الخروج</button>
         <button class="btn btn-outline" style="margin-top:10px;border-color:var(--color-danger);color:var(--color-danger)" onclick="deleteAccount()" data-key="delete_account_btn">حذف الحساب</button>
     </div>
 </div>
 
-<!-- شريط التبويب السفلي -->
 <div class="bottom-nav">
     <div class="nav-item active" onclick="switchPage('home')"><span class="icon">🏠</span><span data-key="home_tab">الرئيسية</span></div>
     <div class="nav-item" onclick="switchPage('inbox')"><span class="icon">💬</span><span data-key="inbox_tab">الرسائل</span></div>
@@ -141,17 +115,10 @@
     <div class="nav-item" onclick="switchPage('account')"><span class="icon">👤</span><span data-key="account_tab">حسابي</span></div>
 </div>
 
-<!-- المحادثة الفردية -->
 <div id="conversationPage">
-    <div class="conv-header">
-        <button onclick="closeConversation()" style="background:none;border:none;font-size:20px;cursor:pointer">← رجوع</button>
-        <strong data-key="reply_title">💬 الرد على الرسالة</strong>
-    </div>
+    <div class="conv-header"><button onclick="closeConversation()" style="background:none;border:none;font-size:20px;cursor:pointer">← رجوع</button><strong data-key="reply_title">💬 الرد على الرسالة</strong></div>
     <div class="conv-messages" id="convMessages"></div>
-    <div class="conv-reply-area">
-        <textarea id="convReplyText" data-placeholder="reply_placeholder" placeholder="اكتب ردك..." style="flex:1"></textarea>
-        <button class="btn btn-primary" onclick="sendReplyFromConv()" style="width:auto" data-key="send_reply">إرسال</button>
-    </div>
+    <div class="conv-reply-area"><textarea id="convReplyText" data-placeholder="reply_placeholder" placeholder="اكتب ردك..." style="flex:1"></textarea><button class="btn btn-primary" onclick="sendReplyFromConv()" style="width:auto" data-key="send_reply">إرسال</button></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -179,16 +146,34 @@
         if(error||!user){alert(t('login_required'));window.location.href='/login.html';return;}
         currentUser=user;
         const {data:profile}=await supabaseClient.from('profiles').select('phone,show_phone').eq('id',user.id).maybeSingle().setHeader('Accept','application/json');
-        if(profile){document.getElementById('phoneDisplay').innerText=profile.phone||'---';showPhone=profile.show_phone||false;document.getElementById('showPhoneToggle').checked=showPhone;document.getElementById('showPhoneLabel').innerText=showPhone?t('show_label_on'):t('show_label_off');}
+        if(profile){
+            document.getElementById('phoneDisplay').innerText=profile.phone||'---';
+            showPhone=profile.show_phone||false;
+            document.getElementById('showPhoneToggle').checked=showPhone;
+            document.getElementById('showPhoneLabel').innerText=showPhone?t('show_label_on'):t('show_label_off');
+            document.getElementById('contactOptionsRow').style.display = showPhone ? 'block' : 'none';
+        }
         const {data:vehicles}=await supabaseClient.from('vehicles').select('*').eq('user_id',user.id).limit(1);
-        if(vehicles?.length){currentVehicle=vehicles[0];active=currentVehicle.is_active;document.getElementById('vehicleDisplay').innerText=currentVehicle.custom_name||t('vehicle_default');}
-        else{const {data:newVehicle}=await supabaseClient.from('vehicles').insert([{user_id:user.id}]).select().single();currentVehicle=newVehicle;}
+        if(vehicles?.length){
+            currentVehicle=vehicles[0];
+            active=currentVehicle.is_active;
+            document.getElementById('vehicleDisplay').innerText=currentVehicle.custom_name||t('vehicle_default');
+            // تعبئة حقول التعديل
+            document.getElementById('editCarName').value = currentVehicle.custom_name || '';
+            document.getElementById('editPlate').value = currentVehicle.plate_number || '';
+            document.getElementById('editModel').value = currentVehicle.model || '';
+            document.getElementById('editDriver').value = currentVehicle.driver_name || '';
+        } else {
+            const {data:newVehicle}=await supabaseClient.from('vehicles').insert([{user_id:user.id}]).select().single();
+            currentVehicle=newVehicle;
+        }
         updateToggleUI();
         await loadMessages();
         loadHomeStats();
         checkNewMessagesFromLocalStorage();
         restoreAudioSetting();
         setupRealtime();
+        // وضع ليلي
         if(localStorage.getItem('darkMode')==='true'){
             document.documentElement.classList.add('dark-mode');
             document.getElementById('darkModeToggle').checked = true;
@@ -196,6 +181,7 @@
         } else {
             document.getElementById('darkModeLabel').textContent = t('show_label_off');
         }
+        // لغة
         if(document.getElementById('langSelect')) {
             document.getElementById('langSelect').value = currentLang || 'ar';
             document.getElementById('langSelect').addEventListener('change', function() { setLanguage(this.value); updateToggleUI(); });
@@ -228,8 +214,43 @@
 
     function updateToggleUI(){const t=document.getElementById('statusToggle'),l=document.getElementById('statusLabel');if(active){t.classList.remove('off');l.innerHTML=t('status_active');}else{t.classList.add('off');l.innerHTML=t('status_off');}}
     async function toggleStatus(){if(!currentVehicle)return;active=!active;updateToggleUI();await supabaseClient.from('vehicles').update({is_active:active}).eq('id',currentVehicle.id);const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);if(stickers)for(const s of stickers)await supabaseClient.from('stickers').update({status:active?'active':'inactive'}).eq('id',s.id);loadMessages();}
-    async function toggleShowPhone(){const newValue=document.getElementById('showPhoneToggle').checked;if(newValue&&!confirm(t('show_phone_warning')||'⚠️ سيظهر رقمك للعامة. متأكد؟')){document.getElementById('showPhoneToggle').checked=false;return;}showPhone=newValue;document.getElementById('showPhoneLabel').innerText=showPhone?t('show_label_on'):t('show_label_off');await supabaseClient.from('profiles').update({show_phone:showPhone}).eq('id',currentUser.id);}
-    async function updateContactMethod(){const method = document.getElementById('contactMethod').value; await supabaseClient.from('profiles').update({contact_method: method}).eq('id', currentUser.id);}
+    
+    async function toggleShowPhone(){
+        const newValue = document.getElementById('showPhoneToggle').checked;
+        if (newValue) {
+            if (!confirm(t('show_phone_warning')||'⚠️ تحذير: سيجعل رقمك ظاهراً للعامة. هل أنت متأكد؟')) {
+                document.getElementById('showPhoneToggle').checked = false;
+                return;
+            }
+        }
+        showPhone = newValue;
+        document.getElementById('showPhoneLabel').innerText = showPhone ? t('show_label_on') : t('show_label_off');
+        document.getElementById('contactOptionsRow').style.display = showPhone ? 'block' : 'none';
+        await supabaseClient.from('profiles').update({ show_phone: showPhone }).eq('id', currentUser.id);
+    }
+
+    async function updateContactMethod(){
+        const method = document.getElementById('contactMethod').value;
+        await supabaseClient.from('profiles').update({contact_method: method}).eq('id', currentUser.id);
+    }
+
+    async function saveProfile(){
+        const carName = document.getElementById('editCarName').value.trim();
+        const plate = document.getElementById('editPlate').value.trim();
+        const model = document.getElementById('editModel').value.trim();
+        const driver = document.getElementById('editDriver').value.trim();
+        const { error } = await supabaseClient.from('vehicles').update({
+            custom_name: carName || 'سيارتي',
+            plate_number: plate,
+            model: model,
+            driver_name: driver
+        }).eq('id', currentVehicle.id);
+        if (error) { showToast('❌ فشل الحفظ'); return; }
+        showToast('✅ تم حفظ البيانات');
+        document.getElementById('vehicleDisplay').innerText = carName || t('vehicle_default');
+        document.getElementById('vehicleName').innerText = '🚗 ' + (carName || t('vehicle_default'));
+    }
+
     function setFilter(filter){currentFilter=filter;document.getElementById('tabPending').classList.toggle('active',filter==='pending');document.getElementById('tabClosed').classList.toggle('active',filter==='closed');renderMessages();}
 
     function renderMessages(){
@@ -305,7 +326,7 @@
     function checkNewMessagesFromLocalStorage(){const m=localStorage.getItem('safescan_new_message');if(m){const d=JSON.parse(m);showToast(`📩 رسالة جديدة: "${d.message?.substring(0,30)}..."`);playNotificationSound();localStorage.removeItem('safescan_new_message');}}
 
     async function logout(){await supabaseClient.auth.signOut();window.location.href='/index.html';}
-    async function deleteAccount(){if(!confirm('⚠️ هل أنت متأكد؟'))return;alert('قريباً');}
+    async function deleteAccount(){if(!confirm('⚠️ هل أنت متأكد من حذف حسابك نهائياً؟'))return;alert('قريباً');}
 
     function toggleDarkMode(){
         document.documentElement.classList.toggle('dark-mode');
