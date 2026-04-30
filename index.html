@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeScan - تواصل مع مالك السيارة</title>
     <link rel="stylesheet" href="base.css">
+    <link rel="manifest" href="/manifest.json">
 </head>
 <body>
+<button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
+
 <div class="lang-dropdown">
   <select id="langSelect" onchange="setLanguage(this.value)">
     <option value="ar">العربية</option>
@@ -33,6 +36,9 @@
         <button class="btn-tag" data-key="quick_block" onclick="setMessage(this.textContent)">🚫 تسد الطريق</button>
         <button class="btn-tag" data-key="quick_lights" onclick="setMessage(this.textContent)">💡 الأضواء</button>
         <button class="btn-tag" data-key="quick_accident" onclick="setMessage(this.textContent)">⚠️ حادث</button>
+        <button class="btn-tag" data-key="quick_window" onclick="setMessage(this.textContent)">🪟 النافذة مفتوحة</button>
+        <button class="btn-tag" data-key="quick_car_sale" onclick="setMessage(this.textContent)">🚗 السيارة للبيع؟</button>
+        <button class="btn-tag" data-key="quick_plate_sale" onclick="setMessage(this.textContent)">🏷️ اللوحة للبيع؟</button>
     </div>
 
     <button class="btn btn-primary" onclick="sendMessage()" data-key="send_btn">📨 إرسال الرسالة</button>
@@ -52,7 +58,7 @@
         <a href="/login.html" data-key="owner_login">🔐 مالك السيارة؟ سجل دخولك</a>
     </div>
     <div style="margin-top:20px;border-top:1px solid var(--border-color);padding-top:16px;">
-        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px">هل تريد استيكر لسيارتك؟</p>
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px" data-key="get_sticker_desc">هل تريد استيكر لسيارتك؟</p>
         <a href="https://safescan.app/store" target="_blank" style="text-decoration:none;">
             <button class="btn btn-outline" style="width:100%;" data-key="get_sticker">🛒 احصل على استيكر SafeScan</button>
         </a>
@@ -63,9 +69,85 @@
 <script src="config.js"></script>
 <script src="translations.js"></script>
 <script>
-    // كل المنطق السابق كما هو مع إضافة:
-    document.getElementById('langSelect').value = currentLang;
+    let supabaseClient;
+    if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const urlParams = new URLSearchParams(window.location.search);
+    const stickerToken = urlParams.get('token');
+    let currentSessionToken = '';
+
+    async function checkStickerAndRedirect() {
+        if (!stickerToken || !supabaseClient) return;
+        try {
+            const { data: s } = await supabaseClient.from('stickers').select('status').eq('qr_token', stickerToken).single();
+            if (s && s.status === 'factory_new') window.location.href = '/register.html?token=' + stickerToken;
+        } catch (e) {}
+    }
+    checkStickerAndRedirect();
+
+    async function checkOwnerPhone() {
+        if (!stickerToken || !supabaseClient) return;
+        const { data: sticker } = await supabaseClient.from('stickers').select('vehicle_id').eq('qr_token', stickerToken).single();
+        if (!sticker) return;
+        const { data: vehicle } = await supabaseClient.from('vehicles').select('user_id').eq('id', sticker.vehicle_id).single();
+        if (!vehicle) return;
+        const { data: profile } = await supabaseClient.from('profiles').select('phone, show_phone').eq('id', vehicle.user_id).maybeSingle();
+        if (profile && profile.show_phone && profile.phone) {
+            document.getElementById('ownerPhoneLink').href = 'tel:' + profile.phone;
+            document.getElementById('ownerPhoneLink').innerText = profile.phone;
+            document.getElementById('ownerPhoneArea').style.display = 'block';
+        }
+    }
+    checkOwnerPhone();
+
     function setMessage(text) { document.getElementById('messageInput').value = text; }
+
+    async function sendMessage() {
+        if (!supabaseClient) return;
+        const msg = document.getElementById('messageInput').value.trim();
+        const errEl = document.getElementById('errorMsg');
+        errEl.textContent = '';
+        if (!msg) { errEl.textContent = '❌ ' + t('error_msg'); return; }
+        if (!stickerToken) { errEl.textContent = '❌ ' + t('error_token'); return; }
+
+        const existing = localStorage.getItem('safescan_last_session');
+        if (existing) {
+            const { data: open } = await supabaseClient.from('scan_logs').select('id').eq('session_token', existing).eq('status', 'pending').maybeSingle();
+            if (open) { errEl.textContent = '❌ ' + t('already_open_session'); return; }
+        }
+
+        const { data: sticker, error: se } = await supabaseClient.from('stickers').select('id, status, vehicle_id').eq('qr_token', stickerToken).single();
+        if (se || !sticker) { errEl.textContent = '❌ ' + t('sticker_invalid'); return; }
+        if (sticker.status !== 'active') { errEl.textContent = '❌ ' + t('owner_unavailable'); return; }
+        if (sticker.vehicle_id) {
+            const { data: v } = await supabaseClient.from('vehicles').select('is_active').eq('id', sticker.vehicle_id).maybeSingle();
+            if (v && !v.is_active) { errEl.textContent = '❌ ' + t('owner_unavailable'); return; }
+        }
+
+        const sTok = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+        currentSessionToken = sTok;
+        const { error: insertError } = await supabaseClient.from('scan_logs').insert([{sticker_id: sticker.id, visitor_message: msg, session_token: sTok, status: 'pending'}]);
+        if (insertError) { errEl.textContent = '❌ فشل'; return; }
+        localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
+        document.getElementById('sessionLink').innerText = 'https://calm-chebakia-9ddff4.netlify.app/chat.html?session=' + sTok;
+        document.getElementById('sessionArea').style.display = 'block';
+        document.getElementById('messageInput').value = '';
+    }
+
+    function openChat() {
+        if (currentSessionToken) window.open('/chat.html?session=' + currentSessionToken, '_blank');
+    }
+
+    // Dark Mode
+    const dt = document.getElementById('darkModeToggle');
+    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
+    dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
+
+    // اللغة
+    const langSelect = document.getElementById('langSelect');
+    if (langSelect) {
+        langSelect.value = currentLang || 'ar';
+        langSelect.addEventListener('change', function() { setLanguage(this.value); });
+    }
 </script>
 </body>
 </html>
