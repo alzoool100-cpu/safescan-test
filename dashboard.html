@@ -43,7 +43,6 @@
 </head>
 <body>
 
-<!-- الرئيسية -->
 <div id="homePage" class="page active">
     <div class="header"><div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div><div class="car-badge" id="vehicleName">🚗 <span data-key="vehicle_default">سيارتي</span></div></div>
     <div class="card">
@@ -53,14 +52,12 @@
     </div>
 </div>
 
-<!-- الرسائل -->
 <div id="inboxPage" class="page">
     <div class="header"><h3 data-key="inbox_tab">📥 الرسائل</h3><button onclick="loadMessages()" style="background:none;border:none;color:var(--color-primary);cursor:pointer" data-key="refresh">🔄 تحديث</button></div>
     <div class="stats"><div class="stat-item active" id="tabPending" onclick="setFilter('pending')"><div class="stat-number" id="inboxNew">0</div><div data-key="new_msgs">جديدة</div></div><div class="stat-item" id="tabClosed" onclick="setFilter('closed')"><div class="stat-number" id="inboxTotal">0</div><div data-key="replied_msgs">تم الرد</div></div></div>
     <div id="inboxContainer"><div class="loading" data-key="no_messages_inbox">لا توجد رسائل بعد</div></div>
 </div>
 
-<!-- الإعدادات -->
 <div id="settingsPage" class="page">
     <div class="header"><h3 data-key="settings_tab">⚙️ الإعدادات</h3></div>
     <div class="card">
@@ -86,7 +83,6 @@
     </div>
 </div>
 
-<!-- حسابي (مع تعديل بيانات المركبة) -->
 <div id="accountPage" class="page">
     <div class="header"><h3 data-key="account_tab">👤 حسابي</h3></div>
     <div class="card">
@@ -108,7 +104,6 @@
     </div>
 </div>
 
-<!-- شريط التنقل السفلي -->
 <div class="bottom-nav">
     <div class="nav-item active" onclick="switchPage('home')"><span class="icon">🏠</span><span data-key="home_tab">الرئيسية</span></div>
     <div class="nav-item" onclick="switchPage('inbox')"><span class="icon">💬</span><span data-key="inbox_tab">الرسائل</span></div>
@@ -116,7 +111,6 @@
     <div class="nav-item" onclick="switchPage('account')"><span class="icon">👤</span><span data-key="account_tab">حسابي</span></div>
 </div>
 
-<!-- المحادثة الفردية -->
 <div id="conversationPage">
     <div class="conv-header"><button onclick="closeConversation()" style="background:none;border:none;font-size:20px;cursor:pointer">← رجوع</button><strong data-key="reply_title">💬 الرد على الرسالة</strong></div>
     <div class="conv-messages" id="convMessages"></div>
@@ -133,13 +127,12 @@
 
     function safeT(key) { return typeof t === 'function' ? t(key) : key; }
 
-    // استعادة الإعدادات
     function restoreAllSettings() {
         const savedAudio = localStorage.getItem('safescan_audio_enabled') === 'true';
-        const audioBtn = document.getElementById('audioToggleBtn');
-        if (audioBtn) {
-            if (savedAudio) { if(!audioElement) audioElement=new Audio('notification.mp3'); audioBtn.textContent='🔊 '+safeT('audio_on'); audioBtn.classList.add('active'); }
-            else { audioBtn.textContent='🔇 '+safeT('audio_off'); audioBtn.classList.remove('active'); }
+        const btn = document.getElementById('audioToggleBtn');
+        if (btn) {
+            if (savedAudio) { if(!audioElement) audioElement=new Audio('notification.mp3'); btn.textContent='🔊 '+safeT('audio_on'); btn.classList.add('active'); }
+            else { btn.textContent='🔇 '+safeT('audio_off'); btn.classList.remove('active'); }
         }
         const savedDark = localStorage.getItem('darkMode') === 'true';
         document.getElementById('darkModeToggle').checked = savedDark;
