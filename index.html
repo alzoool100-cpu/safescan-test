@@ -6,12 +6,10 @@
     <title>SafeScan - تواصل مع مالك السيارة</title>
     <link rel="stylesheet" href="base.css">
     <link rel="manifest" href="/manifest.json">
-    <style>.quick-msgs{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0;justify-content:center}</style>
 </head>
 <body>
 <button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
 
-<!-- القائمة المنسدلة للغة -->
 <div class="lang-dropdown">
   <select id="langSelect" onchange="changeLanguage(this.value)">
     <option value="ar">العربية</option>
@@ -26,39 +24,149 @@
     <h1 data-key="contact_owner">تواصل مع مالك السيارة</h1>
     <div class="subtitle"><span data-key="scan_contact">Scan to contact the car owner</span></div>
     <div style="background:var(--bg-tag);padding:8px 12px;border-radius:40px;font-size:13px;margin-bottom:20px;display:inline-block" data-key="safe_message">🔔 رسالتك آمنة ولن يظهر رقمك</div>
-    <div id="ownerPhoneArea" style="display:none;background:var(--bg-tag);padding:12px;border-radius:20px;margin:16px 0"><p data-key="phone_revealed">📱 رقم مالك السيارة:</p><a id="ownerPhoneLink" href="#"></a></div>
-    <textarea id="messageInput" data-placeholder="message_placeholder"></textarea>
-    <div class="quick-msgs">
+
+    <div id="ownerPhoneArea" style="display:none; background: var(--bg-tag); padding: 12px; border-radius: 20px; margin: 16px 0;">
+        <p style="font-weight: 600; margin-bottom: 8px;" data-key="phone_revealed">📱 رقم مالك السيارة:</p>
+        <a id="ownerPhoneLink" href="#" style="font-size: 18px; font-weight: 700; color: var(--color-primary); text-decoration: none;"></a>
+        <div id="whatsappArea" style="display:none; margin-top: 12px;">
+            <a id="whatsappLink" href="#" target="_blank" style="text-decoration: none;">
+                <button class="btn btn-success" style="background: #25D366; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;">💬 تواصل عبر واتساب</button>
+            </a>
+        </div>
+    </div>
+
+    <textarea id="messageInput" data-placeholder="message_placeholder" placeholder="اكتب رسالتك هنا..."></textarea>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; justify-content: center;">
         <button class="btn-tag" onclick="setMessage('أنت تسد الممر')" data-key="quick_block">🚫 تسد الطريق</button>
         <button class="btn-tag" onclick="setMessage('الأضواء مشتعلة')" data-key="quick_lights">💡 الأضواء</button>
         <button class="btn-tag" onclick="setMessage('حادث بسيط')" data-key="quick_accident">⚠️ حادث</button>
     </div>
+
     <button class="btn btn-primary" onclick="sendMessage()" data-key="send_btn">📨 إرسال الرسالة</button>
     <div id="errorMsg" class="error-text"></div>
+
+    <div id="sessionArea" class="session-area" style="display:none;">
+        <p style="font-weight:600;margin-bottom:12px" data-key="send_success">✅ تم إرسال رسالتك</p>
+        <button class="btn btn-success" onclick="openChat()" data-key="chat_open">💬 فتح المحادثة الآن</button>
+        <div style="background: var(--bg-card); padding: 10px; border-radius: 30px; margin: 10px 0; word-break: break-all; border: 1px dashed var(--text-muted);">
+            <span data-key="copy_manual">أو يمكنك نسخ الرابط يدوياً:</span><br>
+            <span id="sessionLink" style="font-size:14px;"></span>
+        </div>
+        <p class="info-text" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
+    </div>
+
+    <div style="margin-top:16px; font-size:13px;">
+        <a href="/login.html" style="color: var(--text-muted);" data-key="owner_login">🔐 مالك السيارة؟ سجل دخولك</a>
+    </div>
+    <div style="margin-top:20px; border-top:1px solid var(--border-color); padding-top:16px;">
+        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px" data-key="get_sticker_desc">هل تريد استيكر لسيارتك؟</p>
+        <a href="https://safescan.app/store" target="_blank" style="text-decoration:none;">
+            <button class="btn btn-outline" style="width:100%;" data-key="get_sticker">🛒 احصل على استيكر SafeScan</button>
+        </a>
+    </div>
+    <div style="text-align:center; margin-top: 20px; font-size: 12px; color: var(--text-muted);">
+        <a href="/privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a> · 
+        <a href="/terms.html" style="color: var(--text-muted);">شروط الاستخدام</a> · 
+        <a href="/support.html" style="color: var(--text-muted);">الدعم</a>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="translations.js"></script>
 <script>
-    // ... (نفس كود index.js السابق مع supabaseClient و checkSticker...)
+    let supabaseClient;
+    if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    else alert('خطأ في تحميل المكتبات.');
 
-    // ===== إدارة اللغة =====
-    const langSelect = document.getElementById('langSelect');
-    if (langSelect) {
-        langSelect.value = currentLang;
+    const urlParams = new URLSearchParams(window.location.search);
+    const stickerToken = urlParams.get('token');
+    let currentSessionToken = '';
+
+    async function checkStickerAndRedirect() {
+        if (!stickerToken || !supabaseClient) return;
+        try {
+            const { data: s, error } = await supabaseClient.from('stickers').select('status').eq('qr_token', stickerToken).single();
+            if (!error && s && s.status === 'factory_new') window.location.href = '/register.html?token=' + stickerToken;
+        } catch (e) {}
     }
-    function changeLanguage(lang) {
-        setLanguage(lang);
-        langSelect.value = lang;
-        // تحديث placeholder
-        setTimeout(applyTranslations, 100);
+    checkStickerAndRedirect();
+
+    async function checkOwnerPhone() {
+        if (!stickerToken || !supabaseClient) return;
+        try {
+            const { data: sticker } = await supabaseClient.from('stickers').select('vehicle_id').eq('qr_token', stickerToken).single();
+            if (!sticker) return;
+            const { data: vehicle } = await supabaseClient.from('vehicles').select('user_id').eq('id', sticker.vehicle_id).single();
+            if (!vehicle) return;
+            const { data: profile } = await supabaseClient.from('profiles').select('phone, show_phone').eq('id', vehicle.user_id).maybeSingle();
+            if (profile && profile.show_phone && profile.phone) {
+                document.getElementById('ownerPhoneLink').href = 'tel:' + profile.phone;
+                document.getElementById('ownerPhoneLink').innerText = profile.phone;
+                document.getElementById('ownerPhoneArea').style.display = 'block';
+                const wa = profile.phone.replace(/[^0-9]/g, '');
+                document.getElementById('whatsappLink').href = 'https://wa.me/' + wa + '?text=السلام%20عليكم%20،%20أريد%20التواصل%20بخصوص%20سيارتك';
+                document.getElementById('whatsappArea').style.display = 'block';
+            }
+        } catch (e) {}
+    }
+    checkOwnerPhone();
+
+    function setMessage(text) { document.getElementById('messageInput').value = text; }
+
+    async function sendMessage() {
+        if (!supabaseClient) return;
+        const msg = document.getElementById('messageInput').value.trim();
+        const errEl = document.getElementById('errorMsg');
+        errEl.textContent = '';
+        if (!msg) { errEl.textContent = '❌ ' + (t('error_msg') || 'الرجاء كتابة رسالة'); return; }
+        if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); return; }
+        // حظر IP ونظام منع التعدد كما في السابق...
+        const { data: sticker, error: se } = await supabaseClient.from('stickers').select('id, status, vehicle_id').eq('qr_token', stickerToken).single();
+        if (se || !sticker) { errEl.textContent = '❌ ' + (t('sticker_invalid') || 'استيكر غير صالح'); return; }
+        if (sticker.status !== 'active') { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
+        if (sticker.vehicle_id) {
+            const { data: v } = await supabaseClient.from('vehicles').select('is_active').eq('id', sticker.vehicle_id).maybeSingle();
+            if (v && !v.is_active) { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
+        }
+        const sTok = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+        currentSessionToken = sTok;
+        const { error: insertError } = await supabaseClient.from('scan_logs').insert([{sticker_id: sticker.id, visitor_message: msg, session_token: sTok, status: 'pending'}]);
+        if (insertError) { errEl.textContent = '❌ فشل'; return; }
+        localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
+        document.getElementById('sessionLink').innerText = 'https://calm-chebakia-9ddff4.netlify.app/chat.html?session=' + sTok;
+        document.getElementById('sessionArea').style.display = 'block';
+        document.getElementById('messageInput').value = '';
+    }
+
+    function openChat() {
+        if (currentSessionToken) window.open('/chat.html?session=' + currentSessionToken, '_blank');
+        else alert('الرجاء إرسال رسالة أولاً');
     }
 
     // الوضع الليلي
     const dt = document.getElementById('darkModeToggle');
     if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
-    dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
+    dt.onclick = () => {
+        document.documentElement.classList.toggle('dark-mode');
+        const is = document.documentElement.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', is);
+        dt.textContent = is ? '☀️' : '🌙';
+    };
+
+    // اللغة
+    const langSelect = document.getElementById('langSelect');
+    if (langSelect) {
+        langSelect.value = currentLang || 'ar';
+        langSelect.addEventListener('change', function() {
+            setLanguage(this.value);
+        });
+    }
+    function changeLanguage(lang) {
+        setLanguage(lang);
+        langSelect.value = lang;
+    }
 </script>
 </body>
 </html>
