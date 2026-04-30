@@ -6,11 +6,6 @@
     <title>SafeScan - تواصل مع مالك السيارة</title>
     <link rel="stylesheet" href="base.css">
     <link rel="manifest" href="/manifest.json">
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
-        }
-    </script>
     <style>
         .quick-msgs { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; justify-content: center; }
     </style>
@@ -33,7 +28,6 @@
     <div class="subtitle"><span data-key="scan_contact">المسح للتواصل مع مالك السيارة</span></div>
     <div style="background:var(--bg-tag);padding:8px 12px;border-radius:40px;font-size:13px;margin-bottom:20px;display:inline-block" data-key="safe_message">🔔 رسالتك آمنة ولن يظهر رقمك</div>
 
-    <!-- منطقة إظهار وسائل التواصل حسب اختيار المالك -->
     <div id="ownerContactArea" style="display:none; background: var(--bg-tag); padding: 12px; border-radius: 20px; margin: 16px 0;">
         <div id="ownerPhoneSection" style="display:none;">
             <p style="font-weight: 600; margin-bottom: 8px;" data-key="phone_revealed">📱 رقم مالك السيارة:</p>
@@ -79,33 +73,16 @@
             <button class="btn btn-outline" style="width:100%;" data-key="get_sticker">🛒 احصل على استيكر SafeScan</button>
         </a>
     </div>
-    <div style="text-align:center; margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--border-color); font-size: 13px; color: var(--text-muted);">
-        <a href="/privacy.html" style="color: var(--text-muted); text-decoration: none;" data-key="privacy_title">سياسة الخصوصية</a>
-        &nbsp;·&nbsp;
-        <a href="/terms.html" style="color: var(--text-muted); text-decoration: none;" data-key="terms_title">شروط الاستخدام</a>
-        &nbsp;·&nbsp;
-        <a href="/support.html" style="color: var(--text-muted); text-decoration: none;" data-key="support_title">الدعم</a>
-    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="translations.js"></script>
 <script>
-    let supabaseClient;
-    if (window.supabase) supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const urlParams = new URLSearchParams(window.location.search);
     const stickerToken = urlParams.get('token');
     let currentSessionToken = '';
-
-    async function checkStickerAndRedirect() {
-        if (!stickerToken || !supabaseClient) return;
-        try {
-            const { data: s } = await supabaseClient.from('stickers').select('status').eq('qr_token', stickerToken).single();
-            if (s && s.status === 'factory_new') window.location.href = '/register.html?token=' + stickerToken;
-        } catch (e) {}
-    }
-    checkStickerAndRedirect();
 
     async function checkOwnerPhone() {
         if (!stickerToken || !supabaseClient) return;
@@ -114,29 +91,19 @@
             if (!sticker) return;
             const { data: vehicle } = await supabaseClient.from('vehicles').select('user_id').eq('id', sticker.vehicle_id).single();
             if (!vehicle) return;
-            const { data: profile } = await supabaseClient.from('profiles').select('phone, show_phone, contact_method').eq('id', vehicle.user_id).maybeSingle().setHeader('Accept', 'application/json');
-            if (!profile || !profile.show_phone) return;
+            const { data: profile } = await supabaseClient.from('profiles').select('phone, show_phone').eq('id', vehicle.user_id).maybeSingle();
+            if (!profile || !profile.show_phone || !profile.phone) return;
 
-            const method = profile.contact_method || 'all';
-            const phone = profile.phone || '';
-            if (!phone) return;
-
+            const phone = profile.phone;
             document.getElementById('ownerContactArea').style.display = 'block';
+            document.getElementById('ownerPhoneLink').href = 'tel:' + phone;
+            document.getElementById('ownerPhoneLink').innerText = phone;
+            document.getElementById('ownerPhoneSection').style.display = 'block';
 
-            // إظهار رقم الهاتف إذا كانت الطريقة "all" أو "phone"
-            if (method === 'all' || method === 'phone') {
-                document.getElementById('ownerPhoneLink').href = 'tel:' + phone;
-                document.getElementById('ownerPhoneLink').innerText = phone;
-                document.getElementById('ownerPhoneSection').style.display = 'block';
-            }
-
-            // إظهار زر واتساب إذا كانت الطريقة "all" أو "whatsapp"
-            if (method === 'all' || method === 'whatsapp') {
-                const wa = phone.replace(/[^0-9]/g, '');
-                document.getElementById('whatsappLink').href = 'https://wa.me/' + wa + '?text=السلام%20عليكم%20،%20أريد%20التواصل%20بخصوص%20سيارتك';
-                document.getElementById('whatsappSection').style.display = 'block';
-            }
-        } catch (e) {}
+            const wa = phone.replace(/[^0-9]/g, '');
+            document.getElementById('whatsappLink').href = 'https://wa.me/' + wa;
+            document.getElementById('whatsappSection').style.display = 'block';
+        } catch(e) {}
     }
     checkOwnerPhone();
 
@@ -147,30 +114,18 @@
         const msg = document.getElementById('messageInput').value.trim();
         const errEl = document.getElementById('errorMsg');
         errEl.textContent = '';
-        if (!msg) { errEl.textContent = '❌ ' + t('error_msg'); return; }
-        if (!stickerToken) { errEl.textContent = '❌ ' + t('error_token'); return; }
-
-        const existing = localStorage.getItem('safescan_last_session');
-        if (existing) {
-            const { data: open } = await supabaseClient.from('scan_logs').select('id').eq('session_token', existing).eq('status', 'pending').maybeSingle();
-            if (open) { errEl.textContent = '❌ ' + t('already_open_session'); return; }
-        }
+        if (!msg) { errEl.textContent = '❌ ' + (t('error_msg') || 'اكتب رسالة'); return; }
+        if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); return; }
 
         const { data: sticker, error: se } = await supabaseClient.from('stickers').select('id, status, vehicle_id').eq('qr_token', stickerToken).single();
-        if (se || !sticker) { errEl.textContent = '❌ ' + t('sticker_invalid'); return; }
-        if (sticker.status !== 'active') { errEl.textContent = '❌ ' + t('owner_unavailable'); return; }
-        if (sticker.vehicle_id) {
-            const { data: v } = await supabaseClient.from('vehicles').select('is_active').eq('id', sticker.vehicle_id).maybeSingle();
-            if (v && !v.is_active) { errEl.textContent = '❌ ' + t('owner_unavailable'); return; }
-        }
+        if (se || !sticker) { errEl.textContent = '❌ ' + (t('sticker_invalid') || 'استيكر غير صالح'); return; }
+        if (sticker.status !== 'active') { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
 
         const sTok = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
         currentSessionToken = sTok;
         const { error: insertError } = await supabaseClient.from('scan_logs').insert([{sticker_id: sticker.id, visitor_message: msg, session_token: sTok, status: 'pending'}]);
         if (insertError) { errEl.textContent = '❌ فشل'; return; }
 
-        localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
-        localStorage.setItem('safescan_last_session', sTok);
         document.getElementById('sessionLink').innerText = 'https://calm-chebakia-9ddff4.netlify.app/chat.html?session=' + sTok;
         document.getElementById('sessionArea').style.display = 'block';
         document.getElementById('messageInput').value = '';
@@ -178,7 +133,6 @@
 
     function openChat() {
         if (currentSessionToken) window.open('/chat.html?session=' + currentSessionToken, '_blank');
-        else alert('الرجاء إرسال رسالة أولاً');
     }
 
     // الوضع الليلي
