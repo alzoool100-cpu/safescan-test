@@ -1,61 +1,39 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-key="terms_title">شروط الاستخدام</title>
     <link rel="stylesheet" href="base.css">
 </head>
 <body>
-
 <button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
 
 <div class="lang-dropdown">
   <select id="langSelect" onchange="setLanguage(this.value)">
-    <option value="ar">العربية</option>
-    <option value="en">English</option>
-    <option value="hi">हिन्दी</option>
-    <option value="ur">اردو</option>
+    <option value="ar">العربية</option><option value="en">English</option><option value="hi">हिन्दी</option><option value="ur">اردو</option>
   </select>
 </div>
 
 <div class="card" style="max-width:650px;text-align:right;line-height:1.9;margin-top:60px;">
     <h1 data-key="terms_title">شروط الاستخدام</h1>
-    <p style="color:var(--text-muted)" data-key="terms_last_update">آخر تحديث: 1 مايو 2026</p>
-
-    <p data-key="terms_intro">باستخدامك لخدمة SafeScan...</p>
-
-    <h2 data-key="terms_s1_title">1. وصف الخدمة</h2>
-    <p data-key="terms_s1_text">SafeScan هي خدمة تقنية تقدم استيكرًا ذكيًا...</p>
-
-    <h2 data-key="terms_s2_title">2. التزامات المستخدم</h2>
-    <p data-key="terms_s2_text">بصفتك مالكًا، تتعهد بتقديم رقم جوال صحيح...</p>
-
-    <h2 data-key="terms_s3_title">3. حدود المسؤولية</h2>
-    <p data-key="terms_s3_text">يتم تقديم الخدمة 'كما هي'...</p>
-
-    <h2 data-key="terms_s4_title">4. إنهاء الخدمة</h2>
-    <p data-key="terms_s4_text">تحتفظ SafeScan بالحق في إنهاء أو تعليق حساب أي مستخدم...</p>
-
-    <h2 data-key="terms_s5_title">5. القانون المطبق</h2>
-    <p data-key="terms_s5_text">تخضع هذه الشروط وتفسر وفقًا لأنظمة المملكة العربية السعودية.</p>
-
-    <h2 data-key="terms_s6_title">6. اتصل بنا</h2>
-    <p data-key="terms_s6_text">لأي استفسارات حول هذه الشروط، يرجى التواصل معنا عبر واتساب أو البريد الإلكتروني.</p>
-
-    <div style="margin-top:32px;text-align:center;border-top:1px solid var(--border-color);padding-top:20px">
-        <a href="/" data-key="terms_back">العودة إلى الرئيسية</a>
-    </div>
+    <p style="color:var(--text-muted)" data-key="terms_last_update"></p>
+    <p data-key="terms_intro"></p>
+    <h2 data-key="terms_s1_title"></h2><p data-key="terms_s1_text"></p>
+    <h2 data-key="terms_s2_title"></h2><p data-key="terms_s2_text"></p>
+    <h2 data-key="terms_s3_title"></h2><p data-key="terms_s3_text"></p>
+    <h2 data-key="terms_s4_title"></h2><p data-key="terms_s4_text"></p>
+    <h2 data-key="terms_s5_title"></h2><p data-key="terms_s5_text"></p>
+    <h2 data-key="terms_s6_title"></h2><p data-key="terms_s6_text"></p>
+    <div style="margin-top:32px;text-align:center"><a href="/" data-key="terms_back"></a></div>
 </div>
-
 <script src="translations.js"></script>
 <script>
-    document.getElementById('langSelect').value = currentLang;
     applyTranslations();
-    document.getElementById('langSelect').addEventListener('change', function() { setLanguage(this.value); });
-    const dt = document.getElementById('darkModeToggle');
-    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
-    dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
+    document.getElementById('langSelect').value = currentLang;
+    document.getElementById('langSelect').addEventListener('change', function(){ setLanguage(this.value); });
+    const dt=document.getElementById('darkModeToggle');
+    if(localStorage.getItem('darkMode')==='true'){document.documentElement.classList.add('dark-mode');dt.textContent='☀️';}
+    dt.onclick=()=>{document.documentElement.classList.toggle('dark-mode');const is=document.documentElement.classList.contains('dark-mode');localStorage.setItem('darkMode',is);dt.textContent=is?'☀️':'🌙';};
 </script>
 </body>
 </html>
