@@ -148,3 +148,29 @@ body::after {
 .dark-mode body::after {
   opacity: 0.08;
 }
+/* ========== خلفية شفافة بأيقونات SafeScan ========== */
+body::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.04;
+  background-image: 
+    /* أيقونة سيارة */ 
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath fill='%231a3a5c' d='M37.8 14.4c-.6-1.2-1.8-2-3.2-2H13.4c-1.4 0-2.6.8-3.2 2L6 24v12c0 1.1.9 2 2 2h3c1.1 0 2-.9 2-2v-1h22v1c0 1.1.9 2 2 2h3c1.1 0 2-.9 2-2V24l-4.2-9.6zM15 28c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm18 0c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z'/%3E%3C/svg%3E"),
+    /* أيقونة QR */ 
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%231a3a5c' d='M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm11 0h2v2h-2v-2zm2 2h2v2h-2v-2zm0 4h2v2h-2v-2zm-2 0h2v2h-2v-2zm-2-2h2v2h-2v-2zm0-2h2v2h-2v-2zm-2 4h2v2h-2v-2z'/%3E%3C/svg%3E"),
+    /* أيقونة واي فاي */ 
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%231a3a5c' d='M12 18c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm-4.24-3.66a5.95 5.95 0 0 1 8.48 0l1.41-1.41a7.96 7.96 0 0 0-11.31 0l1.42 1.41zm-2.83-2.83a9.95 9.95 0 0 1 14.14 0l1.41-1.41c-4.69-4.69-12.28-4.69-16.97 0l1.42 1.41z'/%3E%3C/svg%3E");
+  background-size: 60px 60px, 50px 50px, 45px 45px;
+  background-position: 10% 20%, 80% 70%, 50% 40%;
+  background-repeat: no-repeat;
+}
+
+.dark-mode body::after {
+  opacity: 0.08;
+}
