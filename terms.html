@@ -8,9 +8,7 @@
     <link rel="manifest" href="/manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(reg => console.log('SW registered'))
-                .catch(err => console.error('SW failed', err));
+            navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
         }
     </script>
     <style>
@@ -59,21 +57,17 @@
     <h2 data-key="terms_s6_title">6. اتصل بنا</h2>
     <p data-key="terms_s6_text">لأي استفسارات حول هذه الشروط، يرجى التواصل معنا عبر واتساب: <span dir="ltr">+966 54 105 4516</span> أو البريد الإلكتروني: <span dir="ltr">legal@safescan.app</span></p>
 
-    <!-- ========== هذا التعديل الوحيد: زر العودة للصفحة السابقة ========== -->
     <div style="margin-top: 32px; text-align: center; border-top: 1px solid var(--border-color); padding-top: 20px;">
         <a href="#" onclick="history.back(); return false;" style="color: var(--color-primary);" data-key="terms_back">العودة للصفحة السابقة</a>
     </div>
-    <!-- =============================================================== -->
 </div>
 
 <script src="translations.js"></script>
 <script>
-    // ترجمة
     document.getElementById('langSelect').value = currentLang;
     applyTranslations();
     document.getElementById('langSelect').addEventListener('change', function() { setLanguage(this.value); });
 
-    // وضع ليلي
     const dt = document.getElementById('darkModeToggle');
     if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
     dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
