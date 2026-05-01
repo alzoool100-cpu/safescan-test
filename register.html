@@ -135,12 +135,18 @@
             return;
         }
 
-        // 1. البحث عن الاستيكر برمز التفعيل
-        const { data: sticker, error: stickerError } = await supabaseClient
-            .from('stickers')
-            .select('*')
-            .eq('activation_code', token)
-            .single();
+        const { data: vehicle, error: vehicleError } = await supabaseClient
+    .from('vehicles')
+    .insert([{ 
+        user_id: userId, 
+        custom_name: carName || 'سيارتي',
+        plate_number: plateNumber || null,
+        model: model || null,
+        driver_name: driverName || null,
+        is_active: true  // <-- تفعيل تلقائي
+    }])
+    .select()
+    .single();
 
         if (stickerError || !sticker) {
             errorEl.textContent = '❌ رمز التفعيل غير صحيح';
