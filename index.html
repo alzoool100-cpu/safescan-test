@@ -157,7 +157,13 @@
 
         const { data: sticker, error: se } = await supabaseClient.from('stickers').select('id, status, vehicle_id').eq('qr_token', stickerToken).single();
         if (se || !sticker) { errEl.textContent = '❌ ' + (t('sticker_invalid') || 'استيكر غير صالح'); return; }
-        if (sticker.status !== 'active') { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
+        
+        // رسالة خطأ محسّنة
+        if (sticker.status !== 'active') {
+            errEl.textContent = '❌ ' + (sticker.status === 'inactive' ? 'المالك أوقف الاستقبال مؤقتاً' : t('sticker_invalid') || 'استيكر غير مفعّل');
+            return;
+        }
+
         if (sticker.vehicle_id) {
             const { data: v } = await supabaseClient.from('vehicles').select('is_active').eq('id', sticker.vehicle_id).maybeSingle();
             if (v && !v.is_active) { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
@@ -181,12 +187,7 @@
 
     const dt = document.getElementById('darkModeToggle');
     if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
-    dt.onclick = () => {
-        document.documentElement.classList.toggle('dark-mode');
-        const is = document.documentElement.classList.contains('dark-mode');
-        localStorage.setItem('darkMode', is);
-        dt.textContent = is ? '☀️' : '🌙';
-    };
+    dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
 
     const langSelect = document.getElementById('langSelect');
     if (langSelect) {
