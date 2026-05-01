@@ -89,6 +89,14 @@
         <div class="settings-row"><span data-key="phone_registered">📱 رقم الجوال المسجل</span><span id="phoneDisplay">---</span></div>
         <div class="settings-row"><span data-key="vehicle_info">🚗 المركبة</span><span id="vehicleDisplay">---</span></div>
         <div class="settings-row"><span>🏷️ عدد الاستيكرات</span><span id="stickerCount">---</span></div>
+        
+        <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px">
+            <h4>🏷️ استيكراتي</h4>
+            <div id="myStickersList" style="max-height: 200px; overflow-y: auto; margin: 12px 0;">
+                <div class="loading">جار التحميل...</div>
+            </div>
+        </div>
+
         <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px">
             <h4 data-key="edit_profile">تعديل بيانات المركبة</h4>
             <label data-key="vehicle_name_label">اسم المركبة</label>
@@ -193,7 +201,6 @@
             document.getElementById('editModel').value = currentVehicle.model || '';
             document.getElementById('editDriver').value = currentVehicle.driver_name || '';
 
-            // عدد الاستيكرات
             const { count: stickerCount } = await supabaseClient.from('stickers').select('*', { count: 'exact', head: true }).eq('vehicle_id', currentVehicle.id);
             document.getElementById('stickerCount').innerText = stickerCount || 0;
         } else {
@@ -203,6 +210,7 @@
         updateToggleUI();
         await loadMessages();
         loadHomeStats();
+        loadMyStickers();
         setTimeout(setupRealtime, 3000);
         applyTranslations();
     }
@@ -233,7 +241,16 @@
     }
 
     function updateToggleUI(){const t=document.getElementById('statusToggle'),l=document.getElementById('statusLabel');if(active){t.classList.remove('off');l.innerHTML=safeT('status_active');}else{t.classList.add('off');l.innerHTML=safeT('status_off');}}
-    async function toggleStatus(){if(!currentVehicle)return;active=!active;updateToggleUI();await supabaseClient.from('vehicles').update({is_active:active}).eq('id',currentVehicle.id);const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);if(stickers)for(const s of stickers)await supabaseClient.from('stickers').update({status:active?'active':'inactive'}).eq('id',s.id);loadMessages();}
+    
+    async function toggleStatus(){
+        if(!currentVehicle)return;
+        active=!active;
+        updateToggleUI();
+        await supabaseClient.from('vehicles').update({is_active:active}).eq('id',currentVehicle.id);
+        const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);
+        if(stickers)for(const s of stickers)await supabaseClient.from('stickers').update({status:active?'active':'inactive'}).eq('id',s.id);
+        loadMessages();
+    }
 
     async function toggleShowPhone(){
         const newValue = document.getElementById('showPhoneToggle').checked;
@@ -320,6 +337,32 @@
         showToast(safeT('changes_saved'));
         document.getElementById('vehicleDisplay').innerText = carName || safeT('vehicle_default');
         document.getElementById('vehicleName').innerHTML = '🚗 <span data-key="vehicle_default">' + (carName || safeT('vehicle_default')) + '</span>';
+    }
+
+    async function loadMyStickers() {
+        if (!currentVehicle) return;
+        const { data: stickers, error } = await supabaseClient.from('stickers').select('*').eq('vehicle_id', currentVehicle.id).order('activated_at', { ascending: false });
+        const container = document.getElementById('myStickersList');
+        if (error || !stickers?.length) {
+            container.innerHTML = '<div class="loading">لا توجد استيكرات بعد</div>';
+            return;
+        }
+        let html = '';
+        stickers.forEach(s => {
+            const qrLink = `https://calm-chebakia-9ddff4.netlify.app/?token=${s.qr_token}`;
+            const statusColor = s.status === 'active' ? 'var(--color-success)' : (s.status === 'inactive' ? 'var(--color-danger)' : 'var(--color-warning)');
+            html += `
+                <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                    <span>${s.qr_token || '---'}</span>
+                    <span style="color: ${statusColor}; font-weight: 600;">${s.status === 'active' ? '🟢 مفعل' : (s.status === 'inactive' ? '🔴 موقف' : '🟡 جديد')}</span>
+                    <button onclick="copyToClipboard('${qrLink}')" style="background:none; border:none; color: var(--color-primary); cursor:pointer;" title="نسخ الرابط">📋</button>
+                </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => showToast('✅ تم نسخ الرابط')).catch(() => showToast('❌ فشل النسخ'));
     }
 
     function playNotificationSound(){if(audioElement){audioElement.currentTime=0;audioElement.play().catch(()=>{});}}
