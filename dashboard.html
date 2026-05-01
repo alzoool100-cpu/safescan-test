@@ -88,6 +88,7 @@
     <div class="card">
         <div class="settings-row"><span data-key="phone_registered">📱 رقم الجوال المسجل</span><span id="phoneDisplay">---</span></div>
         <div class="settings-row"><span data-key="vehicle_info">🚗 المركبة</span><span id="vehicleDisplay">---</span></div>
+        <div class="settings-row"><span>🏷️ عدد الاستيكرات</span><span id="stickerCount">---</span></div>
         <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px">
             <h4 data-key="edit_profile">تعديل بيانات المركبة</h4>
             <label data-key="vehicle_name_label">اسم المركبة</label>
@@ -191,6 +192,10 @@
             document.getElementById('editPlate').value = currentVehicle.plate_number || '';
             document.getElementById('editModel').value = currentVehicle.model || '';
             document.getElementById('editDriver').value = currentVehicle.driver_name || '';
+
+            // عدد الاستيكرات
+            const { count: stickerCount } = await supabaseClient.from('stickers').select('*', { count: 'exact', head: true }).eq('vehicle_id', currentVehicle.id);
+            document.getElementById('stickerCount').innerText = stickerCount || 0;
         } else {
             const {data:newVehicle}=await supabaseClient.from('vehicles').insert([{user_id:user.id}]).select().single();
             currentVehicle=newVehicle;
