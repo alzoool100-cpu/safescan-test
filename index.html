@@ -31,7 +31,6 @@
     <div class="subtitle"><span data-key="scan_contact">المسح للتواصل مع مالك السيارة</span></div>
     <div style="background:var(--bg-tag);padding:8px 12px;border-radius:40px;font-size:13px;margin-bottom:20px;display:inline-block" data-key="safe_message">🔔 رسالتك آمنة ولن يظهر رقمك</div>
 
-    <!-- منطقة وسائل التواصل (تظهر فقط إذا أذن المالك) -->
     <div id="ownerContactArea" style="display:none; background: var(--bg-tag); padding: 12px; border-radius: 20px; margin: 16px 0;">
         <div id="ownerPhoneSection" style="display:none;">
             <p style="font-weight: 600; margin-bottom: 8px;" data-key="phone_revealed">📱 رقم مالك السيارة:</p>
@@ -88,15 +87,11 @@
 <script src="config.js"></script>
 <script src="translations.js"></script>
 <script>
-    // ========== التهيئة ==========
     const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    if (!supabaseClient) alert('خطأ في تحميل المكتبات.');
-
     const urlParams = new URLSearchParams(window.location.search);
     const stickerToken = urlParams.get('token');
     let currentSessionToken = '';
 
-    // ========== التوجيه الذكي ==========
     async function checkStickerAndRedirect() {
         if (!stickerToken || !supabaseClient) return;
         try {
@@ -106,7 +101,6 @@
     }
     checkStickerAndRedirect();
 
-    // ========== إظهار وسائل التواصل حسب إعدادات المالك ==========
     async function checkOwnerPhone() {
         if (!stickerToken || !supabaseClient) return;
         try {
@@ -116,7 +110,6 @@
             if (!vehicle) return;
             const { data: profile } = await supabaseClient.from('profiles').select('phone, show_phone, contact_method').eq('id', vehicle.user_id).maybeSingle();
             
-            // إذا لم يسمح المالك أو لا يوجد رقم
             if (!profile || !profile.show_phone || !profile.phone) {
                 document.getElementById('ownerContactArea').style.display = 'none';
                 return;
@@ -125,13 +118,10 @@
             const method = profile.contact_method || 'all';
             const phone = profile.phone;
             document.getElementById('ownerContactArea').style.display = 'block';
-
-            // إخفاء الكل أولاً
             document.getElementById('ownerPhoneSection').style.display = 'none';
             document.getElementById('whatsappSection').style.display = 'none';
             document.getElementById('smsSection').style.display = 'none';
 
-            // إظهار حسب الطريقة المختارة
             if (method === 'all' || method === 'phone') {
                 document.getElementById('ownerPhoneLink').href = 'tel:' + phone;
                 document.getElementById('ownerPhoneLink').innerText = phone;
@@ -149,10 +139,8 @@
     }
     checkOwnerPhone();
 
-    // ========== أزرار الرسائل الجاهزة ==========
     function setMessage(text) { document.getElementById('messageInput').value = text; }
 
-    // ========== إرسال الرسالة ==========
     async function sendMessage() {
         if (!supabaseClient) return;
         const msg = document.getElementById('messageInput').value.trim();
@@ -161,7 +149,6 @@
         if (!msg) { errEl.textContent = '❌ ' + (t('error_msg') || 'اكتب رسالة'); return; }
         if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); return; }
 
-        // منع تعدد الرسائل
         const existing = localStorage.getItem('safescan_last_session');
         if (existing) {
             const { data: open } = await supabaseClient.from('scan_logs').select('id').eq('session_token', existing).eq('status', 'pending').maybeSingle();
@@ -192,7 +179,6 @@
         if (currentSessionToken) window.open('/chat.html?session=' + currentSessionToken, '_blank');
     }
 
-    // ========== الوضع الليلي ==========
     const dt = document.getElementById('darkModeToggle');
     if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
     dt.onclick = () => {
@@ -202,7 +188,6 @@
         dt.textContent = is ? '☀️' : '🌙';
     };
 
-    // ========== اللغة ==========
     const langSelect = document.getElementById('langSelect');
     if (langSelect) {
         langSelect.value = currentLang || 'ar';
