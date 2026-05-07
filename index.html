@@ -136,7 +136,7 @@
                 .maybeSingle()
                 .setHeader('Accept', 'application/json');
 
-            if (!profile || !profile.show_phone || !profile.phone) {
+           if (!profile || profile.show_phone !== true || !profile.phone) {
                 document.getElementById('ownerContactArea').style.display = 'none';
                 return;
             }
