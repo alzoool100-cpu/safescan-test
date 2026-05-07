@@ -1,39 +1,60 @@
-const CACHE_NAME = 'safescan-v1';
-
-self.addEventListener('install', event => {
-  console.log('Service Worker: Installed');
-  self.skipWaiting();
+// service-worker.js
+self.addEventListener('install', (event) => {
+    console.log('Service Worker: Installed');
+    self.skipWaiting();
 });
 
-self.addEventListener('activate', event => {
-  console.log('Service Worker: Activated');
-  event.waitUntil(clients.claim());
+self.addEventListener('activate', (event) => {
+    console.log('Service Worker: Activated');
+    event.waitUntil(clients.claim());
 });
 
-// استقبال الإشعارات الفورية (Push Notifications)
-self.addEventListener('push', event => {
-  console.log('Service Worker: Push Received');
-  if (event.data) {
-    const data = event.data.json();
+// استقبال الإشعارات الفورية
+self.addEventListener('push', (event) => {
+    console.log('Service Worker: Push Received');
+    
+    let data = { title: 'SafeScan', body: 'لديك رسالة جديدة' };
+    
+    if (event.data) {
+        try {
+            data = event.data.json();
+        } catch (e) {
+            data.body = event.data.text();
+        }
+    }
+
     const options = {
-      body: data.message || 'لديك رسالة جديدة في SafeScan',
-      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🛡️</text></svg>',
-      badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🛡️</text></svg>',
-      vibrate: [200, 100, 200],
-      dir: 'rtl',
-      lang: 'ar',
-      data: {
-        url: '/dashboard.html'
-      }
+        body: data.body,
+        icon: '/favicon.ico',
+        badge: '/favicon.ico',
+        vibrate: [200, 100, 200],
+        data: {
+            url: data.url || '/dashboard.html'
+        }
     };
-    event.waitUntil(self.registration.showNotification('📩 SafeScan', options));
-  }
+
+    event.waitUntil(
+        self.registration.showNotification(data.title, options)
+    );
 });
 
-// عند النقر على الإشعار، يفتح لوحة التحكم
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-  event.waitUntil(
-    clients.openWindow('/dashboard.html')
-  );
+// عند النقر على الإشعار
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    const url = event.notification.data?.url || '/dashboard.html';
+    
+    event.waitUntil(
+        clients.matchAll({ type: 'window' }).then((clientList) => {
+            // إذا كانت هناك علامة تبويب مفتوحة، ركز عليها
+            for (const client of clientList) {
+                if (client.url === url && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            // وإلا افتح علامة تبويب جديدة
+            if (clients.openWindow) {
+                return clients.openWindow(url);
+            }
+        })
+    );
 });
