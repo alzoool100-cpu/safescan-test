@@ -31,7 +31,6 @@
     <div class="subtitle"><span data-key="scan_contact">المسح للتواصل مع مالك السيارة</span></div>
     <div style="background:var(--bg-tag);padding:8px 12px;border-radius:40px;font-size:13px;margin-bottom:20px;display:inline-block" data-key="safe_message">🔔 رسالتك آمنة ولن يظهر رقمك</div>
 
-    <!-- منطقة إظهار وسائل التواصل حسب اختيار المالك -->
     <div id="ownerContactArea" style="display:none; background: var(--bg-tag); padding: 12px; border-radius: 20px; margin: 16px 0;">
         <div id="ownerPhoneSection" style="display:none;">
             <p style="font-weight: 600; margin-bottom: 8px;" data-key="phone_revealed">📱 رقم مالك السيارة:</p>
@@ -49,7 +48,6 @@
         </div>
     </div>
 
-    <!-- سجل المحادثة الداخلي (يظهر بعد أول رسالة) -->
     <div id="chatLog" style="display:none; margin: 20px 0; max-height: 300px; overflow-y: auto; text-align: right;">
         <div id="chatMessages"></div>
     </div>
@@ -68,7 +66,6 @@
     <button class="btn btn-primary" onclick="sendMessage()" data-key="send_btn">📨 إرسال الرسالة</button>
     <div id="errorMsg" class="error-text"></div>
 
-    <!-- منطقة نجاح الإرسال وزر متابعة المحادثة (احتياطي) -->
     <div id="sessionArea" class="session-area" style="display:none; text-align: center;">
         <button id="openChatBtn" class="btn btn-success" onclick="openChat()" data-key="chat_open" style="font-size: 14px; padding: 10px 20px;">💬 فتح في نافذة جديدة</button>
         <p class="info-text" style="margin-top: 8px;" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
@@ -96,6 +93,18 @@
     const stickerToken = urlParams.get('token');
     let currentSessionToken = '';
     let waitingForReply = false;
+
+    // ========== بصمة الزائر ==========
+    function getVisitorFingerprint() {
+        const data = [
+            navigator.userAgent,
+            screen.width,
+            screen.height,
+            navigator.language,
+            new Date().getTimezoneOffset()
+        ].join('|');
+        return btoa(data).substring(0, 24); // ترميز قصير
+    }
 
     // ========== التوجيه الذكي ==========
     async function checkStickerAndRedirect() {
@@ -157,7 +166,7 @@
         btn.addEventListener('click', function() { setMessage(this.textContent); });
     });
 
-    // ========== إرسال الرسالة ==========
+    // ========== فحص الحظر وإرسال الرسالة ==========
     async function sendMessage() {
         if (!supabaseClient) return;
         const msg = document.getElementById('messageInput').value.trim();
@@ -166,13 +175,11 @@
         if (!msg) { errEl.textContent = '❌ ' + (t('error_msg') || 'اكتب رسالة'); return; }
         if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); return; }
 
-        // منع إرسال رسالة ثانية حتى يرد المالك
         if (waitingForReply) {
             errEl.textContent = '❌ انتظر رد المالك أولاً قبل إرسال رسالة أخرى.';
             return;
         }
 
-        // نظام حصة الرسائل (3 رسائل في الساعة)
         const now = Date.now();
         const quotaKey = 'safescan_quota_' + stickerToken;
         let quota = JSON.parse(localStorage.getItem(quotaKey) || '{"count":0,"resetAt":0}');
@@ -182,7 +189,9 @@
             return;
         }
 
-        // جلب الاستيكر
+        // بصمة الزائر
+        const fingerprint = getVisitorFingerprint();
+
         const { data: sticker, error: se } = await supabaseClient
             .from('stickers').select('id, status, vehicle_id').eq('qr_token', stickerToken)
             .maybeSingle().setHeader('Accept', 'application/json');
@@ -191,35 +200,48 @@
             errEl.textContent = '❌ ' + (sticker.status === 'inactive' ? 'المالك أوقف الاستقبال مؤقتاً' : t('sticker_invalid') || 'استيكر غير مفعّل');
             return;
         }
+
+        // جلب قائمة المحظورين للمالك
+        if (sticker.vehicle_id) {
+            const { data: vehicle } = await supabaseClient
+                .from('vehicles').select('user_id').eq('id', sticker.vehicle_id).maybeSingle().setHeader('Accept', 'application/json');
+            if (vehicle) {
+                const { data: profile } = await supabaseClient
+                    .from('profiles').select('blocked_ips').eq('id', vehicle.user_id).maybeSingle().setHeader('Accept', 'application/json');
+                let blocked = [];
+                try { blocked = JSON.parse(profile?.blocked_ips || '[]'); } catch(e) {}
+                if (blocked.includes(fingerprint)) {
+                    errEl.textContent = '❌ ' + (t('blocked_message') || 'تم حظرك من قبل المالك');
+                    return;
+                }
+            }
+        }
+
         if (sticker.vehicle_id) {
             const { data: v } = await supabaseClient.from('vehicles').select('is_active').eq('id', sticker.vehicle_id).maybeSingle().setHeader('Accept', 'application/json');
             if (v && !v.is_active) { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
         }
 
-        // إرسال الرسالة إلى قاعدة البيانات
         const sTok = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
         currentSessionToken = sTok;
         const { error: insertError } = await supabaseClient
-            .from('scan_logs').insert([{sticker_id: sticker.id, visitor_message: msg, session_token: sTok, status: 'pending'}]);
+            .from('scan_logs')
+            .insert([{sticker_id: sticker.id, visitor_message: msg, session_token: sTok, status: 'pending', visitor_fingerprint: fingerprint}]);
         if (insertError) { errEl.textContent = '❌ فشل'; return; }
 
-        // تحديث الحصة وقفل الكتابة
         quota.count++;
         localStorage.setItem(quotaKey, JSON.stringify(quota));
         waitingForReply = true;
         document.getElementById('messageInput').disabled = true;
 
-        // إشعار للمالك
         localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
 
-        // إظهار سجل المحادثة وإخفاء صندوق الكتابة والأزرار
         document.getElementById('chatLog').style.display = 'block';
         document.getElementById('chatMessages').innerHTML = `<div class="message-bubble visitor-bubble">🧑 أنت: ${msg}</div><div style="text-align:center; color: var(--text-muted); margin-top:10px;">⏳ في انتظار رد المالك...</div>`;
         document.getElementById('messageInput').style.display = 'none';
         document.querySelector('.quick-msgs').style.display = 'none';
         document.querySelector('.btn-primary[data-key="send_btn"]').style.display = 'none';
 
-        // إظهار منطقة متابعة المحادثة (زر احتياطي)
         document.getElementById('sessionArea').style.display = 'block';
     }
 
@@ -227,7 +249,6 @@
         if (currentSessionToken) window.open('/chat.html?session=' + currentSessionToken, '_blank');
     }
 
-    // ========== التحقق دورياً من رد المالك ==========
     function checkReplyStatus() {
         if (!waitingForReply || !currentSessionToken) return;
         supabaseClient
@@ -260,12 +281,10 @@
         setTimeout(() => t.remove(), 3500);
     }
 
-    // ========== الوضع الليلي ==========
     const dt = document.getElementById('darkModeToggle');
     if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
     dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
 
-    // ========== اللغة ==========
     const langSelect = document.getElementById('langSelect');
     if (langSelect) {
         langSelect.value = currentLang || 'ar';
