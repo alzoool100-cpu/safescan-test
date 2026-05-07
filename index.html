@@ -63,11 +63,12 @@
     <div id="errorMsg" class="error-text"></div>
 
     <div id="sessionArea" class="session-area" style="display:none; text-align: center;">
-    <p style="font-weight:600;margin-bottom:12px; font-size: 15px;" data-key="send_success">✅ تم إرسال رسالتك</p>
-    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">يمكنك متابعة الردود بالضغط على الزر أدناه</p>
-    <button id="openChatBtn" class="btn btn-success" onclick="openChat()" data-key="chat_open" style="font-size: 16px; padding: 14px 24px;">💬 متابعة المحادثة</button>
-    <p class="info-text" style="margin-top: 12px;" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
-</div>
+        <p style="font-weight:600;margin-bottom:12px; font-size: 15px;" data-key="send_success">✅ تم إرسال رسالتك</p>
+        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">يمكنك متابعة الردود بالضغط على الزر أدناه</p>
+        <span id="sessionLink" style="display:none;"></span>
+        <button id="openChatBtn" class="btn btn-success" onclick="openChat()" data-key="chat_open" style="font-size: 16px; padding: 14px 24px;">💬 متابعة المحادثة</button>
+        <p class="info-text" style="margin-top: 12px;" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
+    </div>
 
     <div style="margin-top:20px;border-top:1px solid var(--border-color);padding-top:16px;">
         <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px" data-key="get_sticker_desc">هل تريد استيكر لسيارتك؟</p>
@@ -91,49 +92,25 @@
     const stickerToken = urlParams.get('token');
     let currentSessionToken = '';
 
-    // ========== التوجيه الذكي (مع .setHeader) ==========
     async function checkStickerAndRedirect() {
         if (!stickerToken || !supabaseClient) return;
         try {
-            const { data: s } = await supabaseClient
-                .from('stickers')
-                .select('status')
-                .eq('qr_token', stickerToken)
-                .maybeSingle()
-                .setHeader('Accept', 'application/json');
+            const { data: s } = await supabaseClient.from('stickers').select('status').eq('qr_token', stickerToken).maybeSingle().setHeader('Accept', 'application/json');
             if (s && s.status === 'factory_new') window.location.href = '/register.html?token=' + stickerToken;
-        } catch(e) { console.error('خطأ في التوجيه:', e); }
+        } catch(e) {}
     }
     checkStickerAndRedirect();
 
-    // ========== إظهار وسائل التواصل (مع .setHeader) ==========
     async function checkOwnerPhone() {
         if (!stickerToken || !supabaseClient) return;
         try {
-            const { data: sticker } = await supabaseClient
-                .from('stickers')
-                .select('vehicle_id')
-                .eq('qr_token', stickerToken)
-                .maybeSingle()
-                .setHeader('Accept', 'application/json');
+            const { data: sticker } = await supabaseClient.from('stickers').select('vehicle_id').eq('qr_token', stickerToken).maybeSingle().setHeader('Accept', 'application/json');
             if (!sticker) return;
-
-            const { data: vehicle } = await supabaseClient
-                .from('vehicles')
-                .select('user_id')
-                .eq('id', sticker.vehicle_id)
-                .maybeSingle()
-                .setHeader('Accept', 'application/json');
+            const { data: vehicle } = await supabaseClient.from('vehicles').select('user_id').eq('id', sticker.vehicle_id).maybeSingle().setHeader('Accept', 'application/json');
             if (!vehicle) return;
+            const { data: profile } = await supabaseClient.from('profiles').select('phone, show_phone, contact_method').eq('id', vehicle.user_id).maybeSingle().setHeader('Accept', 'application/json');
 
-            const { data: profile } = await supabaseClient
-                .from('profiles')
-                .select('phone, show_phone, contact_method')
-                .eq('id', vehicle.user_id)
-                .maybeSingle()
-                .setHeader('Accept', 'application/json');
-
-           if (!profile || profile.show_phone !== true || !profile.phone) {
+            if (!profile || profile.show_phone !== true || !profile.phone) {
                 document.getElementById('ownerContactArea').style.display = 'none';
                 return;
             }
@@ -158,20 +135,15 @@
                 document.getElementById('smsLink').href = 'sms:' + phone;
                 document.getElementById('smsSection').style.display = 'block';
             }
-        } catch(e) { console.error('خطأ في جلب بيانات المالك:', e); }
+        } catch(e) {}
     }
     checkOwnerPhone();
 
-    // ========== أزرار الرسائل الجاهزة ==========
     function setMessage(text) { document.getElementById('messageInput').value = text; }
-    // ربط الأزرار بالأحداث
     document.querySelectorAll('[data-key^="quick_"]').forEach(btn => {
-        btn.addEventListener('click', function() {
-            setMessage(this.textContent);
-        });
+        btn.addEventListener('click', function() { setMessage(this.textContent); });
     });
 
-    // ========== إرسال الرسالة (مع .setHeader) ==========
     async function sendMessage() {
         if (!supabaseClient) return;
         const msg = document.getElementById('messageInput').value.trim();
@@ -180,53 +152,29 @@
         if (!msg) { errEl.textContent = '❌ ' + (t('error_msg') || 'اكتب رسالة'); return; }
         if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); return; }
 
-        // منع تعدد الرسائل
         const existing = localStorage.getItem('safescan_last_session');
         if (existing) {
-            const { data: open } = await supabaseClient
-                .from('scan_logs')
-                .select('id')
-                .eq('session_token', existing)
-                .eq('status', 'pending')
-                .maybeSingle()
-                .setHeader('Accept', 'application/json');
+            const { data: open } = await supabaseClient.from('scan_logs').select('id').eq('session_token', existing).eq('status', 'pending').maybeSingle().setHeader('Accept', 'application/json');
             if (open) { errEl.textContent = '❌ ' + (t('already_open_session') || 'لديك محادثة مفتوحة'); return; }
         }
 
-        const { data: sticker, error: se } = await supabaseClient
-            .from('stickers')
-            .select('id, status, vehicle_id')
-            .eq('qr_token', stickerToken)
-            .maybeSingle()
-            .setHeader('Accept', 'application/json');
-
+        const { data: sticker, error: se } = await supabaseClient.from('stickers').select('id, status, vehicle_id').eq('qr_token', stickerToken).maybeSingle().setHeader('Accept', 'application/json');
         if (se || !sticker) { errEl.textContent = '❌ ' + (t('sticker_invalid') || 'استيكر غير صالح'); return; }
-
-        // رسالة خطأ محسّنة
-        if (sticker.status !== 'active') {
-            errEl.textContent = '❌ ' + (sticker.status === 'inactive' ? 'المالك أوقف الاستقبال مؤقتاً' : t('sticker_invalid') || 'استيكر غير مفعّل');
-            return;
-        }
-
+        if (sticker.status !== 'active') { errEl.textContent = '❌ ' + (sticker.status === 'inactive' ? 'المالك أوقف الاستقبال مؤقتاً' : t('sticker_invalid') || 'استيكر غير مفعّل'); return; }
         if (sticker.vehicle_id) {
-            const { data: v } = await supabaseClient
-                .from('vehicles')
-                .select('is_active')
-                .eq('id', sticker.vehicle_id)
-                .maybeSingle()
-                .setHeader('Accept', 'application/json');
+            const { data: v } = await supabaseClient.from('vehicles').select('is_active').eq('id', sticker.vehicle_id).maybeSingle().setHeader('Accept', 'application/json');
             if (v && !v.is_active) { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
         }
 
         const sTok = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
         currentSessionToken = sTok;
-        const { error: insertError } = await supabaseClient
-            .from('scan_logs')
-            .insert([{sticker_id: sticker.id, visitor_message: msg, session_token: sTok, status: 'pending'}]);
+        const { error: insertError } = await supabaseClient.from('scan_logs').insert([{sticker_id: sticker.id, visitor_message: msg, session_token: sTok, status: 'pending'}]);
         if (insertError) { errEl.textContent = '❌ فشل'; return; }
 
         localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
         localStorage.setItem('safescan_last_session', sTok);
+        const linkEl = document.getElementById('sessionLink');
+        if (linkEl) linkEl.innerText = 'https://calm-chebakia-9ddff4.netlify.app/chat.html?session=' + sTok;
         document.getElementById('sessionArea').style.display = 'block';
         document.getElementById('messageInput').value = '';
     }
@@ -235,17 +183,10 @@
         if (currentSessionToken) window.open('/chat.html?session=' + currentSessionToken, '_blank');
     }
 
-    // ========== الوضع الليلي ==========
     const dt = document.getElementById('darkModeToggle');
     if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
-    dt.onclick = () => {
-        document.documentElement.classList.toggle('dark-mode');
-        const is = document.documentElement.classList.contains('dark-mode');
-        localStorage.setItem('darkMode', is);
-        dt.textContent = is ? '☀️' : '🌙';
-    };
+    dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
 
-    // ========== اللغة ==========
     const langSelect = document.getElementById('langSelect');
     if (langSelect) {
         langSelect.value = currentLang || 'ar';
