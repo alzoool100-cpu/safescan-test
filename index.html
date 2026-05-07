@@ -145,50 +145,64 @@
     });
 
     async function sendMessage() {
-        if (!supabaseClient) return;
-        const msg = document.getElementById('messageInput').value.trim();
-        const errEl = document.getElementById('errorMsg');
-        errEl.textContent = '';
-        if (!msg) { errEl.textContent = '❌ ' + (t('error_msg') || 'اكتب رسالة'); return; }
-        if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); return; }
+    if (!supabaseClient) return;
+    const msg = document.getElementById('messageInput').value.trim();
+    const errEl = document.getElementById('errorMsg');
+    errEl.textContent = '';
+    if (!msg) { errEl.textContent = '❌ ' + (t('error_msg') || 'اكتب رسالة'); return; }
+    if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); return; }
 
-        const existing = localStorage.getItem('safescan_last_session');
-        if (existing) {
-            const { data: open } = await supabaseClient.from('scan_logs').select('id').eq('session_token', existing).eq('status', 'pending').maybeSingle().setHeader('Accept', 'application/json');
-            if (open) { errEl.textContent = '❌ ' + (t('already_open_session') || 'لديك محادثة مفتوحة'); return; }
-        }
-
-        const { data: sticker, error: se } = await supabaseClient.from('stickers').select('id, status, vehicle_id').eq('qr_token', stickerToken).maybeSingle().setHeader('Accept', 'application/json');
-        if (se || !sticker) { errEl.textContent = '❌ ' + (t('sticker_invalid') || 'استيكر غير صالح'); return; }
-        if (sticker.status !== 'active') { errEl.textContent = '❌ ' + (sticker.status === 'inactive' ? 'المالك أوقف الاستقبال مؤقتاً' : t('sticker_invalid') || 'استيكر غير مفعّل'); return; }
-        if (sticker.vehicle_id) {
-            const { data: v } = await supabaseClient.from('vehicles').select('is_active').eq('id', sticker.vehicle_id).maybeSingle().setHeader('Accept', 'application/json');
-            if (v && !v.is_active) { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
-        }
-// نظام حصة الرسائل (3 رسائل في الساعة)
-const now = Date.now();
-const quotaKey = 'safescan_quota_' + stickerToken;
-let quota = JSON.parse(localStorage.getItem(quotaKey) || '{"count":0,"resetAt":0}');
-if (now > quota.resetAt) { quota = { count: 0, resetAt: now + 3600000 }; } // تجديد كل ساعة
-if (quota.count >= 3) {
-    errEl.textContent = '❌ لقد أرسلت 3 رسائل. يمكنك المحاولة بعد قليل أو انتظار رد المالك.';
-    return;
-}
-quota.count++;
-localStorage.setItem(quotaKey, JSON.stringify(quota));
-        
-        const sTok = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
-        currentSessionToken = sTok;
-        const { error: insertError } = await supabaseClient.from('scan_logs').insert([{sticker_id: sticker.id, visitor_message: msg, session_token: sTok, status: 'pending'}]);
-        if (insertError) { errEl.textContent = '❌ فشل'; return; }
-
-        localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
-        localStorage.setItem('safescan_last_session', sTok);
-        const linkEl = document.getElementById('sessionLink');
-        if (linkEl) linkEl.innerText = 'https://calm-chebakia-9ddff4.netlify.app/chat.html?session=' + sTok;
-        document.getElementById('sessionArea').style.display = 'block';
-        document.getElementById('messageInput').value = '';
+    // منع تعدد الجلسات المفتوحة
+    const existing = localStorage.getItem('safescan_last_session');
+    if (existing) {
+        const { data: open } = await supabaseClient
+            .from('scan_logs').select('id').eq('session_token', existing).eq('status', 'pending')
+            .maybeSingle().setHeader('Accept', 'application/json');
+        if (open) { errEl.textContent = '❌ ' + (t('already_open_session') || 'لديك محادثة مفتوحة'); return; }
     }
+
+    // نظام حصة الرسائل (3 رسائل في الساعة)
+    const now = Date.now();
+    const quotaKey = 'safescan_quota_' + stickerToken;
+    let quota = JSON.parse(localStorage.getItem(quotaKey) || '{"count":0,"resetAt":0}');
+    if (now > quota.resetAt) { quota = { count: 0, resetAt: now + 3600000 }; }
+    if (quota.count >= 3) {
+        errEl.textContent = '❌ لقد أرسلت 3 رسائل. يمكنك المحاولة بعد قليل أو انتظار رد المالك.';
+        return;
+    }
+    quota.count++;
+    localStorage.setItem(quotaKey, JSON.stringify(quota));
+
+    // جلب بيانات الاستيكر
+    const { data: sticker, error: se } = await supabaseClient
+        .from('stickers').select('id, status, vehicle_id').eq('qr_token', stickerToken)
+        .maybeSingle().setHeader('Accept', 'application/json');
+    if (se || !sticker) { errEl.textContent = '❌ ' + (t('sticker_invalid') || 'استيكر غير صالح'); return; }
+    if (sticker.status !== 'active') {
+        errEl.textContent = '❌ ' + (sticker.status === 'inactive' ? 'المالك أوقف الاستقبال مؤقتاً' : t('sticker_invalid') || 'استيكر غير مفعّل');
+        return;
+    }
+    if (sticker.vehicle_id) {
+        const { data: v } = await supabaseClient
+            .from('vehicles').select('is_active').eq('id', sticker.vehicle_id)
+            .maybeSingle().setHeader('Accept', 'application/json');
+        if (v && !v.is_active) { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
+    }
+
+    // إرسال الرسالة
+    const sTok = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+    currentSessionToken = sTok;
+    const { error: insertError } = await supabaseClient
+        .from('scan_logs').insert([{sticker_id: sticker.id, visitor_message: msg, session_token: sTok, status: 'pending'}]);
+    if (insertError) { errEl.textContent = '❌ فشل'; return; }
+
+    localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
+    localStorage.setItem('safescan_last_session', sTok);
+    const linkEl = document.getElementById('sessionLink');
+    if (linkEl) linkEl.innerText = 'https://calm-chebakia-9ddff4.netlify.app/chat.html?session=' + sTok;
+    document.getElementById('sessionArea').style.display = 'block';
+    document.getElementById('messageInput').value = '';
+}
 
     function openChat() {
         if (currentSessionToken) window.open('/chat.html?session=' + currentSessionToken, '_blank');
