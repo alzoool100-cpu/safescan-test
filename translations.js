@@ -147,7 +147,22 @@ const translations = {
     terms_s5_text: "تخضع هذه الشروط وتفسر وفقًا لأنظمة المملكة العربية السعودية. أي نزاع ينشأ عن هذه الشروط يخضع للاختصاص القضائي للمحاكم السعودية.",
     terms_s6_title: "6. اتصل بنا",
     terms_s6_text: "لأي استفسارات حول هذه الشروط، يرجى التواصل معنا عبر واتساب: 966 54 105 4516+ أو البريد الإلكتروني: legal@safescan.app",
-    terms_back: "العودة للصفحة السابقة"
+    terms_back: "العودة للصفحة السابقة",
+    // ====== مفاتيح مرحلة إعادة تعيين كلمة المرور ======
+    forgot_password_link: "نسيت كلمة المرور؟",
+    forgot_password_title: "نسيت كلمة المرور",
+    forgot_password_sub: "أدخل رقم جوالك وسنرسل لك رابط إعادة التعيين",
+    send_reset_link: "إرسال رابط التعيين",
+    reset_password_title: "إعادة تعيين كلمة المرور",
+    reset_password_sub: "أدخل كلمة مرور جديدة",
+    new_password_label: "🔒 كلمة المرور الجديدة",
+    confirm_password_label: "🔒 تأكيد كلمة المرور",
+    save_new_password: "حفظ كلمة المرور الجديدة",
+    back_to_login: "العودة لتسجيل الدخول",
+    password_weak: "ضعيفة",
+    password_medium: "متوسطة",
+    password_strong: "قوية",
+    password_mismatch: "كلمتا المرور غير متطابقتين"
   },
   en: {
     error_msg: "Please write a message",
@@ -297,7 +312,22 @@ const translations = {
     terms_s5_text: "These terms are governed by the laws of Saudi Arabia.",
     terms_s6_title: "6. Contact Us",
     terms_s6_text: "For questions about these terms, contact us via WhatsApp: +966 54 105 4516 or email: legal@safescan.app",
-    terms_back: "Go back"
+    terms_back: "Go back",
+    // ====== Phase: Password Reset ======
+    forgot_password_link: "Forgot password?",
+    forgot_password_title: "Forgot Password",
+    forgot_password_sub: "Enter your phone number to reset your password",
+    send_reset_link: "Send Reset Link",
+    reset_password_title: "Reset Password",
+    reset_password_sub: "Enter a new password",
+    new_password_label: "🔒 New Password",
+    confirm_password_label: "🔒 Confirm Password",
+    save_new_password: "Save New Password",
+    back_to_login: "Back to Login",
+    password_weak: "Weak",
+    password_medium: "Medium",
+    password_strong: "Strong",
+    password_mismatch: "Passwords do not match"
   },
   hi: {
     error_msg: "कृपया एक संदेश लिखें",
@@ -314,7 +344,6 @@ const translations = {
     send_btn: "📨 भेजें",
     chat_open: "💬 चैट खोलें",
     send_success: "संदेश भेजा गया",
-    copy_manual: "या लिंक कॉपी करें",
     link_valid: "लिंक 1 घंटे के लिए वैध",
     owner_login: "🔐 मालिक? लॉगिन",
     phone_revealed: "📱 मालिक का फोन:",
@@ -336,7 +365,7 @@ const translations = {
     activate_sub: "अपना स्टिकर सक्रिय करें",
     phone_label: "फ़ोन नंबर",
     token_label: "सक्रियण कोड (कार्ड से)",
-    token_hint: "यह स्टिकर के साथ शामिल गुप्त कोड है; केवल एक बार उपयोग करें",
+    token_hint: "यह स्टिकर के साथ शामिल गुप्त कोड है",
     password_label: "पासवर्ड",
     password_hint: "भविष्य में लॉगिन के लिए उपयोग करें",
     activate_btn: "सक्रिय करें",
@@ -447,7 +476,22 @@ const translations = {
     terms_s5_text: "ये शर्तें सऊदी अरब के कानूनों द्वारा शासित हैं।",
     terms_s6_title: "6. संपर्क करें",
     terms_s6_text: "प्रश्नों के लिए संपर्क करें।",
-    terms_back: "वापस जाएं"
+    terms_back: "वापस जाएं",
+    // ====== पासवर्ड रीसेट चरण ======
+    forgot_password_link: "पासवर्ड भूल गए?",
+    forgot_password_title: "पासवर्ड भूल गए",
+    forgot_password_sub: "अपना फ़ोन नंबर डालें",
+    send_reset_link: "रीसेट लिंक भेजें",
+    reset_password_title: "पासवर्ड रीसेट करें",
+    reset_password_sub: "नया पासवर्ड डालें",
+    new_password_label: "🔒 नया पासवर्ड",
+    confirm_password_label: "🔒 पासवर्ड की पुष्टि करें",
+    save_new_password: "नया पासवर्ड सहेजें",
+    back_to_login: "लॉगिन पर वापस जाएं",
+    password_weak: "कमज़ोर",
+    password_medium: "मध्यम",
+    password_strong: "मज़बूत",
+    password_mismatch: "पासवर्ड मेल नहीं खाते"
   },
   ur: {
     error_msg: "براہ کرم پیغام لکھیں",
@@ -464,7 +508,6 @@ const translations = {
     send_btn: "📨 بھیجیں",
     chat_open: "💬 چیٹ کھولیں",
     send_success: "پیغام بھیج دیا گیا",
-    copy_manual: "یا لنک کاپی کریں",
     link_valid: "لنک 1 گھنٹے کے لیے کارآمد ہے",
     owner_login: "🔐 مالک؟ لاگ ان",
     phone_revealed: "📱 مالک کا فون:",
@@ -486,7 +529,7 @@ const translations = {
     activate_sub: "اپنا اسٹیکر فعال کریں",
     phone_label: "فون نمبر",
     token_label: "ایکٹیویشن کوڈ (کارڈ سے)",
-    token_hint: "یہ اسٹیکر کے ساتھ شامل خفیہ کوڈ ہے؛ صرف ایک بار استعمال کریں",
+    token_hint: "یہ اسٹیکر کے ساتھ شامل خفیہ کوڈ ہے",
     password_label: "پاس ورڈ",
     password_hint: "مستقبل میں لاگ ان کے لیے استعمال کریں",
     activate_btn: "فعال کریں",
@@ -597,7 +640,22 @@ const translations = {
     terms_s5_text: "یہ شرائط سعودی عرب کے قوانین کے تابع ہیں۔",
     terms_s6_title: "6. رابطہ کریں",
     terms_s6_text: "سوالات کے لیے رابطہ کریں۔",
-    terms_back: "واپس جائیں"
+    terms_back: "واپس جائیں",
+    // ====== پاس ورڈ ری سیٹ مرحلہ ======
+    forgot_password_link: "پاس ورڈ بھول گئے؟",
+    forgot_password_title: "پاس ورڈ بھول گئے",
+    forgot_password_sub: "اپنا فون نمبر درج کریں",
+    send_reset_link: "ری سیٹ لنک بھیجیں",
+    reset_password_title: "پاس ورڈ ری سیٹ کریں",
+    reset_password_sub: "نیا پاس ورڈ درج کریں",
+    new_password_label: "🔒 نیا پاس ورڈ",
+    confirm_password_label: "🔒 پاس ورڈ کی تصدیق کریں",
+    save_new_password: "نیا پاس ورڈ محفوظ کریں",
+    back_to_login: "لاگ ان پر واپس جائیں",
+    password_weak: "کمزور",
+    password_medium: "درمیانی",
+    password_strong: "مضبوط",
+    password_mismatch: "پاس ورڈ مماثل نہیں ہیں"
   }
 };
 
