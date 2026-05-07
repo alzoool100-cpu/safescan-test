@@ -63,14 +63,16 @@
     <button class="btn btn-primary" onclick="sendMessage()" data-key="send_btn">📨 إرسال الرسالة</button>
     <div id="errorMsg" class="error-text"></div>
 
-    <!-- منطقة نجاح الإرسال وزر متابعة المحادثة -->
-    <div id="sessionArea" class="session-area" style="display:none; text-align: center;">
-        <p style="font-weight:600;margin-bottom:12px; font-size: 15px;" data-key="send_success">✅ تم إرسال رسالتك</p>
-        <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">يمكنك متابعة الردود بالضغط على الزر أدناه</p>
-        <span id="sessionLink" style="display:none;"></span>
-        <button id="openChatBtn" class="btn btn-success" onclick="openChat()" data-key="chat_open" style="font-size: 16px; padding: 14px 24px;">💬 متابعة المحادثة</button>
-        <p class="info-text" style="margin-top: 12px;" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
-    </div>
+    <!-- سجل المحادثة الداخلي (يظهر بعد أول رسالة) -->
+<div id="chatLog" style="display:none; margin: 20px 0; max-height: 300px; overflow-y: auto; text-align: right;">
+    <div id="chatMessages"></div>
+</div>
+
+<!-- منطقة نجاح الإرسال وزر متابعة المحادثة (احتياطي) -->
+<div id="sessionArea" class="session-area" style="display:none; text-align: center;">
+    <button id="openChatBtn" class="btn btn-success" onclick="openChat()" data-key="chat_open" style="font-size: 14px; padding: 10px 20px;">💬 فتح في نافذة جديدة</button>
+    <p class="info-text" style="margin-top: 8px;" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
+</div>
 
     <div style="margin-top:20px;border-top:1px solid var(--border-color);padding-top:16px;">
         <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px" data-key="get_sticker_desc">هل تريد استيكر لسيارتك؟</p>
@@ -212,6 +214,12 @@
 
         // إظهار منطقة النجاح
         document.getElementById('sessionArea').style.display = 'block';
+        // إظهار سجل المحادثة وإخفاء صندوق الكتابة والأزرار
+document.getElementById('chatLog').style.display = 'block';
+document.getElementById('chatMessages').innerHTML = `<div class="message-bubble visitor-bubble">🧑 أنت: ${msg}</div><div style="text-align:center; color: var(--text-muted); margin-top:10px;">⏳ في انتظار رد المالك...</div>`;
+document.getElementById('messageInput').style.display = 'none';
+document.querySelector('.quick-msgs').style.display = 'none';
+document.querySelector('.btn-primary[data-key="send_btn"]').style.display = 'none';
         document.getElementById('messageInput').value = '';
     }
 
@@ -229,13 +237,15 @@
             .maybeSingle()
             .setHeader('Accept', 'application/json')
             .then(({ data }) => {
-                if (data && data.owner_response) {
-                    waitingForReply = false;
-                    document.getElementById('messageInput').disabled = false;
-                    document.getElementById('errorMsg').textContent = '';
-                    showToast('✅ رد المالك وصل! يمكنك الرد الآن');
-                }
-            });
+    if (data && data.owner_response) {
+        waitingForReply = false;
+        // إظهار صندوق الكتابة والأزرار من جديد
+        document.getElementById('messageInput').style.display = 'block';
+        document.querySelector('.quick-msgs').style.display = 'flex';
+        document.querySelector('.btn-primary[data-key="send_btn"]').style.display = 'block';
+        document.getElementById('chatMessages').innerHTML += `<div class="message-bubble owner-bubble">🚗 المالك: ${data.owner_response}</div>`;
+    }
+});
     }
     setInterval(checkReplyStatus, 5000);
 
