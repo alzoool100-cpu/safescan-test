@@ -15,7 +15,7 @@
         .hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; display: block; }
         .password-wrapper { position: relative; }
         .toggle-password { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 18px; user-select: none; }
-        .strength-bar { height: 4px; border-radius: 4px; margin: 6px 0 12px; transition: all 0.3s; width: 0; }
+        .strength-bar { height: 4px; border-radius: 4px; margin: 6px 0 12px; transition: all 0.3s; width: 0; background: #ddd; }
         .strength-weak { width: 30%; background: var(--color-danger); }
         .strength-medium { width: 60%; background: var(--color-warning); }
         .strength-strong { width: 100%; background: var(--color-success); }
@@ -69,27 +69,11 @@
             <p style="font-size:12px; color: var(--text-muted); margin-top: 4px;" data-key="optional_desc">يمكنك ملؤها الآن أو لاحقاً من الإعدادات</p>
         </div>
 
-        <div class="input-group">
-            <label data-key="image_label">📸 صورة المركبة</label>
-            <input type="file" id="vehicleImage" accept="image/*" onchange="previewImage(event)">
-            <img id="imagePreview" class="preview-image" />
-        </div>
-        <div class="input-group">
-            <label data-key="car_name_label">🏷️ اسم المركبة</label>
-            <input type="text" id="carName" data-placeholder="car_name_placeholder" placeholder="مثال: سيارة العمل">
-        </div>
-        <div class="input-group">
-            <label data-key="plate_label">🚘 رقم اللوحة</label>
-            <input type="text" id="plateNumber" data-placeholder="plate_placeholder" placeholder="مثال: أ ب ج 1234">
-        </div>
-        <div class="input-group">
-            <label data-key="model_label">📅 الموديل</label>
-            <input type="text" id="model" data-placeholder="model_placeholder" placeholder="مثال: كامري 2024">
-        </div>
-        <div class="input-group">
-            <label data-key="driver_label">👤 اسم السائق</label>
-            <input type="text" id="driverName" data-placeholder="driver_placeholder" placeholder="مثال: أحمد محمد">
-        </div>
+        <div class="input-group"><label data-key="image_label">📸 صورة المركبة</label><input type="file" id="vehicleImage" accept="image/*" onchange="previewImage(event)"><img id="imagePreview" class="preview-image" /></div>
+        <div class="input-group"><label data-key="car_name_label">🏷️ اسم المركبة</label><input type="text" id="carName" data-placeholder="car_name_placeholder" placeholder="مثال: سيارة العمل"></div>
+        <div class="input-group"><label data-key="plate_label">🚘 رقم اللوحة</label><input type="text" id="plateNumber" data-placeholder="plate_placeholder" placeholder="مثال: أ ب ج 1234"></div>
+        <div class="input-group"><label data-key="model_label">📅 الموديل</label><input type="text" id="model" data-placeholder="model_placeholder" placeholder="مثال: كامري 2024"></div>
+        <div class="input-group"><label data-key="driver_label">👤 اسم السائق</label><input type="text" id="driverName" data-placeholder="driver_placeholder" placeholder="مثال: أحمد محمد"></div>
 
         <button type="submit" class="btn btn-primary" data-key="activate_btn">تفعيل الاستيكر</button>
         <div id="errorMsg" class="error-text"></div>
@@ -128,6 +112,7 @@
         const bar = document.getElementById('regStrengthIndicator');
         bar.className = 'strength-bar';
         bar.style.width = '0';
+        if (pw.length === 0) return;
         if (pw.length < 8) { bar.classList.add('strength-weak'); return; }
         let score = 0;
         if (/[A-Z]/.test(pw)) score++;
@@ -152,27 +137,13 @@
             return;
         }
 
-        const { data: sticker, error: stickerError } = await supabaseClient
-            .from('stickers').select('*').eq('activation_code', token).single();
-
-        if (stickerError || !sticker) {
-            errorEl.textContent = '❌ رمز التفعيل غير صحيح';
-            return;
-        }
-        if (sticker.status !== 'factory_new') {
-            errorEl.textContent = '❌ هذا الاستيكر مفعّل مسبقاً';
-            return;
-        }
+        const { data: sticker, error: stickerError } = await supabaseClient.from('stickers').select('*').eq('activation_code', token).single();
+        if (stickerError || !sticker) { errorEl.textContent = '❌ رمز التفعيل غير صحيح'; return; }
+        if (sticker.status !== 'factory_new') { errorEl.textContent = '❌ هذا الاستيكر مفعّل مسبقاً'; return; }
 
         const email = `${phone}@safescan.local`;
-        const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-            email: email, password: password, options: { data: { phone: phone } }
-        });
-
-        if (authError) {
-            errorEl.textContent = '❌ خطأ في إنشاء الحساب: ' + authError.message;
-            return;
-        }
+        const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email: email, password: password, options: { data: { phone: phone } } });
+        if (authError) { errorEl.textContent = '❌ خطأ في إنشاء الحساب: ' + authError.message; return; }
 
         const userId = authData.user.id;
         await supabaseClient.from('profiles').update({ phone: phone }).eq('id', userId);
@@ -182,33 +153,11 @@
         const model = document.getElementById('model').value;
         const driverName = document.getElementById('driverName').value;
 
-        const { data: vehicle, error: vehicleError } = await supabaseClient
-            .from('vehicles')
-            .insert([{ 
-                user_id: userId, 
-                custom_name: carName || 'سيارتي',
-                plate_number: plateNumber || null,
-                model: model || null,
-                driver_name: driverName || null,
-                is_active: true
-            }])
-            .select()
-            .single();
+        const { data: vehicle, error: vehicleError } = await supabaseClient.from('vehicles').insert([{ user_id: userId, custom_name: carName || 'سيارتي', plate_number: plateNumber || null, model: model || null, driver_name: driverName || null, is_active: true }]).select().single();
+        if (vehicleError) { errorEl.textContent = '❌ خطأ في إنشاء المركبة'; return; }
 
-        if (vehicleError) {
-            errorEl.textContent = '❌ خطأ في إنشاء المركبة';
-            return;
-        }
-
-        const { error: updateError } = await supabaseClient
-            .from('stickers')
-            .update({ vehicle_id: vehicle.id, status: 'active', activated_at: new Date() })
-            .eq('id', sticker.id);
-
-        if (updateError) {
-            errorEl.textContent = '❌ خطأ في تفعيل الاستيكر';
-            return;
-        }
+        const { error: updateError } = await supabaseClient.from('stickers').update({ vehicle_id: vehicle.id, status: 'active', activated_at: new Date() }).eq('id', sticker.id);
+        if (updateError) { errorEl.textContent = '❌ خطأ في تفعيل الاستيكر'; return; }
 
         alert('✅ تم تفعيل الاستيكر بنجاح!');
         window.location.href = '/dashboard.html';
@@ -219,10 +168,7 @@
     dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
 
     const langSelect = document.getElementById('langSelect');
-    if (langSelect) {
-        langSelect.value = currentLang || 'ar';
-        langSelect.addEventListener('change', function() { setLanguage(this.value); });
-    }
+    if (langSelect) { langSelect.value = currentLang || 'ar'; langSelect.addEventListener('change', function() { setLanguage(this.value); }); }
 </script>
 </body>
 </html>
