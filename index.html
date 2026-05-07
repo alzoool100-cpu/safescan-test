@@ -227,7 +227,6 @@
 
         localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
         localStorage.setItem('safescan_last_session', sTok);
-        document.getElementById('sessionLink').innerText = 'https://calm-chebakia-9ddff4.netlify.app/chat.html?session=' + sTok;
         document.getElementById('sessionArea').style.display = 'block';
         document.getElementById('messageInput').value = '';
     }
