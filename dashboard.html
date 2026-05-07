@@ -216,20 +216,36 @@
     }
 
     function setupRealtime() {
-        if (!currentVehicle) return;
-        supabaseClient.from('stickers').select('id').eq('vehicle_id', currentVehicle.id).then(({data:stickers})=>{
-            if(!stickers?.length) return;
-            const ids = stickers.map(s=>s.id);
-            supabaseClient.channel('scan_logs_live')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'scan_logs', filter: `sticker_id=in.(${ids.join(',')})` }, (payload) => {
-                    allMessages.unshift(payload.new);
-                    updateCounters();
-                    playNotificationSound(); showToast('📩 رسالة جديدة');
-                    renderMessages(); loadHomeStats();
-                })
+    if (!currentVehicle) return;
+    supabaseClient
+        .from('stickers')
+        .select('id')
+        .eq('vehicle_id', currentVehicle.id)
+        .then(({ data: stickers }) => {
+            if (!stickers || stickers.length === 0) return;
+            const ids = stickers.map(s => s.id);
+            supabaseClient
+                .channel('scan_logs_live')
+                .on(
+                    'postgres_changes',
+                    {
+                        event: 'INSERT',
+                        schema: 'public',
+                        table: 'scan_logs',
+                        filter: `sticker_id=in.(${ids.join(',')})`
+                    },
+                    (payload) => {
+                        allMessages.unshift(payload.new);
+                        updateCounters();
+                        playNotificationSound();
+                        showToast('📩 رسالة جديدة');
+                        renderMessages();
+                        loadHomeStats();
+                    }
+                )
                 .subscribe();
         });
-    }
+}
 
     function updateCounters() {
         const pending = allMessages.filter(l => l.status === 'pending').length;
