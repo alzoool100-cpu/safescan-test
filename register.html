@@ -15,8 +15,8 @@
         .hint { font-size: 12px; color: var(--text-muted); margin-top: 4px; display: block; }
         .password-wrapper { position: relative; }
         .toggle-password { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 18px; user-select: none; }
-        .strength-bar { height: 6px; border-radius: 4px; margin: 8px 0 12px; transition: all 0.3s; width: 100%; background: #e0e0e0; }
-        .strength-fill { height: 100%; border-radius: 4px; transition: width 0.3s; width: 0; }
+        .strength-fill { height: 6px; border-radius: 4px; transition: width 0.3s, background 0.3s; width: 0; }
+        .strength-label { font-size: 13px; margin-top: 4px; }
         .requirements { list-style: none; padding: 0; margin: 8px 0 0; font-size: 13px; text-align: right; }
         .requirements li { color: var(--color-danger); margin-bottom: 4px; }
         .requirements li.met { color: var(--color-success); text-decoration: line-through; }
@@ -60,9 +60,12 @@
                 <input type="password" id="password" placeholder="كلمة المرور" required minlength="8" oninput="checkRegStrength()">
                 <span class="toggle-password" onclick="togglePassword('password')">👁️</span>
             </div>
-            <div class="strength-bar"><div id="regStrengthFill" class="strength-fill"></div></div>
+            <div class="strength-bar" style="background:#e0e0e0; border-radius:4px; margin:8px 0;">
+                <div id="regStrengthFill" class="strength-fill"></div>
+            </div>
+            <div id="regStrengthLabel" class="strength-label"></div>
             <ul class="requirements" id="regReqList">
-                <li id="regReqLength">❌ 8 خانات على الأقل</li>
+                <li id="regReqLength">❌ 8 حروف إنجليزية على الأقل</li>
                 <li id="regReqUpper">❌ حرف كبير (A-Z)</li>
                 <li id="regReqNumber">❌ رقم (0-9)</li>
                 <li id="regReqSymbol">❌ رمز (مثل @ أو # أو $)</li>
@@ -116,17 +119,18 @@
     function checkRegStrength() {
         const pw = document.getElementById('password').value;
         const fill = document.getElementById('regStrengthFill');
+        const label = document.getElementById('regStrengthLabel');
         fill.style.width = '0';
-        fill.style.background = '';
+        label.textContent = '';
 
         if (pw.length === 0) return;
 
-        let score = 0;
-        const lengthOk = pw.length >= 8;
+        const lengthOk = (pw.match(/[a-zA-Z]/g) || []).length >= 8;
         const hasUpper = /[A-Z]/.test(pw);
         const hasNumber = /[0-9]/.test(pw);
         const hasSymbol = /[^A-Za-z0-9]/.test(pw);
 
+        let score = 0;
         if (lengthOk) score++;
         if (hasUpper) score++;
         if (hasNumber) score++;
@@ -134,14 +138,17 @@
 
         const percent = (score / 4) * 100;
         fill.style.width = percent + '%';
-        if (score <= 1) fill.style.background = 'var(--color-danger)';
-        else if (score <= 3) fill.style.background = 'var(--color-warning)';
-        else fill.style.background = 'var(--color-success)';
 
-        updateRequirement('regReqLength', lengthOk, '8 خانات على الأقل');
+        let strengthText = '';
+        if (score <= 1) { fill.style.background = 'var(--color-danger)'; strengthText = '🔴 ضعيفة'; }
+        else if (score <= 3) { fill.style.background = 'var(--color-warning)'; strengthText = '🟡 متوسطة'; }
+        else { fill.style.background = 'var(--color-success)'; strengthText = '🟢 قوية'; }
+        label.textContent = strengthText;
+
+        updateRequirement('regReqLength', lengthOk, '8 حروف إنجليزية على الأقل');
         updateRequirement('regReqUpper', hasUpper, 'حرف كبير (A-Z)');
         updateRequirement('regReqNumber', hasNumber, 'رقم (0-9)');
-        updateRequirement('regReqSymbol', hasSymbol, 'رمز (@#$%^&*)');
+        updateRequirement('regReqSymbol', hasSymbol, 'رمز (مثل @ أو # أو $)');
     }
 
     function updateRequirement(id, condition, text) {
@@ -165,7 +172,7 @@
         errorEl.textContent = '';
 
         if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
-            errorEl.textContent = '❌ كلمة المرور ضعيفة. يجب أن تستوفي جميع الشروط أعلاه.';
+            errorEl.textContent = '❌ كلمة المرور ضعيفة. تأكد من 8 حروف إنجليزية + حرف كبير + رقم + رمز.';
             return;
         }
 
