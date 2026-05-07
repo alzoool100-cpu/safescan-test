@@ -133,6 +133,7 @@
     const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentUser=null, currentVehicle=null, active=true, selectedMessageId=null;
     let allMessages=[], currentFilter='pending', audioElement=null;
+    let blockedFingerprints = [];
 
     function safeT(key) { return typeof t === 'function' ? t(key) : key; }
 
@@ -178,7 +179,7 @@
         if(error||!user){alert(safeT('login_required'));window.location.href='/login.html';return;}
         currentUser=user;
 
-        const {data:profile}=await supabaseClient.from('profiles').select('phone,show_phone,contact_method').eq('id',user.id).maybeSingle();
+        const {data:profile}=await supabaseClient.from('profiles').select('phone,show_phone,contact_method,blocked_ips').eq('id',user.id).maybeSingle();
         if(profile){
             document.getElementById('phoneDisplay').innerText = profile.phone || '---';
             const isShow = profile.show_phone ?? (localStorage.getItem('safescan_show_phone') === 'true');
@@ -189,6 +190,9 @@
             const method = profile.contact_method || localStorage.getItem('safescan_contact_method') || 'all';
             document.getElementById('contactMethod').value = method;
             localStorage.setItem('safescan_contact_method', method);
+            if (profile.blocked_ips) {
+                try { blockedFingerprints = JSON.parse(profile.blocked_ips); } catch(e) { blockedFingerprints = []; }
+            }
         }
 
         const {data:vehicles}=await supabaseClient.from('vehicles').select('*').eq('user_id',user.id).limit(1);
@@ -216,36 +220,20 @@
     }
 
     function setupRealtime() {
-    if (!currentVehicle) return;
-    supabaseClient
-        .from('stickers')
-        .select('id')
-        .eq('vehicle_id', currentVehicle.id)
-        .then(({ data: stickers }) => {
-            if (!stickers || stickers.length === 0) return;
-            const ids = stickers.map(s => s.id);
-            supabaseClient
-                .channel('scan_logs_live')
-                .on(
-                    'postgres_changes',
-                    {
-                        event: 'INSERT',
-                        schema: 'public',
-                        table: 'scan_logs',
-                        filter: `sticker_id=in.(${ids.join(',')})`
-                    },
-                    (payload) => {
-                        allMessages.unshift(payload.new);
-                        updateCounters();
-                        playNotificationSound();
-                        showToast('📩 رسالة جديدة');
-                        renderMessages();
-                        loadHomeStats();
-                    }
-                )
+        if (!currentVehicle) return;
+        supabaseClient.from('stickers').select('id').eq('vehicle_id', currentVehicle.id).then(({data:stickers})=>{
+            if(!stickers?.length) return;
+            const ids = stickers.map(s=>s.id);
+            supabaseClient.channel('scan_logs_live')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'scan_logs', filter: `sticker_id=in.(${ids.join(',')})` }, (payload) => {
+                    allMessages.unshift(payload.new);
+                    updateCounters();
+                    playNotificationSound(); showToast('📩 رسالة جديدة');
+                    renderMessages(); loadHomeStats();
+                })
                 .subscribe();
         });
-}
+    }
 
     function updateCounters() {
         const pending = allMessages.filter(l => l.status === 'pending').length;
@@ -257,16 +245,7 @@
     }
 
     function updateToggleUI(){const t=document.getElementById('statusToggle'),l=document.getElementById('statusLabel');if(active){t.classList.remove('off');l.innerHTML=safeT('status_active');}else{t.classList.add('off');l.innerHTML=safeT('status_off');}}
-    
-    async function toggleStatus(){
-        if(!currentVehicle)return;
-        active=!active;
-        updateToggleUI();
-        await supabaseClient.from('vehicles').update({is_active:active}).eq('id',currentVehicle.id);
-        const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);
-        if(stickers)for(const s of stickers)await supabaseClient.from('stickers').update({status:active?'active':'inactive'}).eq('id',s.id);
-        loadMessages();
-    }
+    async function toggleStatus(){if(!currentVehicle)return;active=!active;updateToggleUI();await supabaseClient.from('vehicles').update({is_active:active}).eq('id',currentVehicle.id);const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);if(stickers)for(const s of stickers)await supabaseClient.from('stickers').update({status:active?'active':'inactive'}).eq('id',s.id);loadMessages();}
 
     async function toggleShowPhone(){
         const newValue = document.getElementById('showPhoneToggle').checked;
@@ -307,13 +286,32 @@
     function toggleDarkMode(){ document.documentElement.classList.toggle('dark-mode'); const is=document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode',is); document.getElementById('darkModeLabel').textContent = is ? safeT('show_label_on') : safeT('show_label_off'); }
 
     function setFilter(filter){currentFilter=filter;document.getElementById('tabPending').classList.toggle('active',filter==='pending');document.getElementById('tabClosed').classList.toggle('active',filter==='closed');renderMessages();}
+    
     function renderMessages(){
         let filtered=allMessages.filter(m=>{if(currentFilter==='pending'&&m.status!=='pending')return false;if(currentFilter==='closed'&&m.status!=='closed')return false;return true;});
         if(!filtered.length){document.getElementById('inboxContainer').innerHTML='<div class="loading">'+safeT('no_messages_inbox')+'</div>';return;}
-        let html='';filtered.forEach(log=>{const date=new Date(log.created_at);const timeStr=date.toLocaleString('ar-SA',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'numeric'});html+=`<div class="inbox-item" onclick="openConversation('${log.id}')"><div class="msg-preview">"${escapeHtml(log.visitor_message?.substring(0,50)||'')}"</div><div class="msg-time">${timeStr} · ${log.status==='pending'?'🆕 '+safeT('new_msgs'):'✅ '+safeT('replied_msgs')}</div><button onclick="event.stopPropagation(); showPhoneToVisitor('${log.id}')" style="background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:12px;margin-top:4px" data-key="show_phone_to_visitor_btn">📞 إظهار رقمي لهذا الشخص</button></div>`;});
+        let html='';
+        filtered.forEach(log=>{
+            const date=new Date(log.created_at);
+            const timeStr=date.toLocaleString('ar-SA',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'numeric'});
+            let blockBtn = '';
+            if (log.visitor_fingerprint) {
+                const isBlocked = blockedFingerprints.includes(log.visitor_fingerprint);
+                blockBtn = `<button onclick="event.stopPropagation(); ${isBlocked ? 'unblockVisitor' : 'blockVisitor'}('${log.visitor_fingerprint}')" style="background:none; border:none; color:var(--color-primary); cursor:pointer; font-size:12px; margin-top:4px;">
+                    ${isBlocked ? '🔓 إلغاء الحظر' : '🚫 حظر'}
+                </button>`;
+            }
+            html += `<div class="inbox-item" onclick="openConversation('${log.id}')">
+                <div class="msg-preview">"${escapeHtml(log.visitor_message?.substring(0,50)||'')}"</div>
+                <div class="msg-time">${timeStr} · ${log.status==='pending'?'🆕 '+safeT('new_msgs'):'✅ '+safeT('replied_msgs')}</div>
+                ${blockBtn}
+            </div>`;
+        });
         document.getElementById('inboxContainer').innerHTML=html;
     }
+
     function escapeHtml(text){const d=document.createElement('div');d.textContent=text||'';return d.innerHTML;}
+
     async function loadMessages(){
         if(!currentVehicle)return;
         const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);
@@ -325,17 +323,20 @@
         updateCounters();
         renderMessages();
     }
+
     function loadHomeStats(){
         const last=allMessages[0];
         if(last) document.getElementById('lastMessage').innerHTML='📩 '+safeT('last_message')+': "'+escapeHtml(last.visitor_message?.substring(0,40)||'')+'" · '+(last.status==='pending'?safeT('new_msgs'):safeT('replied_msgs'));
         else document.getElementById('lastMessage').innerHTML=safeT('last_message_none');
     }
+
     async function showPhoneToVisitor(messageId) {
         if (!supabaseClient) return;
         if (!confirm(safeT('show_phone_to_visitor_warning')||'⚠️ سيظهر رقمك لهذا الشخص. متأكد؟')) return;
         await supabaseClient.from('scan_logs').update({ show_phone_to_visitor: true }).eq('id', messageId);
         alert('✅ '+(safeT('phone_revealed_success')||'سيظهر رقمك لهذا الزائر.'));
     }
+
     function openConversation(messageId){selectedMessageId=messageId;const msg=allMessages.find(m=>m.id==messageId);if(!msg)return;let html=`<div class="message-bubble visitor-bubble">🧑 ${safeT('visitor_label')}: ${escapeHtml(msg.visitor_message)}</div>`;if(msg.owner_response)html+=`<div class="message-bubble owner-bubble">🚗 ${safeT('owner_label')}: ${escapeHtml(msg.owner_response)}</div>`;document.getElementById('convMessages').innerHTML=html;document.getElementById('conversationPage').classList.add('active');}
     function closeConversation(){document.getElementById('conversationPage').classList.remove('active');selectedMessageId=null;}
     async function sendReplyFromConv(){const reply=document.getElementById('convReplyText').value.trim();if(!reply||!selectedMessageId)return;const {error}=await supabaseClient.from('scan_logs').update({owner_response:reply,status:'closed'}).eq('id',selectedMessageId);if(error){showToast('❌ فشل');return;}showToast('✅ '+safeT('reply_sent'));document.getElementById('convReplyText').value='';closeConversation();loadMessages();}
@@ -379,6 +380,23 @@
 
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text).then(() => showToast('✅ تم نسخ الرابط')).catch(() => showToast('❌ فشل النسخ'));
+    }
+
+    // ========== دوال الحظر وإلغاء الحظر ==========
+    async function blockVisitor(fingerprint) {
+        if (!blockedFingerprints.includes(fingerprint)) {
+            blockedFingerprints.push(fingerprint);
+            await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id);
+            showToast('✅ تم حظر الزائر');
+            loadMessages(); // تحديث الأزرار
+        }
+    }
+
+    async function unblockVisitor(fingerprint) {
+        blockedFingerprints = blockedFingerprints.filter(f => f !== fingerprint);
+        await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id);
+        showToast('✅ تم إلغاء الحظر');
+        loadMessages();
     }
 
     function playNotificationSound(){if(audioElement){audioElement.currentTime=0;audioElement.play().catch(()=>{});}}
