@@ -165,7 +165,18 @@
             const { data: v } = await supabaseClient.from('vehicles').select('is_active').eq('id', sticker.vehicle_id).maybeSingle().setHeader('Accept', 'application/json');
             if (v && !v.is_active) { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
         }
-
+// نظام حصة الرسائل (3 رسائل في الساعة)
+const now = Date.now();
+const quotaKey = 'safescan_quota_' + stickerToken;
+let quota = JSON.parse(localStorage.getItem(quotaKey) || '{"count":0,"resetAt":0}');
+if (now > quota.resetAt) { quota = { count: 0, resetAt: now + 3600000 }; } // تجديد كل ساعة
+if (quota.count >= 3) {
+    errEl.textContent = '❌ لقد أرسلت 3 رسائل. يمكنك المحاولة بعد قليل أو انتظار رد المالك.';
+    return;
+}
+quota.count++;
+localStorage.setItem(quotaKey, JSON.stringify(quota));
+        
         const sTok = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
         currentSessionToken = sTok;
         const { error: insertError } = await supabaseClient.from('scan_logs').insert([{sticker_id: sticker.id, visitor_message: msg, session_token: sTok, status: 'pending'}]);
