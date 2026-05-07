@@ -49,6 +49,11 @@
         </div>
     </div>
 
+    <!-- سجل المحادثة الداخلي (يظهر بعد أول رسالة) -->
+    <div id="chatLog" style="display:none; margin: 20px 0; max-height: 300px; overflow-y: auto; text-align: right;">
+        <div id="chatMessages"></div>
+    </div>
+
     <textarea id="messageInput" data-placeholder="message_placeholder" placeholder="اكتب رسالتك هنا..."></textarea>
 
     <div class="quick-msgs">
@@ -63,16 +68,11 @@
     <button class="btn btn-primary" onclick="sendMessage()" data-key="send_btn">📨 إرسال الرسالة</button>
     <div id="errorMsg" class="error-text"></div>
 
-    <!-- سجل المحادثة الداخلي (يظهر بعد أول رسالة) -->
-<div id="chatLog" style="display:none; margin: 20px 0; max-height: 300px; overflow-y: auto; text-align: right;">
-    <div id="chatMessages"></div>
-</div>
-
-<!-- منطقة نجاح الإرسال وزر متابعة المحادثة (احتياطي) -->
-<div id="sessionArea" class="session-area" style="display:none; text-align: center;">
-    <button id="openChatBtn" class="btn btn-success" onclick="openChat()" data-key="chat_open" style="font-size: 14px; padding: 10px 20px;">💬 فتح في نافذة جديدة</button>
-    <p class="info-text" style="margin-top: 8px;" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
-</div>
+    <!-- منطقة نجاح الإرسال وزر متابعة المحادثة (احتياطي) -->
+    <div id="sessionArea" class="session-area" style="display:none; text-align: center;">
+        <button id="openChatBtn" class="btn btn-success" onclick="openChat()" data-key="chat_open" style="font-size: 14px; padding: 10px 20px;">💬 فتح في نافذة جديدة</button>
+        <p class="info-text" style="margin-top: 8px;" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
+    </div>
 
     <div style="margin-top:20px;border-top:1px solid var(--border-color);padding-top:16px;">
         <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px" data-key="get_sticker_desc">هل تريد استيكر لسيارتك؟</p>
@@ -209,18 +209,18 @@
         waitingForReply = true;
         document.getElementById('messageInput').disabled = true;
 
-        // إشعار للمالك (اختياري)
+        // إشعار للمالك
         localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
 
-        // إظهار منطقة النجاح
-        document.getElementById('sessionArea').style.display = 'block';
         // إظهار سجل المحادثة وإخفاء صندوق الكتابة والأزرار
-document.getElementById('chatLog').style.display = 'block';
-document.getElementById('chatMessages').innerHTML = `<div class="message-bubble visitor-bubble">🧑 أنت: ${msg}</div><div style="text-align:center; color: var(--text-muted); margin-top:10px;">⏳ في انتظار رد المالك...</div>`;
-document.getElementById('messageInput').style.display = 'none';
-document.querySelector('.quick-msgs').style.display = 'none';
-document.querySelector('.btn-primary[data-key="send_btn"]').style.display = 'none';
-        document.getElementById('messageInput').value = '';
+        document.getElementById('chatLog').style.display = 'block';
+        document.getElementById('chatMessages').innerHTML = `<div class="message-bubble visitor-bubble">🧑 أنت: ${msg}</div><div style="text-align:center; color: var(--text-muted); margin-top:10px;">⏳ في انتظار رد المالك...</div>`;
+        document.getElementById('messageInput').style.display = 'none';
+        document.querySelector('.quick-msgs').style.display = 'none';
+        document.querySelector('.btn-primary[data-key="send_btn"]').style.display = 'none';
+
+        // إظهار منطقة متابعة المحادثة (زر احتياطي)
+        document.getElementById('sessionArea').style.display = 'block';
     }
 
     function openChat() {
@@ -237,15 +237,16 @@ document.querySelector('.btn-primary[data-key="send_btn"]').style.display = 'non
             .maybeSingle()
             .setHeader('Accept', 'application/json')
             .then(({ data }) => {
-    if (data && data.owner_response) {
-        waitingForReply = false;
-        // إظهار صندوق الكتابة والأزرار من جديد
-        document.getElementById('messageInput').style.display = 'block';
-        document.querySelector('.quick-msgs').style.display = 'flex';
-        document.querySelector('.btn-primary[data-key="send_btn"]').style.display = 'block';
-        document.getElementById('chatMessages').innerHTML += `<div class="message-bubble owner-bubble">🚗 المالك: ${data.owner_response}</div>`;
-    }
-});
+                if (data && data.owner_response) {
+                    waitingForReply = false;
+                    document.getElementById('messageInput').disabled = false;
+                    document.getElementById('messageInput').style.display = 'block';
+                    document.querySelector('.quick-msgs').style.display = 'flex';
+                    document.querySelector('.btn-primary[data-key="send_btn"]').style.display = 'block';
+                    document.getElementById('chatMessages').innerHTML += `<div class="message-bubble owner-bubble">🚗 المالك: ${data.owner_response}</div>`;
+                    document.getElementById('errorMsg').textContent = '';
+                }
+            });
     }
     setInterval(checkReplyStatus, 5000);
 
