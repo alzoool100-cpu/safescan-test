@@ -152,14 +152,7 @@
     if (!msg) { errEl.textContent = '❌ ' + (t('error_msg') || 'اكتب رسالة'); return; }
     if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); return; }
 
-    // منع تعدد الجلسات المفتوحة
-    const existing = localStorage.getItem('safescan_last_session');
-    if (existing) {
-        const { data: open } = await supabaseClient
-            .from('scan_logs').select('id').eq('session_token', existing).eq('status', 'pending')
-            .maybeSingle().setHeader('Accept', 'application/json');
-        if (open) { errEl.textContent = '❌ ' + (t('already_open_session') || 'لديك محادثة مفتوحة'); return; }
-    }
+    // السماح بـ 3 رسائل متوالية دون انتظار رد
 
     // نظام حصة الرسائل (3 رسائل في الساعة)
     const now = Date.now();
