@@ -11,21 +11,21 @@
     </script>
     <style>
         :root { --nav-height: 70px; }
-        body { padding-bottom: calc(var(--nav-height) + 20px); display: block; min-height: 100vh; }
+        body { padding-bottom: calc(var(--nav-height) + 20px); display: block; min-height: 100vh; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
         .page { display: none; max-width: 480px; margin: 0 auto; width: 100%; }
         .page.active { display: block; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-card); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; height: var(--nav-height); z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.03); }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: var(--text-muted); font-size: 12px; transition: color 0.2s; padding: 8px 0; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg-card); border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; height: var(--nav-height); z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.03); pointer-events: auto; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer; color: var(--text-muted); font-size: 12px; transition: color 0.2s; padding: 8px 0; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .nav-item.active { color: var(--color-primary); font-weight: 600; }
         .nav-item .icon { font-size: 22px; }
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .car-badge { background: var(--bg-tag); padding: 6px 14px; border-radius: 40px; font-size: 14px; }
         .stats { display: flex; gap: 12px; margin: 18px 0; }
-        .stat-item { background: var(--bg-tag); padding: 14px 16px; border-radius: 20px; flex: 1; text-align: center; cursor: pointer; }
+        .stat-item { background: var(--bg-tag); padding: 14px 16px; border-radius: 20px; flex: 1; text-align: center; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .stat-item.active { background: var(--color-primary); color: white; }
         .stat-item.active .stat-number { color: white; }
         .stat-number { font-size: 28px; font-weight: 700; color: var(--color-primary); }
-        .inbox-item { padding: 16px 0; border-bottom: 1px solid var(--border-color); cursor: pointer; }
+        .inbox-item { padding: 16px 0; border-bottom: 1px solid var(--border-color); cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .msg-preview { font-weight: 500; margin-bottom: 6px; }
         .msg-time { font-size: 12px; color: var(--text-muted); }
         .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border-color); }
@@ -40,9 +40,11 @@
         .conv-reply-area { display: flex; gap: 8px; margin-top: 12px; }
         .edit-input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 4px; background: var(--bg-input); color: var(--text-primary); }
         #pushSubscribeBtn.active { background: var(--color-success); color: white; }
+        button, .toggle-switch { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
 <body>
+
 <div id="homePage" class="page active">
     <div class="header"><div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div><div class="car-badge" id="vehicleName">🚗 <span data-key="vehicle_default">سيارتي</span></div></div>
     <div class="card">
@@ -51,11 +53,13 @@
         <div id="lastMessage" style="margin-top:12px;color:var(--text-secondary)" data-key="last_message_none">لا توجد رسائل حالياً</div>
     </div>
 </div>
+
 <div id="inboxPage" class="page">
     <div class="header"><h3 data-key="inbox_tab">📥 الرسائل</h3><button onclick="loadMessages()" style="background:none;border:none;color:var(--color-primary);cursor:pointer" data-key="refresh">🔄 تحديث</button></div>
     <div class="stats"><div class="stat-item active" id="tabPending" onclick="setFilter('pending')"><div class="stat-number" id="inboxNew">0</div><div data-key="new_msgs">جديدة</div></div><div class="stat-item" id="tabClosed" onclick="setFilter('closed')"><div class="stat-number" id="inboxTotal">0</div><div data-key="replied_msgs">تم الرد</div></div></div>
     <div id="inboxContainer"><div class="loading" data-key="no_messages_inbox">لا توجد رسائل بعد</div></div>
 </div>
+
 <div id="settingsPage" class="page">
     <div class="header"><h3 data-key="settings_tab">⚙️ الإعدادات</h3></div>
     <div class="card">
@@ -68,7 +72,6 @@
                 <option value="sms" data-key="sms_only">📨 رسائل نصية فقط</option>
             </select>
         </div>
-        <!-- قسم الإشعارات الفورية الجديد -->
         <div class="settings-row">
             <span>🔔 إشعارات الجوال (Push)</span>
             <button class="btn-tag" id="pushSubscribeBtn" onclick="togglePushSubscription()">🔇 تفعيل</button>
@@ -85,6 +88,7 @@
         <div class="settings-row"><a href="/support.html" style="color:var(--text-primary);text-decoration:none" data-key="support_link">📞 الدعم</a></div>
     </div>
 </div>
+
 <div id="accountPage" class="page">
     <div class="header"><h3 data-key="account_tab">👤 حسابي</h3></div>
     <div class="card">
@@ -93,7 +97,9 @@
         <div class="settings-row"><span>🏷️ عدد الاستيكرات</span><span id="stickerCount">---</span></div>
         <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px">
             <h4>🏷️ استيكراتي</h4>
-            <div id="myStickersList" style="max-height: 200px; overflow-y: auto; margin: 12px 0;"><div class="loading">جار التحميل...</div></div>
+            <div id="myStickersList" style="max-height: 200px; overflow-y: auto; margin: 12px 0;">
+                <div class="loading">جار التحميل...</div>
+            </div>
         </div>
         <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px">
             <h4 data-key="edit_profile">تعديل بيانات المركبة</h4>
@@ -110,12 +116,14 @@
         <button class="btn btn-outline" style="margin-top:20px" onclick="logout()" data-key="logout_btn">تسجيل الخروج</button>
     </div>
 </div>
+
 <div class="bottom-nav">
     <div class="nav-item active" onclick="switchPage('home')"><span class="icon">🏠</span><span data-key="home_tab">الرئيسية</span></div>
     <div class="nav-item" onclick="switchPage('inbox')"><span class="icon">💬</span><span data-key="inbox_tab">الرسائل</span></div>
     <div class="nav-item" onclick="switchPage('settings')"><span class="icon">⚙️</span><span data-key="settings_tab">الإعدادات</span></div>
     <div class="nav-item" onclick="switchPage('account')"><span class="icon">👤</span><span data-key="account_tab">حسابي</span></div>
 </div>
+
 <div id="conversationPage">
     <div class="conv-header"><button onclick="closeConversation()" style="background:none;border:none;font-size:20px;cursor:pointer">← رجوع</button><strong data-key="reply_title">💬 الرد على الرسالة</strong></div>
     <div class="conv-messages" id="convMessages"></div>
@@ -133,25 +141,15 @@
 
     function safeT(key) { return typeof t === 'function' ? t(key) : key; }
 
-    // ========== استعادة جميع الإعدادات ==========
     function restoreAllSettings() {
-        const savedAudio = localStorage.getItem('safescan_audio_enabled') === 'true';
-        const btn = document.getElementById('audioToggleBtn');
-        if (btn) {
-            if (savedAudio) {
-                if (!audioElement) audioElement = new Audio('notification.mp3');
-                btn.textContent = '🔊 ' + safeT('audio_on');
-                btn.classList.add('active');
-            } else {
-                audioElement = null;
-                btn.textContent = '🔇 ' + safeT('audio_off');
-                btn.classList.remove('active');
-            }
-        }
+        // استعادة الصوت
+        restoreAudioSetting();
+        // استعادة الوضع الليلي
         const savedDark = localStorage.getItem('darkMode') === 'true';
         document.getElementById('darkModeToggle').checked = savedDark;
         document.getElementById('darkModeLabel').textContent = savedDark ? safeT('show_label_on') : safeT('show_label_off');
         if(savedDark) document.documentElement.classList.add('dark-mode');
+        // استعادة إظهار الرقم
         const savedShowPhone = localStorage.getItem('safescan_show_phone') === 'true';
         document.getElementById('showPhoneToggle').checked = savedShowPhone;
         document.getElementById('showPhoneLabel').textContent = savedShowPhone ? safeT('show_label_on') : safeT('show_label_off');
@@ -161,7 +159,6 @@
     }
     restoreAllSettings();
 
-    // ========== التنقل بين الصفحات ==========
     function switchPage(page) {
         document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
         document.getElementById(page+'Page').classList.add('active');
@@ -172,7 +169,6 @@
         if(page==='home') { loadHomeStats(); updateToggleUI(); }
     }
 
-    // ========== التهيئة ==========
     async function initDashboard() {
         const {data:{user},error}=await supabaseClient.auth.getUser();
         if(error||!user){alert(safeT('login_required'));window.location.href='/login.html';return;}
@@ -203,6 +199,7 @@
             document.getElementById('editPlate').value = currentVehicle.plate_number || '';
             document.getElementById('editModel').value = currentVehicle.model || '';
             document.getElementById('editDriver').value = currentVehicle.driver_name || '';
+
             const { count: stickerCount } = await supabaseClient.from('stickers').select('*', { count: 'exact', head: true }).eq('vehicle_id', currentVehicle.id);
             document.getElementById('stickerCount').innerText = stickerCount || 0;
         } else {
@@ -214,11 +211,9 @@
         loadHomeStats();
         loadMyStickers();
         setTimeout(setupRealtime, 3000);
-        setTimeout(restorePushButtonState, 2000); // استعادة حالة زر الـ Push
         applyTranslations();
     }
 
-    // ========== Realtime ==========
     function setupRealtime() {
         if (!currentVehicle) return;
         supabaseClient.from('stickers').select('id').eq('vehicle_id', currentVehicle.id).then(({data:stickers})=>{
@@ -244,11 +239,9 @@
         document.getElementById('inboxTotal').innerText = closed;
     }
 
-    // ========== تبديل الحالة ==========
     function updateToggleUI(){const t=document.getElementById('statusToggle'),l=document.getElementById('statusLabel');if(active){t.classList.remove('off');l.innerHTML=safeT('status_active');}else{t.classList.add('off');l.innerHTML=safeT('status_off');}}
     async function toggleStatus(){if(!currentVehicle)return;active=!active;updateToggleUI();await supabaseClient.from('vehicles').update({is_active:active}).eq('id',currentVehicle.id);const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);if(stickers)for(const s of stickers)await supabaseClient.from('stickers').update({status:active?'active':'inactive'}).eq('id',s.id);loadMessages();}
 
-    // ========== إعدادات الخصوصية ==========
     async function toggleShowPhone(){
         const newValue = document.getElementById('showPhoneToggle').checked;
         if(newValue && !confirm(safeT('show_phone_warning')||'⚠️ سيظهر رقمك للعامة. متأكد؟')) { document.getElementById('showPhoneToggle').checked = false; return; }
@@ -267,37 +260,115 @@
         }
     }
 
-    // ========== إعدادات الصوت والوضع الليلي ==========
+    // ========== صوت الإشعارات (محلول) ==========
     function toggleAudioSetting() {
-    const btn = document.getElementById('audioToggleBtn');
-    if (!btn) return;
-    
-    const currentState = localStorage.getItem('safescan_audio_enabled') === 'true';
-    
-    if (currentState) {
-        // تعطيل الصوت
-        localStorage.setItem('safescan_audio_enabled', 'false');
-        audioElement = null;
-        btn.textContent = '🔇 ' + safeT('audio_off');
-        btn.classList.remove('active');
-        showToast('🔇 تم كتم الصوت');
-    } else {
-        // تفعيل الصوت
-        if (!audioElement) audioElement = new Audio('notification.mp3');
-        audioElement.play().then(() => {
+        const btn = document.getElementById('audioToggleBtn');
+        if (!btn) return;
+        const isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
+        if (isEnabled) {
+            localStorage.setItem('safescan_audio_enabled', 'false');
+            btn.textContent = '🔇 ' + safeT('audio_off');
+            btn.classList.remove('active');
+            audioElement = null;
+        } else {
             localStorage.setItem('safescan_audio_enabled', 'true');
             btn.textContent = '🔊 ' + safeT('audio_on');
             btn.classList.add('active');
-            showToast('🔊 تم تفعيل الصوت');
-        }).catch(() => {
-            showToast('❌ فشل تشغيل الصوت');
-        });
+            if (!audioElement) audioElement = new Audio('notification.mp3');
+            audioElement.play().catch(() => {});
+        }
     }
-}
+
+    function restoreAudioSetting() {
+        const btn = document.getElementById('audioToggleBtn');
+        if (!btn) return;
+        if (localStorage.getItem('safescan_audio_enabled') === 'true') {
+            btn.textContent = '🔊 ' + safeT('audio_on');
+            btn.classList.add('active');
+            if (!audioElement) audioElement = new Audio('notification.mp3');
+        } else {
+            btn.textContent = '🔇 ' + safeT('audio_off');
+            btn.classList.remove('active');
+        }
+    }
+
+    // ========== إشعارات الجوال (Push) ==========
+    async function togglePushSubscription() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+            showToast('❌ متصفحك لا يدعم الإشعارات الفورية');
+            return;
+        }
+        const btn = document.getElementById('pushSubscribeBtn');
+        const registration = await navigator.serviceWorker.ready;
+        const existingSubscription = await registration.pushManager.getSubscription();
+        if (existingSubscription) {
+            await existingSubscription.unsubscribe();
+            await supabaseClient.from('push_subscriptions').delete().eq('subscription', JSON.stringify(existingSubscription));
+            btn.textContent = '🔇 تفعيل';
+            btn.classList.remove('active');
+            showToast('🔕 تم إلغاء الإشعارات');
+            return;
+        }
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+            showToast('❌ تم رفض إذن الإشعارات');
+            return;
+        }
+        const vapidPublicKey = 'BF7QReAl5pUagrADerAuNAA7qPGXfiGXSXEsu6qO75Odim3Xx34WZ7jWj6IN7oMwMRcRcxbQjYkrkLFYvbS9oBQ';
+        const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
+        try {
+            const subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: convertedKey
+            });
+            await supabaseClient.from('push_subscriptions').insert({
+                user_id: currentUser.id,
+                subscription: subscription
+            });
+            btn.textContent = '🔊 مفعّلة';
+            btn.classList.add('active');
+            showToast('✅ تم تفعيل الإشعارات!');
+            alert('✅ تم تفعيل الإشعارات. جرب إغلاق المتصفح واطلب من زائر إرسال رسالة.');
+        } catch (err) {
+            console.error('Push subscription failed:', err);
+            showToast('❌ فشل تفعيل الإشعارات');
+        }
+    }
+
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    async function restorePushButtonState() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+        let attempts = 0;
+        while (attempts < 10) {
+            const btn = document.getElementById('pushSubscribeBtn');
+            if (!btn) { attempts++; await new Promise(r => setTimeout(r, 500)); continue; }
+            try {
+                const registration = await navigator.serviceWorker.ready;
+                const subscription = await registration.pushManager.getSubscription();
+                if (subscription) {
+                    btn.textContent = '🔊 مفعّلة';
+                    btn.classList.add('active');
+                } else {
+                    btn.textContent = '🔇 تفعيل';
+                    btn.classList.remove('active');
+                }
+                return;
+            } catch (e) { attempts++; await new Promise(r => setTimeout(r, 800)); }
+        }
+    }
 
     function toggleDarkMode(){ document.documentElement.classList.toggle('dark-mode'); const is=document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode',is); document.getElementById('darkModeLabel').textContent = is ? safeT('show_label_on') : safeT('show_label_off'); }
 
-    // ========== الرسائل ==========
     function setFilter(filter){currentFilter=filter;document.getElementById('tabPending').classList.toggle('active',filter==='pending');document.getElementById('tabClosed').classList.toggle('active',filter==='closed');renderMessages();}
     
     function renderMessages(){
@@ -344,7 +415,6 @@
         else document.getElementById('lastMessage').innerHTML=safeT('last_message_none');
     }
 
-    // ========== إظهار الرقم والحظر ==========
     async function showPhoneToVisitor(messageId) {
         if (!supabaseClient) return;
         if (!confirm(safeT('show_phone_to_visitor_warning')||'⚠️ سيظهر رقمك لهذا الشخص. متأكد؟')) return;
@@ -352,28 +422,10 @@
         alert('✅ '+(safeT('phone_revealed_success')||'سيظهر رقمك لهذا الزائر.'));
     }
 
-    async function blockVisitor(fingerprint) {
-        if (!blockedFingerprints.includes(fingerprint)) {
-            blockedFingerprints.push(fingerprint);
-            await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id);
-            showToast('✅ تم حظر الزائر');
-            loadMessages();
-        }
-    }
-
-    async function unblockVisitor(fingerprint) {
-        blockedFingerprints = blockedFingerprints.filter(f => f !== fingerprint);
-        await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id);
-        showToast('✅ تم إلغاء الحظر');
-        loadMessages();
-    }
-
-    // ========== المحادثة والرد ==========
     function openConversation(messageId){selectedMessageId=messageId;const msg=allMessages.find(m=>m.id==messageId);if(!msg)return;let html=`<div class="message-bubble visitor-bubble">🧑 ${safeT('visitor_label')}: ${escapeHtml(msg.visitor_message)}</div>`;if(msg.owner_response)html+=`<div class="message-bubble owner-bubble">🚗 ${safeT('owner_label')}: ${escapeHtml(msg.owner_response)}</div>`;document.getElementById('convMessages').innerHTML=html;document.getElementById('conversationPage').classList.add('active');}
     function closeConversation(){document.getElementById('conversationPage').classList.remove('active');selectedMessageId=null;}
     async function sendReplyFromConv(){const reply=document.getElementById('convReplyText').value.trim();if(!reply||!selectedMessageId)return;const {error}=await supabaseClient.from('scan_logs').update({owner_response:reply,status:'closed'}).eq('id',selectedMessageId);if(error){showToast('❌ فشل');return;}showToast('✅ '+safeT('reply_sent'));document.getElementById('convReplyText').value='';closeConversation();loadMessages();}
 
-    // ========== تعديل بيانات المركبة ==========
     async function saveProfile(){
         const carName = document.getElementById('editCarName').value.trim();
         const plate = document.getElementById('editPlate').value.trim();
@@ -389,7 +441,6 @@
         document.getElementById('vehicleName').innerHTML = '🚗 <span data-key="vehicle_default">' + (carName || safeT('vehicle_default')) + '</span>';
     }
 
-    // ========== استيكراتي ==========
     async function loadMyStickers() {
         if (!currentVehicle) return;
         const { data: stickers, error } = await supabaseClient.from('stickers').select('*').eq('vehicle_id', currentVehicle.id).order('activated_at', { ascending: false });
@@ -416,130 +467,40 @@
         navigator.clipboard.writeText(text).then(() => showToast('✅ تم نسخ الرابط')).catch(() => showToast('❌ فشل النسخ'));
     }
 
-    // ========== الإشعارات والصوت ==========
+    async function blockVisitor(fingerprint) {
+        if (!blockedFingerprints.includes(fingerprint)) {
+            blockedFingerprints.push(fingerprint);
+            await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id);
+            showToast('✅ تم حظر الزائر');
+            loadMessages();
+        }
+    }
+
+    async function unblockVisitor(fingerprint) {
+        blockedFingerprints = blockedFingerprints.filter(f => f !== fingerprint);
+        await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id);
+        showToast('✅ تم إلغاء الحظر');
+        loadMessages();
+    }
+
     function playNotificationSound(){if(audioElement){audioElement.currentTime=0;audioElement.play().catch(()=>{});}}
     function showToast(msg){const old=document.querySelector('.toast');if(old)old.remove();const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3500);}
 
-    // ========== تسجيل الخروج ==========
     async function logout(){await supabaseClient.auth.signOut();window.location.href='/index.html';}
 
-    // ========== اللغة ==========
     const langSelectEl = document.getElementById('langSelect');
     if(langSelectEl && typeof setLanguage === 'function'){
         langSelectEl.value = currentLang || 'ar';
         langSelectEl.addEventListener('change', function(){ setLanguage(this.value); });
     }
 
-    // ========== إدارة الإشعارات الفورية (Push) ==========
-    async function togglePushSubscription() {
-        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-            showToast('❌ متصفحك لا يدعم الإشعارات الفورية');
-            return;
-        }
+    // استعادة الحالة بعد التحميل
+    window.addEventListener('load', function() {
+        setTimeout(restoreAudioSetting, 200);
+        setTimeout(restorePushButtonState, 800);
+    });
 
-        const btn = document.getElementById('pushSubscribeBtn');
-        const registration = await navigator.serviceWorker.ready;
-        const existingSubscription = await registration.pushManager.getSubscription();
-
-        if (existingSubscription) {
-            await existingSubscription.unsubscribe();
-            await supabaseClient.from('push_subscriptions').delete().eq('subscription', JSON.stringify(existingSubscription));
-            btn.textContent = '🔇 تفعيل';
-            btn.classList.remove('active');
-            showToast('🔕 تم إلغاء الإشعارات');
-            return;
-        }
-
-        const permission = await Notification.requestPermission();
-        if (permission !== 'granted') {
-            showToast('❌ تم رفض إذن الإشعارات');
-            return;
-        }
-
-        const vapidPublicKey = 'BF7QReAl5pUagrADerAuNAA7qPGXfiGXSXEsu6qO75Odim3Xx34WZ7jWj6IN7oMwMRcRcxbQjYkrkLFYvbS9oBQ';
-        const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
-
-        try {
-            const subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: convertedKey
-            });
-
-            await supabaseClient.from('push_subscriptions').insert({
-                user_id: currentUser.id,
-                subscription: subscription
-            });
-
-            btn.textContent = '🔊 مفعّلة';
-            btn.classList.add('active');
-            showToast('✅ تم تفعيل الإشعارات بنجاح!');
-            alert('✅ تم تفعيل الإشعارات. جرب إغلاق المتصفح واطلب من زائر إرسال رسالة.');
-        } catch (err) {
-            console.error('Push subscription failed:', err);
-            showToast('❌ فشل تفعيل الإشعارات');
-        }
-    }
-
-    function urlBase64ToUint8Array(base64String) {
-        const padding = '='.repeat((4 - base64String.length % 4) % 4);
-        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-        const rawData = window.atob(base64);
-        const outputArray = new Uint8Array(rawData.length);
-        for (let i = 0; i < rawData.length; ++i) {
-            outputArray[i] = rawData.charCodeAt(i);
-        }
-        return outputArray;
-    }
-
-    async function restorePushButtonState() {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-    let attempts = 0;
-    const maxAttempts = 10;
-    while (attempts < maxAttempts) {
-        const btn = document.getElementById('pushSubscribeBtn');
-        if (!btn) {
-            attempts++;
-            await new Promise(r => setTimeout(r, 500));
-            continue;
-        }
-        try {
-            const registration = await navigator.serviceWorker.ready;
-            const subscription = await registration.pushManager.getSubscription();
-            if (subscription) {
-                btn.textContent = '🔊 مفعّلة';
-                btn.classList.add('active');
-            } else {
-                btn.textContent = '🔇 تفعيل';
-                btn.classList.remove('active');
-            }
-            return;
-        } catch (e) {
-            attempts++;
-            await new Promise(r => setTimeout(r, 800));
-        }
-    }
-}
-
-// استدعاء الدالة بعد تحميل الصفحة
-window.addEventListener('load', function() {
-    setTimeout(restoreAudioSetting, 300);
-    setTimeout(restorePushButtonState, 800);
-});
-    // ========== بدء التهيئة ==========
     initDashboard();
-   function restoreAudioSetting() {
-    const btn = document.getElementById('audioToggleBtn');
-    if (!btn) return;
-    const isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
-    if (isEnabled) {
-        if (!audioElement) audioElement = new Audio('notification.mp3');
-        btn.textContent = '🔊 ' + safeT('audio_on');
-        btn.classList.add('active');
-    } else {
-        btn.textContent = '🔇 ' + safeT('audio_off');
-        btn.classList.remove('active');
-    }
-} 
 </script>
 </body>
 </html>
