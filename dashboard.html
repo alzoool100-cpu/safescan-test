@@ -253,44 +253,51 @@
         if(currentUser) { await supabaseClient.from('profiles').update({contact_method: method}).eq('id', currentUser.id); showToast('✅ ' + safeT('changes_saved')); }
     }
 
-    // ========== الصوت ==========
-    function toggleAudioSetting() {
-    const btn = document.getElementById('audioToggleBtn');
-    if (!btn) return;
-    const isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
-
-    if (isEnabled) {
-        // إيقاف الصوت
-        localStorage.setItem('safescan_audio_enabled', 'false');
-        btn.textContent = 'false';
-        btn.classList.remove('active');
-        if (window._myAudio) {
-            window._myAudio.pause();
-            window._myAudio = null;
-        }
-    } else {
-        // تشغيل الصوت
-        localStorage.setItem('safescan_audio_enabled', 'true');
-        btn.textContent = 'true';
-        btn.classList.add('active');
-        if (!window._myAudio) {
-            window._myAudio = new Audio('notification.mp3');
-        }
-        window._myAudio.play().catch(() => {});
-    }
-}
-    function restoreAudioSetting() {
+        // ========== الصوت (إصدار نهائي موحد) ==========
+    function updateAudioButtonUI() {
         const btn = document.getElementById('audioToggleBtn');
         if (!btn) return;
-        if (localStorage.getItem('safescan_audio_enabled') === 'true') {
-            btn.textContent = '🔊 ' + safeT('audio_on');
+        const isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
+        if (isEnabled) {
+            btn.textContent = '🔊 الصوت مفعل';
             btn.classList.add('active');
-            if (!audioElement) audioElement = new Audio('notification.mp3');
         } else {
-            btn.textContent = '🔇 ' + safeT('audio_off');
+            btn.textContent = '🔇 تفعيل الصوت';
             btn.classList.remove('active');
         }
     }
+
+    function toggleAudioSetting() {
+        const btn = document.getElementById('audioToggleBtn');
+        if (!btn) return;
+        const isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
+
+        if (isEnabled) {
+            // إيقاف الصوت
+            localStorage.setItem('safescan_audio_enabled', 'false');
+            updateAudioButtonUI();
+            if (window._myAudio) {
+                window._myAudio.pause();
+                window._myAudio = null;
+            }
+        } else {
+            // تشغيل الصوت
+            localStorage.setItem('safescan_audio_enabled', 'true');
+            updateAudioButtonUI();
+            if (!window._myAudio) {
+                window._myAudio = new Audio('notification.mp3');
+            }
+            window._myAudio.play().catch(function(){});
+        }
+    }
+
+    function restoreAudioSetting() {
+        updateAudioButtonUI();
+        if (localStorage.getItem('safescan_audio_enabled') === 'true') {
+            if (!window._myAudio) window._myAudio = new Audio('notification.mp3');
+        }
+    }
+    
 
     // ========== إشعارات الجوال ==========
     async function togglePushSubscription() {
