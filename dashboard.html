@@ -136,25 +136,35 @@
 <script>
     const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let currentUser=null, currentVehicle=null, active=true, selectedMessageId=null;
-    let allMessages=[], currentFilter='pending', audioElement=null;
+    let allMessages=[], currentFilter='pending';
     let blockedFingerprints = [];
+    var safescanAudio = null;
 
     function safeT(key) { return typeof t === 'function' ? t(key) : key; }
 
     // ========== استعادة جميع الإعدادات ==========
     function restoreAllSettings() {
-         setTimeout(restoreAudioSetting, 100);
         restoreAudioSetting();
+
         const savedDark = localStorage.getItem('darkMode') === 'true';
-        document.getElementById('darkModeToggle').checked = savedDark;
-        document.getElementById('darkModeLabel').textContent = savedDark ? safeT('show_label_on') : safeT('show_label_off');
-        if(savedDark) document.documentElement.classList.add('dark-mode');
+        var darkToggle = document.getElementById('darkModeToggle');
+        var darkLabel = document.getElementById('darkModeLabel');
+        if (darkToggle) darkToggle.checked = savedDark;
+        if (darkLabel) darkLabel.textContent = savedDark ? 'مفعل' : 'غير مفعل';
+        if (savedDark) document.documentElement.classList.add('dark-mode');
+
         const savedShowPhone = localStorage.getItem('safescan_show_phone') === 'true';
-        document.getElementById('showPhoneToggle').checked = savedShowPhone;
-        document.getElementById('showPhoneLabel').textContent = savedShowPhone ? safeT('show_label_on') : safeT('show_label_off');
-        document.getElementById('contactOptionsRow').style.display = savedShowPhone ? 'block' : 'none';
+        var showPhoneToggle = document.getElementById('showPhoneToggle');
+        var showPhoneLabel = document.getElementById('showPhoneLabel');
+        var contactRow = document.getElementById('contactOptionsRow');
+        if (showPhoneToggle) showPhoneToggle.checked = savedShowPhone;
+        if (showPhoneLabel) showPhoneLabel.textContent = savedShowPhone ? 'إظهار' : 'إخفاء';
+        if (contactRow) contactRow.style.display = savedShowPhone ? 'block' : 'none';
+
         const savedMethod = localStorage.getItem('safescan_contact_method') || 'all';
-        document.getElementById('contactMethod').value = savedMethod;
+        var methodSelect = document.getElementById('contactMethod');
+        if (methodSelect) methodSelect.value = savedMethod;
+
         restorePushButtonState();
     }
     restoreAllSettings();
@@ -179,7 +189,7 @@
             document.getElementById('phoneDisplay').innerText = profile.phone || '---';
             const isShow = profile.show_phone ?? (localStorage.getItem('safescan_show_phone') === 'true');
             document.getElementById('showPhoneToggle').checked = isShow;
-            document.getElementById('showPhoneLabel').innerText = isShow ? safeT('show_label_on') : safeT('show_label_off');
+            document.getElementById('showPhoneLabel').innerText = isShow ? 'إظهار' : 'إخفاء';
             document.getElementById('contactOptionsRow').style.display = isShow ? 'block' : 'none';
             localStorage.setItem('safescan_show_phone', isShow);
             const method = profile.contact_method || localStorage.getItem('safescan_contact_method') || 'all';
@@ -244,7 +254,7 @@
         const newValue = document.getElementById('showPhoneToggle').checked;
         if(newValue && !confirm(safeT('show_phone_warning')||'⚠️ سيظهر رقمك للعامة. متأكد؟')) { document.getElementById('showPhoneToggle').checked = false; return; }
         localStorage.setItem('safescan_show_phone', newValue);
-        document.getElementById('showPhoneLabel').innerText = newValue ? safeT('show_label_on') : safeT('show_label_off');
+        document.getElementById('showPhoneLabel').innerText = newValue ? 'إظهار' : 'إخفاء';
         document.getElementById('contactOptionsRow').style.display = newValue ? 'block' : 'none';
         if(currentUser) await supabaseClient.from('profiles').update({show_phone: newValue}).eq('id', currentUser.id);
     }
@@ -254,9 +264,7 @@
         if(currentUser) { await supabaseClient.from('profiles').update({contact_method: method}).eq('id', currentUser.id); showToast('✅ ' + safeT('changes_saved')); }
     }
 
-          // ========== الصوت (نهائي موحد) ==========
-    var safescanAudio = null;
-
+    // ========== الصوت (نهائي) ==========
     function updateAudioButtonUI() {
         var btn = document.getElementById('audioToggleBtn');
         if (!btn) return;
@@ -299,7 +307,8 @@
             safescanAudio.currentTime = 0;
             safescanAudio.play().catch(function(){});
         }
-    }    
+    }
+
     // ========== إشعارات الجوال ==========
     async function togglePushSubscription() {
         if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
@@ -349,7 +358,7 @@
         else { btn.textContent = '🔇 تفعيل'; btn.classList.remove('active'); }
     }
 
-    function toggleDarkMode(){ document.documentElement.classList.toggle('dark-mode'); const is=document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode',is); document.getElementById('darkModeLabel').textContent = is ? safeT('show_label_on') : safeT('show_label_off'); }
+    function toggleDarkMode(){ document.documentElement.classList.toggle('dark-mode'); const is=document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode',is); document.getElementById('darkModeLabel').textContent = is ? 'مفعل' : 'غير مفعل'; }
 
     function setFilter(filter){currentFilter=filter;document.getElementById('tabPending').classList.toggle('active',filter==='pending');document.getElementById('tabClosed').classList.toggle('active',filter==='closed');renderMessages();}
     function renderMessages(){
