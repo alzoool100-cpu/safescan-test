@@ -253,50 +253,46 @@
         if(currentUser) { await supabaseClient.from('profiles').update({contact_method: method}).eq('id', currentUser.id); showToast('✅ ' + safeT('changes_saved')); }
     }
 
-          // ========== الصوت (إصدار نهائي موحد) ==========
+          // ========== الصوت (نهائي) ==========
     function updateAudioButtonUI() {
         var btn = document.getElementById('audioToggleBtn');
         if (!btn) return;
-        var isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
-        if (isEnabled) {
-            btn.textContent = '🔊 الصوت مفعل';
-            btn.classList.add('active');
-        } else {
-            btn.textContent = '🔇 تفعيل الصوت';
-            btn.classList.remove('active');
-        }
+        var on = localStorage.getItem('safescan_audio_enabled') === 'true';
+        btn.textContent = on ? '🔊 الصوت مفعل' : '🔇 تفعيل الصوت';
+        if (on) btn.classList.add('active');
+        else btn.classList.remove('active');
     }
 
     function toggleAudioSetting() {
         var btn = document.getElementById('audioToggleBtn');
         if (!btn) return;
-        var isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
+        var isOn = localStorage.getItem('safescan_audio_enabled') === 'true';
 
-        if (isEnabled) {
-            // إيقاف الصوت
+        if (isOn) {
             localStorage.setItem('safescan_audio_enabled', 'false');
             updateAudioButtonUI();
-            if (window._myAudio) {
-                window._myAudio.pause();
-                window._myAudio = null;
-            }
+            if (window._audio) { window._audio.pause(); window._audio = null; }
         } else {
-            // تشغيل الصوت
             localStorage.setItem('safescan_audio_enabled', 'true');
             updateAudioButtonUI();
-            if (!window._myAudio) {
-                window._myAudio = new Audio('notification.mp3');
-            }
-            window._myAudio.play().catch(function(){});
+            if (!window._audio) window._audio = new Audio('notification.mp3');
+            window._audio.play().catch(function(){});
         }
     }
 
     function restoreAudioSetting() {
         updateAudioButtonUI();
         if (localStorage.getItem('safescan_audio_enabled') === 'true') {
-            if (!window._myAudio) window._myAudio = new Audio('notification.mp3');
+            if (!window._audio) window._audio = new Audio('notification.mp3');
         }
     }
+
+    function playNotificationSound() {
+        if (window._audio) {
+            window._audio.currentTime = 0;
+            window._audio.play().catch(function(){});
+        }
+    }    
 
     // ========== إشعارات الجوال ==========
     async function togglePushSubscription() {
