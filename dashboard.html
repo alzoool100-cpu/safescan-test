@@ -221,8 +221,8 @@
         loadMyStickers();
         setTimeout(setupRealtime, 3000);
 
-        // ✅ استعادة إعداد الصوت بعد أن تصبح العناصر جاهزة
-        restoreAudioSetting();
+        // استعادة الصوت مع تأخير بسيط لضمان وجود الزر
+        setTimeout(function(){ restoreAudioSetting(); }, 100);
         applyTranslations();
     }
 
