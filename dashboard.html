@@ -39,6 +39,29 @@
         .conv-messages { flex: 1; overflow-y: auto; }
         .conv-reply-area { display: flex; gap: 8px; margin-top: 12px; }
         .edit-input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 4px; background: var(--bg-input); color: var(--text-primary); }
+  /* تحسين الاستجابة للمس على الجوال */
+.nav-item, .stat-item, .inbox-item, button, .toggle-switch {
+    cursor: pointer;
+    touch-action: manipulation; /* يمنع التأخير والتكبير */
+    -webkit-tap-highlight-color: transparent; /* يزيل التأثير الأزرق عند اللمس */
+}
+
+/* ضمان أن شريط التبويب لا يعيق التمرير أو اللمس */
+.bottom-nav {
+    pointer-events: auto; /* يضمن أن شريط التبويب يستقبل اللمس */
+    z-index: 1000;
+}
+
+/* منع تمرير الصفحة عند لمس الأزرار */
+.nav-item:active, .stat-item:active, .inbox-item:active {
+    background: rgba(37, 99, 235, 0.1); /* تأثير لمس خفيف */
+}
+
+/* إصلاح مشكلة تحميل الصفحة على الجوال */
+body {
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
     </style>
 </head>
 <body>
