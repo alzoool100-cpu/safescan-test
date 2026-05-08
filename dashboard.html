@@ -292,7 +292,7 @@
             window._audio.currentTime = 0;
             window._audio.play().catch(function(){});
         }
-    }    
+    }      
 
     // ========== إشعارات الجوال ==========
     async function togglePushSubscription() {
@@ -415,12 +415,6 @@
     function copyToClipboard(text) { navigator.clipboard.writeText(text).then(() => showToast('✅ تم نسخ الرابط')).catch(() => showToast('❌ فشل النسخ')); }
     async function blockVisitor(fingerprint) { if (!blockedFingerprints.includes(fingerprint)) { blockedFingerprints.push(fingerprint); await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id); showToast('✅ تم حظر الزائر'); loadMessages(); } }
     async function unblockVisitor(fingerprint) { blockedFingerprints = blockedFingerprints.filter(f => f !== fingerprint); await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id); showToast('✅ تم إلغاء الحظر'); loadMessages(); }
-        function playNotificationSound(){
-        if(window._myAudio){
-            window._myAudio.currentTime=0;
-            window._myAudio.play().catch(function(){});
-        }
-    }
     function showToast(msg){const old=document.querySelector('.toast');if(old)old.remove();const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3500);}
     async function logout(){await supabaseClient.auth.signOut();window.location.href='/index.html';}
     const langSelectEl = document.getElementById('langSelect');
