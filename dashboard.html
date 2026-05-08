@@ -513,11 +513,24 @@
 
 // استدعاء الدالة بعد تحميل الصفحة
 window.addEventListener('load', function() {
+    setTimeout(restoreAudioSetting, 300);
     setTimeout(restorePushButtonState, 800);
 });
-
     // ========== بدء التهيئة ==========
     initDashboard();
+   function restoreAudioSetting() {
+    const btn = document.getElementById('audioToggleBtn');
+    if (!btn) return;
+    const isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
+    if (isEnabled) {
+        if (!audioElement) audioElement = new Audio('notification.mp3');
+        btn.textContent = '🔊 ' + safeT('audio_on');
+        btn.classList.add('active');
+    } else {
+        btn.textContent = '🔇 ' + safeT('audio_off');
+        btn.classList.remove('active');
+    }
+} 
 </script>
 </body>
 </html>
