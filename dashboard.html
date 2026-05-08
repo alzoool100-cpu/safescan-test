@@ -220,6 +220,9 @@
         loadHomeStats();
         loadMyStickers();
         setTimeout(setupRealtime, 3000);
+
+        // ✅ استعادة إعداد الصوت بعد أن تصبح العناصر جاهزة
+        restoreAudioSetting();
         applyTranslations();
     }
 
