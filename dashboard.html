@@ -93,6 +93,10 @@ body {
                 <option value="sms" data-key="sms_only">📨 رسائل نصية فقط</option>
             </select>
         </div>
+        <div class="settings-row">
+    <span>🔔 إشعارات الجوال (Push)</span>
+    <button class="btn-tag" id="pushSubscribeBtn" onclick="subscribeToPush()">تفعيل</button>
+</div>
         <div class="settings-row"><span data-key="audio_toggle_label">🔔 صوت الإشعارات</span><button class="btn-tag" id="audioToggleBtn" onclick="toggleAudioSetting()" data-key="audio_off">🔇 تفعيل الصوت</button></div>
         <div class="settings-row"><span data-key="language_label">🌐 اللغة</span>
             <select id="langSelect" onchange="setLanguage(this.value)" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px 16px;font-size:14px;color:var(--text-primary)">
@@ -464,10 +468,11 @@ async function subscribeToPush() {
             subscription: subscription
         });
 
-        console.log('User subscribed to push');
-    } catch (err) {
-        console.error('Failed to subscribe:', err);
-    }
+           console.log('User subscribed to push');
+    alert('✅ تم تفعيل الإشعارات بنجاح!');  // <-- السطر الجديد
+} catch (err) {
+    console.error('Failed to subscribe:', err);
+}
 }
 
 // دالة مساعدة لتحويل المفتاح
