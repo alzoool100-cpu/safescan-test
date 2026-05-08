@@ -327,6 +327,7 @@ body {
             html += `<div class="inbox-item" onclick="openConversation('${log.id}')">
                 <div class="msg-preview">"${escapeHtml(log.visitor_message?.substring(0,50)||'')}"</div>
                 <div class="msg-time">${timeStr} · ${log.status==='pending'?'🆕 '+safeT('new_msgs'):'✅ '+safeT('replied_msgs')}</div>
+                <button onclick="event.stopPropagation(); showPhoneToVisitor('${log.id}')" style="background:none; border:none; color:var(--color-primary); cursor:pointer; font-size:12px; margin-top:4px;" data-key="show_phone_to_visitor_btn">📞 إظهار رقمي</button>
                 ${blockBtn}
             </div>`;
         });
