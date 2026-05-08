@@ -255,21 +255,29 @@
 
     // ========== الصوت ==========
     function toggleAudioSetting() {
-        const btn = document.getElementById('audioToggleBtn');
-        const isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
-        if (isEnabled) {
-            localStorage.setItem('safescan_audio_enabled', 'false');
-            btn.textContent = '🔇 ' + safeT('audio_off');
-            btn.classList.remove('active');
-            audioElement = null;
-        } else {
-            localStorage.setItem('safescan_audio_enabled', 'true');
-            btn.textContent = '🔊 ' + safeT('audio_on');
-            btn.classList.add('active');
-            if (!audioElement) audioElement = new Audio('notification.mp3');
-            audioElement.play().catch(() => {});
+    const btn = document.getElementById('audioToggleBtn');
+    const isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
+
+    if (isEnabled) {
+        // إيقاف الصوت
+        localStorage.setItem('safescan_audio_enabled', 'false');
+        btn.textContent = 'false';
+        btn.classList.remove('active');
+        if (window.myAudio) {
+            window.myAudio.pause();
+            window.myAudio = null;
+        }
+    } else {
+        // تشغيل الصوت
+        localStorage.setItem('safescan_audio_enabled', 'true');
+        btn.textContent = 'true';
+        btn.classList.add('active');
+        if (!window.myAudio) {
+            window.myAudio = new Audio('notification.mp3');
+            window.myAudio.play().catch(() => {});
         }
     }
+}
     function restoreAudioSetting() {
         const btn = document.getElementById('audioToggleBtn');
         if (!btn) return;
