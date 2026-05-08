@@ -144,28 +144,35 @@
 
     // ========== استعادة جميع الإعدادات ==========
     function restoreAllSettings() {
+    // استعادة الصوت فوراً إذا كان الزر موجوداً، وإلا حاول بعد 50ms
+    if (document.getElementById('audioToggleBtn')) {
         restoreAudioSetting();
+    } else {
+        setTimeout(restoreAllSettings, 50);
+        return; // نخرج مؤقتاً حتى يصبح الزر موجوداً
+    }
 
-        const savedDark = localStorage.getItem('darkMode') === 'true';
-        var darkToggle = document.getElementById('darkModeToggle');
-        var darkLabel = document.getElementById('darkModeLabel');
-        if (darkToggle) darkToggle.checked = savedDark;
-        if (darkLabel) darkLabel.textContent = savedDark ? 'مفعل' : 'غير مفعل';
-        if (savedDark) document.documentElement.classList.add('dark-mode');
+    const savedDark = localStorage.getItem('darkMode') === 'true';
+    var darkToggle = document.getElementById('darkModeToggle');
+    var darkLabel = document.getElementById('darkModeLabel');
+    if (darkToggle) darkToggle.checked = savedDark;
+    if (darkLabel) darkLabel.textContent = savedDark ? 'مفعل' : 'غير مفعل';
+    if (savedDark) document.documentElement.classList.add('dark-mode');
 
-        const savedShowPhone = localStorage.getItem('safescan_show_phone') === 'true';
-        var showPhoneToggle = document.getElementById('showPhoneToggle');
-        var showPhoneLabel = document.getElementById('showPhoneLabel');
-        var contactRow = document.getElementById('contactOptionsRow');
-        if (showPhoneToggle) showPhoneToggle.checked = savedShowPhone;
-        if (showPhoneLabel) showPhoneLabel.textContent = savedShowPhone ? 'إظهار' : 'إخفاء';
-        if (contactRow) contactRow.style.display = savedShowPhone ? 'block' : 'none';
+    const savedShowPhone = localStorage.getItem('safescan_show_phone') === 'true';
+    var showPhoneToggle = document.getElementById('showPhoneToggle');
+    var showPhoneLabel = document.getElementById('showPhoneLabel');
+    var contactRow = document.getElementById('contactOptionsRow');
+    if (showPhoneToggle) showPhoneToggle.checked = savedShowPhone;
+    if (showPhoneLabel) showPhoneLabel.textContent = savedShowPhone ? 'إظهار' : 'إخفاء';
+    if (contactRow) contactRow.style.display = savedShowPhone ? 'block' : 'none';
 
-        const savedMethod = localStorage.getItem('safescan_contact_method') || 'all';
-        var methodSelect = document.getElementById('contactMethod');
-        if (methodSelect) methodSelect.value = savedMethod;
+    const savedMethod = localStorage.getItem('safescan_contact_method') || 'all';
+    var methodSelect = document.getElementById('contactMethod');
+    if (methodSelect) methodSelect.value = savedMethod;
 
-        restorePushButtonState();
+    restorePushButtonState();
+}
     }
     restoreAllSettings();
 
@@ -220,9 +227,6 @@
         loadHomeStats();
         loadMyStickers();
         setTimeout(setupRealtime, 3000);
-
-        // استعادة الصوت مع تأخير بسيط لضمان وجود الزر
-        setTimeout(function(){ restoreAudioSetting(); }, 100);
         applyTranslations();
     }
 
