@@ -256,6 +256,7 @@
     // ========== الصوت ==========
     function toggleAudioSetting() {
     const btn = document.getElementById('audioToggleBtn');
+    if (!btn) return;
     const isEnabled = localStorage.getItem('safescan_audio_enabled') === 'true';
 
     if (isEnabled) {
@@ -263,19 +264,19 @@
         localStorage.setItem('safescan_audio_enabled', 'false');
         btn.textContent = 'false';
         btn.classList.remove('active');
-        if (window.myAudio) {
-            window.myAudio.pause();
-            window.myAudio = null;
+        if (window._myAudio) {
+            window._myAudio.pause();
+            window._myAudio = null;
         }
     } else {
         // تشغيل الصوت
         localStorage.setItem('safescan_audio_enabled', 'true');
         btn.textContent = 'true';
         btn.classList.add('active');
-        if (!window.myAudio) {
-            window.myAudio = new Audio('notification.mp3');
-            window.myAudio.play().catch(() => {});
+        if (!window._myAudio) {
+            window._myAudio = new Audio('notification.mp3');
         }
+        window._myAudio.play().catch(() => {});
     }
 }
     function restoreAudioSetting() {
