@@ -268,23 +268,32 @@
     }
 
     // ========== إعدادات الصوت والوضع الليلي ==========
-    function toggleAudioSetting(){
-        const btn = document.getElementById('audioToggleBtn');
-        const currentState = localStorage.getItem('safescan_audio_enabled') === 'true';
-        if(currentState){
-            localStorage.setItem('safescan_audio_enabled','false');
-            audioElement = null;
-            btn.textContent = '🔇 ' + safeT('audio_off');
-            btn.classList.remove('active');
-        } else {
-            if(!audioElement) audioElement = new Audio('notification.mp3');
-            audioElement.play().then(()=>{
-                localStorage.setItem('safescan_audio_enabled','true');
-                btn.textContent = '🔊 ' + safeT('audio_on');
-                btn.classList.add('active');
-            }).catch(()=> showToast('❌ فشل'));
-        }
+    function toggleAudioSetting() {
+    const btn = document.getElementById('audioToggleBtn');
+    if (!btn) return;
+    
+    const currentState = localStorage.getItem('safescan_audio_enabled') === 'true';
+    
+    if (currentState) {
+        // تعطيل الصوت
+        localStorage.setItem('safescan_audio_enabled', 'false');
+        audioElement = null;
+        btn.textContent = '🔇 ' + safeT('audio_off');
+        btn.classList.remove('active');
+        showToast('🔇 تم كتم الصوت');
+    } else {
+        // تفعيل الصوت
+        if (!audioElement) audioElement = new Audio('notification.mp3');
+        audioElement.play().then(() => {
+            localStorage.setItem('safescan_audio_enabled', 'true');
+            btn.textContent = '🔊 ' + safeT('audio_on');
+            btn.classList.add('active');
+            showToast('🔊 تم تفعيل الصوت');
+        }).catch(() => {
+            showToast('❌ فشل تشغيل الصوت');
+        });
     }
+}
 
     function toggleDarkMode(){ document.documentElement.classList.toggle('dark-mode'); const is=document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode',is); document.getElementById('darkModeLabel').textContent = is ? safeT('show_label_on') : safeT('show_label_off'); }
 
