@@ -483,11 +483,19 @@
     }
 
     async function restorePushButtonState() {
-        if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-        const registration = await navigator.serviceWorker.ready;
-        const subscription = await registration.pushManager.getSubscription();
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+    let attempts = 0;
+    const maxAttempts = 10;
+    while (attempts < maxAttempts) {
         const btn = document.getElementById('pushSubscribeBtn');
-        if (btn) {
+        if (!btn) {
+            attempts++;
+            await new Promise(r => setTimeout(r, 500));
+            continue;
+        }
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.getSubscription();
             if (subscription) {
                 btn.textContent = '🔊 مفعّلة';
                 btn.classList.add('active');
@@ -495,8 +503,18 @@
                 btn.textContent = '🔇 تفعيل';
                 btn.classList.remove('active');
             }
+            return;
+        } catch (e) {
+            attempts++;
+            await new Promise(r => setTimeout(r, 800));
         }
     }
+}
+
+// استدعاء الدالة بعد تحميل الصفحة
+window.addEventListener('load', function() {
+    setTimeout(restorePushButtonState, 800);
+});
 
     // ========== بدء التهيئة ==========
     initDashboard();
