@@ -144,22 +144,24 @@
 
     // ========== استعادة جميع الإعدادات ==========
     function restoreAllSettings() {
-    // استعادة الصوت فوراً إذا كان الزر موجوداً، وإلا حاول بعد 50ms
+    // استعادة الصوت فوراً إذا كان الزر موجوداً
     if (document.getElementById('audioToggleBtn')) {
         restoreAudioSetting();
     } else {
         setTimeout(restoreAllSettings, 50);
-        return; // نخرج مؤقتاً حتى يصبح الزر موجوداً
+        return;
     }
 
-    const savedDark = localStorage.getItem('darkMode') === 'true';
+    // استعادة الوضع الليلي
+    var savedDark = localStorage.getItem('darkMode') === 'true';
     var darkToggle = document.getElementById('darkModeToggle');
     var darkLabel = document.getElementById('darkModeLabel');
     if (darkToggle) darkToggle.checked = savedDark;
     if (darkLabel) darkLabel.textContent = savedDark ? 'مفعل' : 'غير مفعل';
     if (savedDark) document.documentElement.classList.add('dark-mode');
 
-    const savedShowPhone = localStorage.getItem('safescan_show_phone') === 'true';
+    // استعادة إظهار رقم الهاتف
+    var savedShowPhone = localStorage.getItem('safescan_show_phone') === 'true';
     var showPhoneToggle = document.getElementById('showPhoneToggle');
     var showPhoneLabel = document.getElementById('showPhoneLabel');
     var contactRow = document.getElementById('contactOptionsRow');
@@ -167,12 +169,14 @@
     if (showPhoneLabel) showPhoneLabel.textContent = savedShowPhone ? 'إظهار' : 'إخفاء';
     if (contactRow) contactRow.style.display = savedShowPhone ? 'block' : 'none';
 
-    const savedMethod = localStorage.getItem('safescan_contact_method') || 'all';
+    // استعادة طريقة التواصل
+    var savedMethod = localStorage.getItem('safescan_contact_method') || 'all';
     var methodSelect = document.getElementById('contactMethod');
     if (methodSelect) methodSelect.value = savedMethod;
 
+    // استعادة زر إشعارات الجوال
     restorePushButtonState();
-    }
+}
     restoreAllSettings();
 
     function switchPage(page) {
