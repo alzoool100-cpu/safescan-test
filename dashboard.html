@@ -39,33 +39,10 @@
         .conv-messages { flex: 1; overflow-y: auto; }
         .conv-reply-area { display: flex; gap: 8px; margin-top: 12px; }
         .edit-input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 4px; background: var(--bg-input); color: var(--text-primary); }
-  /* تحسين الاستجابة للمس على الجوال */
-.nav-item, .stat-item, .inbox-item, button, .toggle-switch {
-    cursor: pointer;
-    touch-action: manipulation; /* يمنع التأخير والتكبير */
-    -webkit-tap-highlight-color: transparent; /* يزيل التأثير الأزرق عند اللمس */
-}
-
-/* ضمان أن شريط التبويب لا يعيق التمرير أو اللمس */
-.bottom-nav {
-    pointer-events: auto; /* يضمن أن شريط التبويب يستقبل اللمس */
-    z-index: 1000;
-}
-
-/* منع تمرير الصفحة عند لمس الأزرار */
-.nav-item:active, .stat-item:active, .inbox-item:active {
-    background: rgba(37, 99, 235, 0.1); /* تأثير لمس خفيف */
-}
-
-/* إصلاح مشكلة تحميل الصفحة على الجوال */
-body {
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-}
+        #pushSubscribeBtn.active { background: var(--color-success); color: white; }
     </style>
 </head>
 <body>
-
 <div id="homePage" class="page active">
     <div class="header"><div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div><div class="car-badge" id="vehicleName">🚗 <span data-key="vehicle_default">سيارتي</span></div></div>
     <div class="card">
@@ -74,13 +51,11 @@ body {
         <div id="lastMessage" style="margin-top:12px;color:var(--text-secondary)" data-key="last_message_none">لا توجد رسائل حالياً</div>
     </div>
 </div>
-
 <div id="inboxPage" class="page">
     <div class="header"><h3 data-key="inbox_tab">📥 الرسائل</h3><button onclick="loadMessages()" style="background:none;border:none;color:var(--color-primary);cursor:pointer" data-key="refresh">🔄 تحديث</button></div>
     <div class="stats"><div class="stat-item active" id="tabPending" onclick="setFilter('pending')"><div class="stat-number" id="inboxNew">0</div><div data-key="new_msgs">جديدة</div></div><div class="stat-item" id="tabClosed" onclick="setFilter('closed')"><div class="stat-number" id="inboxTotal">0</div><div data-key="replied_msgs">تم الرد</div></div></div>
     <div id="inboxContainer"><div class="loading" data-key="no_messages_inbox">لا توجد رسائل بعد</div></div>
 </div>
-
 <div id="settingsPage" class="page">
     <div class="header"><h3 data-key="settings_tab">⚙️ الإعدادات</h3></div>
     <div class="card">
@@ -93,10 +68,11 @@ body {
                 <option value="sms" data-key="sms_only">📨 رسائل نصية فقط</option>
             </select>
         </div>
+        <!-- قسم الإشعارات الفورية الجديد -->
         <div class="settings-row">
-    <span>🔔 إشعارات الجوال (Push)</span>
-    <button class="btn-tag" id="pushSubscribeBtn" onclick="subscribeToPush()">تفعيل</button>
-</div>
+            <span>🔔 إشعارات الجوال (Push)</span>
+            <button class="btn-tag" id="pushSubscribeBtn" onclick="togglePushSubscription()">🔇 تفعيل</button>
+        </div>
         <div class="settings-row"><span data-key="audio_toggle_label">🔔 صوت الإشعارات</span><button class="btn-tag" id="audioToggleBtn" onclick="toggleAudioSetting()" data-key="audio_off">🔇 تفعيل الصوت</button></div>
         <div class="settings-row"><span data-key="language_label">🌐 اللغة</span>
             <select id="langSelect" onchange="setLanguage(this.value)" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px 16px;font-size:14px;color:var(--text-primary)">
@@ -109,21 +85,16 @@ body {
         <div class="settings-row"><a href="/support.html" style="color:var(--text-primary);text-decoration:none" data-key="support_link">📞 الدعم</a></div>
     </div>
 </div>
-
 <div id="accountPage" class="page">
     <div class="header"><h3 data-key="account_tab">👤 حسابي</h3></div>
     <div class="card">
         <div class="settings-row"><span data-key="phone_registered">📱 رقم الجوال المسجل</span><span id="phoneDisplay">---</span></div>
         <div class="settings-row"><span data-key="vehicle_info">🚗 المركبة</span><span id="vehicleDisplay">---</span></div>
         <div class="settings-row"><span>🏷️ عدد الاستيكرات</span><span id="stickerCount">---</span></div>
-        
         <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px">
             <h4>🏷️ استيكراتي</h4>
-            <div id="myStickersList" style="max-height: 200px; overflow-y: auto; margin: 12px 0;">
-                <div class="loading">جار التحميل...</div>
-            </div>
+            <div id="myStickersList" style="max-height: 200px; overflow-y: auto; margin: 12px 0;"><div class="loading">جار التحميل...</div></div>
         </div>
-
         <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px">
             <h4 data-key="edit_profile">تعديل بيانات المركبة</h4>
             <label data-key="vehicle_name_label">اسم المركبة</label>
@@ -139,14 +110,12 @@ body {
         <button class="btn btn-outline" style="margin-top:20px" onclick="logout()" data-key="logout_btn">تسجيل الخروج</button>
     </div>
 </div>
-
 <div class="bottom-nav">
     <div class="nav-item active" onclick="switchPage('home')"><span class="icon">🏠</span><span data-key="home_tab">الرئيسية</span></div>
     <div class="nav-item" onclick="switchPage('inbox')"><span class="icon">💬</span><span data-key="inbox_tab">الرسائل</span></div>
     <div class="nav-item" onclick="switchPage('settings')"><span class="icon">⚙️</span><span data-key="settings_tab">الإعدادات</span></div>
     <div class="nav-item" onclick="switchPage('account')"><span class="icon">👤</span><span data-key="account_tab">حسابي</span></div>
 </div>
-
 <div id="conversationPage">
     <div class="conv-header"><button onclick="closeConversation()" style="background:none;border:none;font-size:20px;cursor:pointer">← رجوع</button><strong data-key="reply_title">💬 الرد على الرسالة</strong></div>
     <div class="conv-messages" id="convMessages"></div>
@@ -164,6 +133,7 @@ body {
 
     function safeT(key) { return typeof t === 'function' ? t(key) : key; }
 
+    // ========== استعادة جميع الإعدادات ==========
     function restoreAllSettings() {
         const savedAudio = localStorage.getItem('safescan_audio_enabled') === 'true';
         const btn = document.getElementById('audioToggleBtn');
@@ -191,6 +161,7 @@ body {
     }
     restoreAllSettings();
 
+    // ========== التنقل بين الصفحات ==========
     function switchPage(page) {
         document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
         document.getElementById(page+'Page').classList.add('active');
@@ -201,6 +172,7 @@ body {
         if(page==='home') { loadHomeStats(); updateToggleUI(); }
     }
 
+    // ========== التهيئة ==========
     async function initDashboard() {
         const {data:{user},error}=await supabaseClient.auth.getUser();
         if(error||!user){alert(safeT('login_required'));window.location.href='/login.html';return;}
@@ -231,7 +203,6 @@ body {
             document.getElementById('editPlate').value = currentVehicle.plate_number || '';
             document.getElementById('editModel').value = currentVehicle.model || '';
             document.getElementById('editDriver').value = currentVehicle.driver_name || '';
-
             const { count: stickerCount } = await supabaseClient.from('stickers').select('*', { count: 'exact', head: true }).eq('vehicle_id', currentVehicle.id);
             document.getElementById('stickerCount').innerText = stickerCount || 0;
         } else {
@@ -243,9 +214,11 @@ body {
         loadHomeStats();
         loadMyStickers();
         setTimeout(setupRealtime, 3000);
+        setTimeout(restorePushButtonState, 2000); // استعادة حالة زر الـ Push
         applyTranslations();
     }
 
+    // ========== Realtime ==========
     function setupRealtime() {
         if (!currentVehicle) return;
         supabaseClient.from('stickers').select('id').eq('vehicle_id', currentVehicle.id).then(({data:stickers})=>{
@@ -271,9 +244,11 @@ body {
         document.getElementById('inboxTotal').innerText = closed;
     }
 
+    // ========== تبديل الحالة ==========
     function updateToggleUI(){const t=document.getElementById('statusToggle'),l=document.getElementById('statusLabel');if(active){t.classList.remove('off');l.innerHTML=safeT('status_active');}else{t.classList.add('off');l.innerHTML=safeT('status_off');}}
     async function toggleStatus(){if(!currentVehicle)return;active=!active;updateToggleUI();await supabaseClient.from('vehicles').update({is_active:active}).eq('id',currentVehicle.id);const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);if(stickers)for(const s of stickers)await supabaseClient.from('stickers').update({status:active?'active':'inactive'}).eq('id',s.id);loadMessages();}
 
+    // ========== إعدادات الخصوصية ==========
     async function toggleShowPhone(){
         const newValue = document.getElementById('showPhoneToggle').checked;
         if(newValue && !confirm(safeT('show_phone_warning')||'⚠️ سيظهر رقمك للعامة. متأكد؟')) { document.getElementById('showPhoneToggle').checked = false; return; }
@@ -292,6 +267,7 @@ body {
         }
     }
 
+    // ========== إعدادات الصوت والوضع الليلي ==========
     function toggleAudioSetting(){
         const btn = document.getElementById('audioToggleBtn');
         const currentState = localStorage.getItem('safescan_audio_enabled') === 'true';
@@ -312,6 +288,7 @@ body {
 
     function toggleDarkMode(){ document.documentElement.classList.toggle('dark-mode'); const is=document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode',is); document.getElementById('darkModeLabel').textContent = is ? safeT('show_label_on') : safeT('show_label_off'); }
 
+    // ========== الرسائل ==========
     function setFilter(filter){currentFilter=filter;document.getElementById('tabPending').classList.toggle('active',filter==='pending');document.getElementById('tabClosed').classList.toggle('active',filter==='closed');renderMessages();}
     
     function renderMessages(){
@@ -358,6 +335,7 @@ body {
         else document.getElementById('lastMessage').innerHTML=safeT('last_message_none');
     }
 
+    // ========== إظهار الرقم والحظر ==========
     async function showPhoneToVisitor(messageId) {
         if (!supabaseClient) return;
         if (!confirm(safeT('show_phone_to_visitor_warning')||'⚠️ سيظهر رقمك لهذا الشخص. متأكد؟')) return;
@@ -365,10 +343,28 @@ body {
         alert('✅ '+(safeT('phone_revealed_success')||'سيظهر رقمك لهذا الزائر.'));
     }
 
+    async function blockVisitor(fingerprint) {
+        if (!blockedFingerprints.includes(fingerprint)) {
+            blockedFingerprints.push(fingerprint);
+            await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id);
+            showToast('✅ تم حظر الزائر');
+            loadMessages();
+        }
+    }
+
+    async function unblockVisitor(fingerprint) {
+        blockedFingerprints = blockedFingerprints.filter(f => f !== fingerprint);
+        await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id);
+        showToast('✅ تم إلغاء الحظر');
+        loadMessages();
+    }
+
+    // ========== المحادثة والرد ==========
     function openConversation(messageId){selectedMessageId=messageId;const msg=allMessages.find(m=>m.id==messageId);if(!msg)return;let html=`<div class="message-bubble visitor-bubble">🧑 ${safeT('visitor_label')}: ${escapeHtml(msg.visitor_message)}</div>`;if(msg.owner_response)html+=`<div class="message-bubble owner-bubble">🚗 ${safeT('owner_label')}: ${escapeHtml(msg.owner_response)}</div>`;document.getElementById('convMessages').innerHTML=html;document.getElementById('conversationPage').classList.add('active');}
     function closeConversation(){document.getElementById('conversationPage').classList.remove('active');selectedMessageId=null;}
     async function sendReplyFromConv(){const reply=document.getElementById('convReplyText').value.trim();if(!reply||!selectedMessageId)return;const {error}=await supabaseClient.from('scan_logs').update({owner_response:reply,status:'closed'}).eq('id',selectedMessageId);if(error){showToast('❌ فشل');return;}showToast('✅ '+safeT('reply_sent'));document.getElementById('convReplyText').value='';closeConversation();loadMessages();}
 
+    // ========== تعديل بيانات المركبة ==========
     async function saveProfile(){
         const carName = document.getElementById('editCarName').value.trim();
         const plate = document.getElementById('editPlate').value.trim();
@@ -384,6 +380,7 @@ body {
         document.getElementById('vehicleName').innerHTML = '🚗 <span data-key="vehicle_default">' + (carName || safeT('vehicle_default')) + '</span>';
     }
 
+    // ========== استيكراتي ==========
     async function loadMyStickers() {
         if (!currentVehicle) return;
         const { data: stickers, error } = await supabaseClient.from('stickers').select('*').eq('vehicle_id', currentVehicle.id).order('activated_at', { ascending: false });
@@ -410,89 +407,99 @@ body {
         navigator.clipboard.writeText(text).then(() => showToast('✅ تم نسخ الرابط')).catch(() => showToast('❌ فشل النسخ'));
     }
 
-    // ========== دوال الحظر وإلغاء الحظر ==========
-    async function blockVisitor(fingerprint) {
-        if (!blockedFingerprints.includes(fingerprint)) {
-            blockedFingerprints.push(fingerprint);
-            await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id);
-            showToast('✅ تم حظر الزائر');
-            loadMessages(); // تحديث الأزرار
-        }
-    }
-
-    async function unblockVisitor(fingerprint) {
-        blockedFingerprints = blockedFingerprints.filter(f => f !== fingerprint);
-        await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id);
-        showToast('✅ تم إلغاء الحظر');
-        loadMessages();
-    }
-
+    // ========== الإشعارات والصوت ==========
     function playNotificationSound(){if(audioElement){audioElement.currentTime=0;audioElement.play().catch(()=>{});}}
     function showToast(msg){const old=document.querySelector('.toast');if(old)old.remove();const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3500);}
 
+    // ========== تسجيل الخروج ==========
     async function logout(){await supabaseClient.auth.signOut();window.location.href='/index.html';}
 
+    // ========== اللغة ==========
     const langSelectEl = document.getElementById('langSelect');
     if(langSelectEl && typeof setLanguage === 'function'){
         langSelectEl.value = currentLang || 'ar';
         langSelectEl.addEventListener('change', function(){ setLanguage(this.value); });
     }
 
+    // ========== إدارة الإشعارات الفورية (Push) ==========
+    async function togglePushSubscription() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+            showToast('❌ متصفحك لا يدعم الإشعارات الفورية');
+            return;
+        }
+
+        const btn = document.getElementById('pushSubscribeBtn');
+        const registration = await navigator.serviceWorker.ready;
+        const existingSubscription = await registration.pushManager.getSubscription();
+
+        if (existingSubscription) {
+            await existingSubscription.unsubscribe();
+            await supabaseClient.from('push_subscriptions').delete().eq('subscription', JSON.stringify(existingSubscription));
+            btn.textContent = '🔇 تفعيل';
+            btn.classList.remove('active');
+            showToast('🔕 تم إلغاء الإشعارات');
+            return;
+        }
+
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+            showToast('❌ تم رفض إذن الإشعارات');
+            return;
+        }
+
+        const vapidPublicKey = 'BF7QReAl5pUagrADerAuNAA7qPGXfiGXSXEsu6qO75Odim3Xx34WZ7jWj6IN7oMwMRcRcxbQjYkrkLFYvbS9oBQ';
+        const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
+
+        try {
+            const subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: convertedKey
+            });
+
+            await supabaseClient.from('push_subscriptions').insert({
+                user_id: currentUser.id,
+                subscription: subscription
+            });
+
+            btn.textContent = '🔊 مفعّلة';
+            btn.classList.add('active');
+            showToast('✅ تم تفعيل الإشعارات بنجاح!');
+            alert('✅ تم تفعيل الإشعارات. جرب إغلاق المتصفح واطلب من زائر إرسال رسالة.');
+        } catch (err) {
+            console.error('Push subscription failed:', err);
+            showToast('❌ فشل تفعيل الإشعارات');
+        }
+    }
+
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
+    async function restorePushButtonState() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+        const btn = document.getElementById('pushSubscribeBtn');
+        if (btn) {
+            if (subscription) {
+                btn.textContent = '🔊 مفعّلة';
+                btn.classList.add('active');
+            } else {
+                btn.textContent = '🔇 تفعيل';
+                btn.classList.remove('active');
+            }
+        }
+    }
+
+    // ========== بدء التهيئة ==========
     initDashboard();
-    // ========== Push Notifications ==========
-async function subscribeToPush() {
-    if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-        console.log('Push messaging not supported');
-        return;
-    }
-
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') {
-        console.log('Notification permission denied');
-        return;
-    }
-
-    const registration = await navigator.serviceWorker.ready;
-    const vapidPublicKey = 'BF7QReAl5pUagrADerAuNAA7qPGXfiGXSXEsu6qO75Odim3Xx34WZ7jWj6IN7oMwMRcRcxbQjYkrkLFYvbS9oBQ';
-    const convertedKey = urlBase64ToUint8Array(vapidPublicKey);
-
-    try {
-        const subscription = await registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: convertedKey
-        });
-
-        // إرسال الاشتراك إلى Supabase
-        await supabaseClient.from('push_subscriptions').insert({
-            user_id: currentUser.id,
-            subscription: subscription
-        });
-
-           console.log('User subscribed to push');
-    alert('✅ تم تفعيل الإشعارات بنجاح!');  // <-- السطر الجديد
-} catch (err) {
-    console.error('Failed to subscribe:', err);
-}
-}
-
-// دالة مساعدة لتحويل المفتاح
-function urlBase64ToUint8Array(base64String) {
-    const padding = '='.repeat((4 - base64String.length % 4) % 4);
-    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-    const rawData = window.atob(base64);
-    const outputArray = new Uint8Array(rawData.length);
-    for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-    }
-    return outputArray;
-}
-
-// استدعاء الاشتراك بعد تحميل الصفحة بـ 3 ثوانٍ
-setTimeout(() => {
-    if (currentUser) {
-        subscribeToPush();
-    }
-}, 3000);
 </script>
 </body>
 </html>
