@@ -59,7 +59,12 @@
             const email = `${phone}@safescan.local`;
             const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
             if (error) { errorEl.textContent = '❌ بيانات خاطئة'; return; }
-            window.location.href = '/dashboard.html';
+           const params = new URLSearchParams(window.location.search);
+if (params.get('admin') === 'true') {
+    window.location.href = '/admin.html';
+} else {
+    window.location.href = '/dashboard.html';
+}
         });
     </script>
 </body>
