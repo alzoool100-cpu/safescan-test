@@ -33,79 +33,43 @@
 </div>
 
 <div id="stepMethod" style="display:none; margin:20px 0;">
-    <p style="font-weight:600; margin-bottom:16px;">كيف تريد التواصل؟</p>
+    <p style="font-weight:600; margin-bottom:16px; font-size:17px;">كيف تريد التواصل؟</p>
     <div style="display:flex; flex-direction:column; gap:10px;">
-        <button class="btn btn-primary" onclick="selectMethod('message')" id="btnMessage">📨 أرسل رسالة</button>
+        <button class="btn btn-primary" onclick="selectMethod('message')" id="btnMessage">📨 رسالة داخل النظام (مع رد)</button>
         <button class="btn btn-primary" onclick="selectMethod('whatsapp')" id="btnWhatsapp" style="background:#25D366;">💬 واتساب</button>
         <button class="btn btn-primary" onclick="selectMethod('sms')" id="btnSms" style="background:#6c757d;">📱 رسالة SMS</button>
-        <button class="btn btn-primary" onclick="selectMethod('call')" id="btnCall" style="background:#17a2b8;">📞 اتصال</button>
+        <button class="btn btn-primary" onclick="selectMethod('call')" id="btnCall" style="background:#17a2b8;">📞 اتصال مباشر</button>
     </div>
 </div>
 
 <div id="stepMessage" style="display:none; margin:20px 0;">
-    <p style="font-weight:600; margin-bottom:16px;">اختر رسالتك:</p>
+    <p id="stepMessageTitle" style="font-weight:600; margin-bottom:16px; font-size:17px;">اختر رسالتك:</p>
     <div class="quick-msgs">
-        <button class="btn-tag" onclick="selectQuickMsg(this)">🚫 تسد الطريق</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this)">💡 الأضواء مفتوحة</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this)">🪟 النافذة مفتوحة</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this)">🚗 سيارتك للبيع؟</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this)">🏷️ اللوحة للبيع؟</button>
-        <button class="btn-tag" onclick="selectAccident()">⚠️ حادث / احتكاك</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'block')">🚫 تسد الطريق</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'lights')">💡 الأضواء مفتوحة</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'window')">🪟 النافذة مفتوحة</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'carsale')">🚗 السيارة للبيع؟</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'platesale')">🏷️ اللوحة للبيع؟</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'accident')">⚠️ حادث / احتكاك</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'custom')">✍️ رسالة خاصة</button>
     </div>
-    <textarea id="messageInput" placeholder="أو اكتب رسالة خاصة..." style="margin-top:12px;"></textarea>
-    <button class="btn btn-primary" style="margin-top:12px;" onclick="sendMessage()">📨 إرسال</button>
+    <textarea id="messageInput" placeholder="الرسالة ستظهر هنا..." style="margin-top:12px;"></textarea>
+    <div id="errorMsg" class="error-text" style="margin:8px 0;"></div>
+    <button class="btn btn-primary" style="margin-top:8px;" onclick="sendMessage()">📨 إرسال</button>
     <button class="btn btn-outline" style="margin-top:8px;" onclick="showMethodStep()">← رجوع</button>
 </div>
 
 <div id="stepAccident" style="display:none; margin:20px 0;">
-    <p style="font-weight:600; margin-bottom:8px;">⚠️ أدخل رقمك ليتواصل معك المالك:</p>
+    <p style="font-weight:600; margin-bottom:8px;">📱 أضف رقمك ليتواصل معك المالك (اختياري)</p>
     <input type="tel" id="accidentPhone" placeholder="05xxxxxxxx" style="margin-bottom:12px;">
-    <button class="btn btn-primary" onclick="sendAccidentMsg()">📨 إرسال رقمي للمالك</button>
-    <button class="btn btn-outline" style="margin-top:8px;" onclick="showMessageStep()">← رجوع</button>
+    <button class="btn btn-primary" onclick="finalizeAccidentSend()">📨 إرسال</button>
+    <button class="btn btn-outline" style="margin-top:8px;" onclick="finalizeAccidentSend(true)">تخطي وإرسال بدون رقم</button>
 </div>
-    <h1 data-key="contact_owner">تواصل مع مالك السيارة</h1>
-    <div class="subtitle"><span data-key="scan_contact">المسح للتواصل مع مالك السيارة</span></div>
-    <div style="background:var(--bg-tag);padding:8px 12px;border-radius:40px;font-size:13px;margin-bottom:20px;display:inline-block" data-key="safe_message">🔔 رسالتك آمنة ولن يظهر رقمك</div>
-
-    <div id="ownerContactArea" style="display:none; background: var(--bg-tag); padding: 12px; border-radius: 20px; margin: 16px 0;">
-        <div id="ownerPhoneSection" style="display:none;">
-            <p style="font-weight: 600; margin-bottom: 8px;" data-key="phone_revealed">📱 رقم مالك السيارة:</p>
-            <a id="ownerPhoneLink" href="#" style="font-size: 18px; font-weight: 700; color: var(--color-primary); text-decoration: none;"></a>
-        </div>
-        <div id="whatsappSection" style="display:none; margin-top: 12px;">
-            <a id="whatsappLink" href="#" target="_blank" style="text-decoration: none;">
-                <button class="btn btn-success" style="background: #25D366; border: none; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;" data-key="whatsapp_contact">💬 تواصل عبر واتساب</button>
-            </a>
-        </div>
-        <div id="smsSection" style="display:none; margin-top: 12px;">
-            <a id="smsLink" href="#" style="text-decoration: none;">
-                <button class="btn btn-outline" style="width:100%;" data-key="sms_only">📨 رسائل نصية</button>
-            </a>
-        </div>
-    </div>
-
-    <div id="chatLog" style="display:none; margin: 20px 0; max-height: 300px; overflow-y: auto; text-align: right;">
-        <div id="chatMessages"></div>
-    </div>
-
-    <textarea id="messageInput" data-placeholder="message_placeholder" placeholder="اكتب رسالتك هنا..."></textarea>
-
-    <div class="quick-msgs">
-        <button class="btn-tag" data-key="quick_block">🚫 تسد الطريق</button>
-        <button class="btn-tag" data-key="quick_lights">💡 الأضواء</button>
-        <button class="btn-tag" data-key="quick_accident">⚠️ حادث</button>
-        <button class="btn-tag" data-key="quick_window">🪟 النافذة مفتوحة</button>
-        <button class="btn-tag" data-key="quick_car_sale">🚗 السيارة للبيع؟</button>
-        <button class="btn-tag" data-key="quick_plate_sale">🏷️ اللوحة للبيع؟</button>
-    </div>
-
-    <button class="btn btn-primary" onclick="sendMessage()" data-key="send_btn">📨 إرسال الرسالة</button>
-    <div id="errorMsg" class="error-text"></div>
-
-    <div id="sessionArea" class="session-area" style="display:none; text-align: center;">
-        <button id="openChatBtn" class="btn btn-success" onclick="openChat()" data-key="chat_open" style="font-size: 14px; padding: 10px 20px;">💬 فتح في نافذة جديدة</button>
-        <p class="info-text" style="margin-top: 8px;" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
-    </div>
+    
+<div id="sessionArea" class="session-area" style="display:none; text-align: center;">
+    <button id="openChatBtn" class="btn btn-success" onclick="openChat()" data-key="chat_open" style="font-size: 14px; padding: 10px 20px;">💬 فتح في نافذة جديدة</button>
+    <p class="info-text" style="margin-top: 8px;" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
+</div>
 
     <div style="margin-top:20px;border-top:1px solid var(--border-color);padding-top:16px;">
         <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px" data-key="get_sticker_desc">هل تريد استيكر لسيارتك؟</p>
@@ -229,33 +193,44 @@ function selectMethod(method) {
     document.getElementById('messageInput').dataset.method = 'message';
 }
 
-function selectQuickMsg(btn) {
+    let pendingAccidentMsg = null;
+
+function selectQuickMsg(btn, type) {
     const vName = vehicleData?.custom_name || vehicleData?.model || 'صاحب المركبة';
-    const plate = vehicleData?.plate_number ? ' · ' + vehicleData.plate_number : '';
+    const plate = vehicleData?.plate_number ? ' · لوحة ' + vehicleData.plate_number : '';
     const msgs = {
-        '🚫 تسد الطريق': `${vName}${plate}، سيارتك تسد الطريق. الرجاء تحريكها. شكراً.`,
-        '💡 الأضواء مفتوحة': `${vName}${plate}، أضواء سيارتك مفتوحة. الرجاء إيقافها.`,
-        '🪟 النافذة مفتوحة': `${vName}${plate}، نافذة سيارتك مفتوحة. الرجاء إغلاقها.`,
-        '🚗 سيارتك للبيع؟': `مرحباً، هل سيارتك ${vName}${plate} معروضة للبيع؟ أرجو التواصل.`,
-        '🏷️ اللوحة للبيع؟': `مرحباً، هل لوحة سيارتك${plate} معروضة للبيع؟ أرجو التواصل.`
+        block: `صاحب ${vName}${plate}، سيارتك تسد الطريق. الرجاء تحريكها. شكراً.`,
+        lights: `صاحب ${vName}${plate}، أضواء سيارتك مفتوحة. الرجاء إيقافها.`,
+        window: `صاحب ${vName}${plate}، نافذة سيارتك مفتوحة. الرجاء إغلاقها.`,
+        carsale: `مرحباً صاحب ${vName}${plate}، هل سيارتك معروضة للبيع؟ أرجو التواصل.`,
+        platesale: `مرحباً صاحب ${vName}${plate}، هل اللوحة معروضة للبيع؟ أرجو التواصل.`,
+        accident: `صاحب ${vName}${plate}، أود إبلاغك بوجود احتكاك في سيارتك. أنا المسؤول وأتمنى التواصل.`,
+        custom: ''
     };
-    const key = btn.textContent.trim();
-    document.getElementById('messageInput').value = msgs[key] || '';
+    document.getElementById('messageInput').value = msgs[type] || '';
+    document.getElementById('messageInput').dataset.msgType = type;
+    if (type === 'custom') {
+        document.getElementById('messageInput').placeholder = 'اكتب رسالتك الخاصة هنا...';
+        document.getElementById('messageInput').focus();
+    }
 }
 
-function selectAccident() {
+function showAccidentStep(originalMsg) {
+    pendingAccidentMsg = originalMsg;
     document.getElementById('stepMessage').style.display = 'none';
     document.getElementById('stepAccident').style.display = 'block';
 }
 
-async function sendAccidentMsg() {
+async function finalizeAccidentSend(skip) {
     const phone = document.getElementById('accidentPhone').value.trim();
-    if (!phone) { alert('الرجاء إدخال رقمك'); return; }
-    const vName = vehicleData?.custom_name || vehicleData?.model || 'صاحب المركبة';
-    const plate = vehicleData?.plate_number ? ' · ' + vehicleData.plate_number : '';
-    const msg = `${vName}${plate}، أود إبلاغك بوجود خدش في سيارتك. أنا المسؤول وأتمنى التواصل: ${phone}`;
-    document.getElementById('messageInput').value = msg;
-    await sendMessage();
+    let finalMsg = pendingAccidentMsg;
+    if (!skip && phone) {
+        finalMsg += `\n📱 للتواصل: ${phone}`;
+    }
+    document.getElementById('messageInput').value = finalMsg;
+    document.getElementById('stepAccident').style.display = 'none';
+    document.getElementById('stepMessage').style.display = 'block';
+    await sendMessage(true);
 }
     function escapeHtml(text) {
     const div = document.createElement('div');
@@ -263,14 +238,20 @@ async function sendAccidentMsg() {
     return div.innerHTML;
 }
     // ========== فحص الحظر وإرسال الرسالة ==========
-    async function sendMessage() {
+   async function sendMessage(skipAccidentCheck) {
         const sendBtn = document.querySelector('.btn-primary[data-key="send_btn"]');
 if (sendBtn) { sendBtn.textContent = '⏳ جار الإرسال...'; sendBtn.disabled = true; }
         if (!supabaseClient) return;
-        const msg = document.getElementById('messageInput').value.trim();
-        const errEl = document.getElementById('errorMsg');
+        const msg = document.getElementById('messageInput').value.trim(); 
+       const errEl = document.getElementById('errorMsg');
+       const msgType = document.getElementById('messageInput').dataset.msgType;
+if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || msgType === 'platesale')) {
+    showAccidentStep(msg);
+    if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
+    return;
+}
         errEl.textContent = '';
-        if (!msg) { errEl.textContent = '❌ ' + (t('error_msg') || 'اكتب رسالة'); return; }
+        if (!msg) { errEl.textContent = '❌ اكتب رسالة'; if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; } return; }
         if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); return; }
 
         if (waitingForReply) {
