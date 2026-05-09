@@ -172,6 +172,8 @@
 }
     // ========== فحص الحظر وإرسال الرسالة ==========
     async function sendMessage() {
+        const sendBtn = document.querySelector('.btn-primary[data-key="send_btn"]');
+if (sendBtn) { sendBtn.textContent = '⏳ جار الإرسال...'; sendBtn.disabled = true; }
         if (!supabaseClient) return;
         const msg = document.getElementById('messageInput').value.trim();
         const errEl = document.getElementById('errorMsg');
@@ -247,6 +249,7 @@
         document.querySelector('.btn-primary[data-key="send_btn"]').style.display = 'none';
 
         document.getElementById('sessionArea').style.display = 'block';
+        if (sendBtn) { sendBtn.textContent = '📨 إرسال الرسالة'; sendBtn.disabled = false; }
     }
 
     function openChat() {
