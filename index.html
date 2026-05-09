@@ -199,6 +199,64 @@ function showVehicleInfo() {
     document.querySelectorAll('[data-key^="quick_"]').forEach(btn => {
         btn.addEventListener('click', function() { setMessage(this.textContent); });
     });
+    function showMethodStep() {
+    document.getElementById('stepMethod').style.display = 'block';
+    document.getElementById('stepMessage').style.display = 'none';
+    document.getElementById('stepAccident').style.display = 'none';
+    const m = contactMethod;
+    document.getElementById('btnWhatsapp').style.display = (m==='all'||m==='whatsapp') ? 'block' : 'none';
+    document.getElementById('btnSms').style.display = (m==='all'||m==='sms') ? 'block' : 'none';
+    document.getElementById('btnCall').style.display = (m==='all'||m==='phone') ? 'block' : 'none';
+}
+
+function showMessageStep() {
+    document.getElementById('stepMethod').style.display = 'none';
+    document.getElementById('stepMessage').style.display = 'block';
+    document.getElementById('stepAccident').style.display = 'none';
+}
+
+function selectMethod(method) {
+    if (method === 'call' && vehicleData?.phone) {
+        window.location.href = 'tel:' + vehicleData.phone;
+        return;
+    }
+    if (method === 'whatsapp' || method === 'sms') {
+        showMessageStep();
+        document.getElementById('messageInput').dataset.method = method;
+        return;
+    }
+    showMessageStep();
+    document.getElementById('messageInput').dataset.method = 'message';
+}
+
+function selectQuickMsg(btn) {
+    const vName = vehicleData?.custom_name || vehicleData?.model || 'صاحب المركبة';
+    const plate = vehicleData?.plate_number ? ' · ' + vehicleData.plate_number : '';
+    const msgs = {
+        '🚫 تسد الطريق': `${vName}${plate}، سيارتك تسد الطريق. الرجاء تحريكها. شكراً.`,
+        '💡 الأضواء مفتوحة': `${vName}${plate}، أضواء سيارتك مفتوحة. الرجاء إيقافها.`,
+        '🪟 النافذة مفتوحة': `${vName}${plate}، نافذة سيارتك مفتوحة. الرجاء إغلاقها.`,
+        '🚗 سيارتك للبيع؟': `مرحباً، هل سيارتك ${vName}${plate} معروضة للبيع؟ أرجو التواصل.`,
+        '🏷️ اللوحة للبيع؟': `مرحباً، هل لوحة سيارتك${plate} معروضة للبيع؟ أرجو التواصل.`
+    };
+    const key = btn.textContent.trim();
+    document.getElementById('messageInput').value = msgs[key] || '';
+}
+
+function selectAccident() {
+    document.getElementById('stepMessage').style.display = 'none';
+    document.getElementById('stepAccident').style.display = 'block';
+}
+
+async function sendAccidentMsg() {
+    const phone = document.getElementById('accidentPhone').value.trim();
+    if (!phone) { alert('الرجاء إدخال رقمك'); return; }
+    const vName = vehicleData?.custom_name || vehicleData?.model || 'صاحب المركبة';
+    const plate = vehicleData?.plate_number ? ' · ' + vehicleData.plate_number : '';
+    const msg = `${vName}${plate}، أود إبلاغك بوجود خدش في سيارتك. أنا المسؤول وأتمنى التواصل: ${phone}`;
+    document.getElementById('messageInput').value = msg;
+    await sendMessage();
+}
     function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text || '';
@@ -262,6 +320,16 @@ if (sendBtn) { sendBtn.textContent = '⏳ جار الإرسال...'; sendBtn.dis
             if (v && !v.is_active) { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
         }
 
+        const method = document.getElementById('messageInput').dataset.method || 'message';
+if (method === 'whatsapp' && vehicleData?.phone) {
+    const waMsg = encodeURIComponent(msg);
+    window.open(`https://wa.me/${vehicleData.phone.replace(/[^0-9]/g,'')}?text=${waMsg}`, '_blank');
+    return;
+}
+if (method === 'sms' && vehicleData?.phone) {
+    window.location.href = `sms:${vehicleData.phone}?body=${encodeURIComponent(msg)}`;
+    return;
+}
         const sTok = crypto.randomUUID();
         currentSessionToken = sTok;
         const { error: insertError } = await supabaseClient
