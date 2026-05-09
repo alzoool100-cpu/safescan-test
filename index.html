@@ -27,6 +27,42 @@
 
 <div class="card" style="position:relative;z-index:1;">
     <div class="logo"><span class="logo-icon">🚗</span><span class="logo-text">SafeScan</span><span class="nfc-badge">NFC</span></div>
+    <div id="vehicleInfoArea" style="display:none; text-align:center; margin: 16px 0;">
+    <img id="vehicleInfoImg" style="width:100%; max-height:200px; object-fit:cover; border-radius:16px; margin-bottom:12px; display:none;">
+    <div id="vehicleInfoName" style="font-weight:700; font-size:18px; color:var(--text-primary);"></div>
+</div>
+
+<div id="stepMethod" style="display:none; margin:20px 0;">
+    <p style="font-weight:600; margin-bottom:16px;">كيف تريد التواصل؟</p>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+        <button class="btn btn-primary" onclick="selectMethod('message')" id="btnMessage">📨 أرسل رسالة</button>
+        <button class="btn btn-primary" onclick="selectMethod('whatsapp')" id="btnWhatsapp" style="background:#25D366;">💬 واتساب</button>
+        <button class="btn btn-primary" onclick="selectMethod('sms')" id="btnSms" style="background:#6c757d;">📱 رسالة SMS</button>
+        <button class="btn btn-primary" onclick="selectMethod('call')" id="btnCall" style="background:#17a2b8;">📞 اتصال</button>
+    </div>
+</div>
+
+<div id="stepMessage" style="display:none; margin:20px 0;">
+    <p style="font-weight:600; margin-bottom:16px;">اختر رسالتك:</p>
+    <div class="quick-msgs">
+        <button class="btn-tag" onclick="selectQuickMsg(this)">🚫 تسد الطريق</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this)">💡 الأضواء مفتوحة</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this)">🪟 النافذة مفتوحة</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this)">🚗 سيارتك للبيع؟</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this)">🏷️ اللوحة للبيع؟</button>
+        <button class="btn-tag" onclick="selectAccident()">⚠️ حادث / احتكاك</button>
+    </div>
+    <textarea id="messageInput" placeholder="أو اكتب رسالة خاصة..." style="margin-top:12px;"></textarea>
+    <button class="btn btn-primary" style="margin-top:12px;" onclick="sendMessage()">📨 إرسال</button>
+    <button class="btn btn-outline" style="margin-top:8px;" onclick="showMethodStep()">← رجوع</button>
+</div>
+
+<div id="stepAccident" style="display:none; margin:20px 0;">
+    <p style="font-weight:600; margin-bottom:8px;">⚠️ أدخل رقمك ليتواصل معك المالك:</p>
+    <input type="tel" id="accidentPhone" placeholder="05xxxxxxxx" style="margin-bottom:12px;">
+    <button class="btn btn-primary" onclick="sendAccidentMsg()">📨 إرسال رقمي للمالك</button>
+    <button class="btn btn-outline" style="margin-top:8px;" onclick="showMessageStep()">← رجوع</button>
+</div>
     <h1 data-key="contact_owner">تواصل مع مالك السيارة</h1>
     <div class="subtitle"><span data-key="scan_contact">المسح للتواصل مع مالك السيارة</span></div>
     <div style="background:var(--bg-tag);padding:8px 12px;border-radius:40px;font-size:13px;margin-bottom:20px;display:inline-block" data-key="safe_message">🔔 رسالتك آمنة ولن يظهر رقمك</div>
@@ -93,6 +129,9 @@
     const stickerToken = urlParams.get('token');
     let currentSessionToken = '';
     let waitingForReply = false;
+    let vehicleData = null;
+let contactMethod = 'all';
+let currentStep = 'method';
 
     // ========== بصمة الزائر ==========
     function getVisitorFingerprint() {
@@ -121,44 +160,39 @@
     }
     checkStickerAndRedirect();
 
-    // ========== إظهار وسائل التواصل ==========
-    async function checkOwnerPhone() {
-        if (!stickerToken || !supabaseClient) return;
-        try {
-            const { data: sticker } = await supabaseClient.from('stickers').select('vehicle_id').eq('qr_token', stickerToken).maybeSingle().setHeader('Accept', 'application/json');
-            if (!sticker) return;
-            const { data: vehicle } = await supabaseClient.from('vehicles').select('user_id').eq('id', sticker.vehicle_id).maybeSingle().setHeader('Accept', 'application/json');
-            if (!vehicle) return;
-            const { data: profile } = await supabaseClient.from('profiles').select('phone, show_phone, contact_method').eq('id', vehicle.user_id).maybeSingle().setHeader('Accept', 'application/json');
+    // ========== جلب بيانات المركبة ==========
+async function loadVehicleData() {
+    if (!stickerToken || !supabaseClient) return;
+    try {
+        const { data: sticker } = await supabaseClient
+            .from('stickers').select('vehicle_id')
+            .eq('qr_token', stickerToken).maybeSingle();
+        if (!sticker) return;
+        const { data: vehicle } = await supabaseClient
+            .from('vehicles').select('user_id, custom_name, model, plate_number, image_url, show_image, is_active')
+            .eq('id', sticker.vehicle_id).maybeSingle();
+        if (!vehicle) return;
+        const { data: profile } = await supabaseClient
+            .from('profiles').select('phone, show_phone, contact_method')
+            .eq('id', vehicle.user_id).maybeSingle();
+        vehicleData = { ...vehicle, phone: profile?.phone, show_phone: profile?.show_phone, contact_method: profile?.contact_method || 'all' };
+        contactMethod = vehicleData.contact_method;
+        showVehicleInfo();
+        showMethodStep();
+    } catch(e) {}
+}
 
-            if (!profile || profile.show_phone !== true || !profile.phone) {
-                document.getElementById('ownerContactArea').style.display = 'none';
-                return;
-            }
-
-            const method = profile.contact_method || 'all';
-            const phone = profile.phone;
-            document.getElementById('ownerContactArea').style.display = 'block';
-            document.getElementById('ownerPhoneSection').style.display = 'none';
-            document.getElementById('whatsappSection').style.display = 'none';
-            document.getElementById('smsSection').style.display = 'none';
-
-            if (method === 'all' || method === 'phone') {
-                document.getElementById('ownerPhoneLink').href = 'tel:' + phone;
-                document.getElementById('ownerPhoneLink').innerText = phone;
-                document.getElementById('ownerPhoneSection').style.display = 'block';
-            }
-            if (method === 'all' || method === 'whatsapp') {
-                document.getElementById('whatsappLink').href = 'https://wa.me/' + phone.replace(/[^0-9]/g, '');
-                document.getElementById('whatsappSection').style.display = 'block';
-            }
-            if (method === 'all' || method === 'sms') {
-                document.getElementById('smsLink').href = 'sms:' + phone;
-                document.getElementById('smsSection').style.display = 'block';
-            }
-        } catch(e) {}
+function showVehicleInfo() {
+    if (!vehicleData) return;
+    const name = [vehicleData.custom_name, vehicleData.model, vehicleData.plate_number].filter(Boolean).join(' · ');
+    document.getElementById('vehicleInfoName').textContent = name || 'صاحب المركبة';
+    if (vehicleData.show_image && vehicleData.image_url) {
+        document.getElementById('vehicleInfoImg').src = vehicleData.image_url;
+        document.getElementById('vehicleInfoImg').style.display = 'block';
     }
-    checkOwnerPhone();
+    document.getElementById('vehicleInfoArea').style.display = 'block';
+}
+    loadVehicleData();
 
     // ========== أزرار الرسائل الجاهزة ==========
     function setMessage(text) { document.getElementById('messageInput').value = text; }
