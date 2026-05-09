@@ -237,8 +237,7 @@ async function finalizeAccidentSend(skip) {
         finalMsg += `\n📱 للتواصل: ${phone}`;
     }
     document.getElementById('messageInput').value = finalMsg;
-    document.getElementById('stepAccident').style.display = 'none';
-    document.getElementById('stepMessage').style.display = 'block';
+   document.getElementById('stepAccident').style.display = 'none';
     await sendMessage(true);
 }
     function escapeHtml(text) {
@@ -342,6 +341,7 @@ document.getElementById('sessionArea').innerHTML = `
     <div class="message-bubble visitor-bubble" style="background:#e0f2fe; padding:14px; border-radius:16px; margin-bottom:10px;">🧑 أنت: ${escapeHtml(msg)}</div>
     <div id="ownerReplyBox" style="text-align:center; color: var(--text-muted); padding:10px;">⏳ في انتظار رد المالك...</div>
     <p class="info-text" style="margin-top: 12px; text-align:center;">⏱️ الجلسة صالحة لمدة ساعة</p>
+    <button onclick="window.location.reload()" class="btn btn-outline" style="margin-top:12px; width:100%;">🔄 إرسال رسالة جديدة</button>
 `;
         if (sendBtn) { sendBtn.textContent = '📨 إرسال الرسالة'; sendBtn.disabled = false; }
     }
