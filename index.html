@@ -165,7 +165,11 @@
     document.querySelectorAll('[data-key^="quick_"]').forEach(btn => {
         btn.addEventListener('click', function() { setMessage(this.textContent); });
     });
-
+    function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+}
     // ========== فحص الحظر وإرسال الرسالة ==========
     async function sendMessage() {
         if (!supabaseClient) return;
@@ -237,7 +241,7 @@
         localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
 
         document.getElementById('chatLog').style.display = 'block';
-        document.getElementById('chatMessages').innerHTML = `<div class="message-bubble visitor-bubble">🧑 أنت: ${msg}</div><div style="text-align:center; color: var(--text-muted); margin-top:10px;">⏳ في انتظار رد المالك...</div>`;
+        document.getElementById('chatMessages').innerHTML = `<div class="message-bubble visitor-bubble">🧑 أنت: ${escapeHtml(msg)}</div><div style="text-align:center; color: var(--text-muted); margin-top:10px;">⏳ في انتظار رد المالك...</div>`;
         document.getElementById('messageInput').style.display = 'none';
         document.querySelector('.quick-msgs').style.display = 'none';
         document.querySelector('.btn-primary[data-key="send_btn"]').style.display = 'none';
@@ -264,7 +268,7 @@
                     document.getElementById('messageInput').style.display = 'block';
                     document.querySelector('.quick-msgs').style.display = 'flex';
                     document.querySelector('.btn-primary[data-key="send_btn"]').style.display = 'block';
-                    document.getElementById('chatMessages').innerHTML += `<div class="message-bubble owner-bubble">🚗 المالك: ${data.owner_response}</div>`;
+                    document.getElementById('chatMessages').innerHTML += `<div class="message-bubble owner-bubble">🚗 المالك: ${escapeHtml(data.owner_response)}</div>`
                     document.getElementById('errorMsg').textContent = '';
                 }
             });
