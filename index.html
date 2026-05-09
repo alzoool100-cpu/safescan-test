@@ -31,7 +31,10 @@
     <img id="vehicleInfoImg" style="width:100%; max-height:200px; object-fit:cover; border-radius:16px; margin-bottom:12px; display:none;">
     <div id="vehicleInfoName" style="font-weight:700; font-size:18px; color:var(--text-primary);"></div>
 </div>
-
+<h1 style="font-size:20px; margin:8px 0;">📨 تواصل مع مالك السيارة</h1>
+<div style="background:var(--bg-tag); padding:8px 14px; border-radius:40px; font-size:12px; margin-bottom:16px; display:inline-block; color:var(--text-secondary);">
+    🔔 رسالتك آمنة · رقمك مخفي إلا باختيارك
+</div>
 <div id="stepMethod" style="display:none; margin:20px 0;">
     <p style="font-weight:600; margin-bottom:16px; font-size:17px;">كيف تريد التواصل؟</p>
     <div style="display:flex; flex-direction:column; gap:10px;">
@@ -79,6 +82,11 @@
     </div>
     <div style="margin-top:16px;font-size:13px;">
         <a href="/login.html" style="color: var(--text-muted);" data-key="owner_login">🔐 مالك السيارة؟ سجل دخولك</a>
+    </div>
+<div style="margin-top:12px; font-size:12px; text-align:center; color:var(--text-muted);">
+    <a href="/privacy.html" style="color:var(--text-muted); text-decoration:none;">سياسة الخصوصية</a> · 
+    <a href="/terms.html" style="color:var(--text-muted); text-decoration:none;">شروط الاستخدام</a> · 
+    <a href="/support.html" style="color:var(--text-muted); text-decoration:none;">الدعم</a>
     </div>
 </div>
 
@@ -148,7 +156,8 @@ async function loadVehicleData() {
 
 function showVehicleInfo() {
     if (!vehicleData) return;
-    const name = [vehicleData.custom_name, vehicleData.model, vehicleData.plate_number].filter(Boolean).join(' · ');
+    const carIdentity = vehicleData.custom_name || vehicleData.model || '';
+const name = [carIdentity, vehicleData.plate_number].filter(Boolean).join(' · لوحة ');
     document.getElementById('vehicleInfoName').textContent = name || 'صاحب المركبة';
     if (vehicleData.show_image && vehicleData.image_url) {
         document.getElementById('vehicleInfoImg').src = vehicleData.image_url;
@@ -325,13 +334,15 @@ if (method === 'sms' && vehicleData?.phone) {
 
         localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
 
-        document.getElementById('chatLog').style.display = 'block';
-        document.getElementById('chatMessages').innerHTML = `<div class="message-bubble visitor-bubble">🧑 أنت: ${escapeHtml(msg)}</div><div style="text-align:center; color: var(--text-muted); margin-top:10px;">⏳ في انتظار رد المالك...</div>`;
-        document.getElementById('messageInput').style.display = 'none';
-        document.querySelector('.quick-msgs').style.display = 'none';
-        document.querySelector('.btn-primary[data-key="send_btn"]').style.display = 'none';
-
-        document.getElementById('sessionArea').style.display = 'block';
+        document.getElementById('stepMessage').style.display = 'none';
+document.getElementById('stepMethod').style.display = 'none';
+document.getElementById('stepAccident').style.display = 'none';
+document.getElementById('sessionArea').style.display = 'block';
+document.getElementById('sessionArea').innerHTML = `
+    <div class="message-bubble visitor-bubble" style="background:#e0f2fe; padding:14px; border-radius:16px; margin-bottom:10px;">🧑 أنت: ${escapeHtml(msg)}</div>
+    <div id="ownerReplyBox" style="text-align:center; color: var(--text-muted); padding:10px;">⏳ في انتظار رد المالك...</div>
+    <p class="info-text" style="margin-top: 12px; text-align:center;">⏱️ الجلسة صالحة لمدة ساعة</p>
+`;
         if (sendBtn) { sendBtn.textContent = '📨 إرسال الرسالة'; sendBtn.disabled = false; }
     }
 
@@ -339,26 +350,24 @@ if (method === 'sms' && vehicleData?.phone) {
         if (currentSessionToken) window.open('/chat.html?session=' + currentSessionToken, '_blank');
     }
 
-    function checkReplyStatus() {
-        if (!waitingForReply || !currentSessionToken) return;
-        supabaseClient
-            .from('scan_logs')
-            .select('owner_response')
-            .eq('session_token', currentSessionToken)
-            .maybeSingle()
-            .setHeader('Accept', 'application/json')
-            .then(({ data }) => {
-                if (data && data.owner_response) {
-                    waitingForReply = false;
-                    document.getElementById('messageInput').disabled = false;
-                    document.getElementById('messageInput').style.display = 'block';
-                    document.querySelector('.quick-msgs').style.display = 'flex';
-                    document.querySelector('.btn-primary[data-key="send_btn"]').style.display = 'block';
-                    document.getElementById('chatMessages').innerHTML += `<div class="message-bubble owner-bubble">🚗 المالك: ${escapeHtml(data.owner_response)}</div>`
-                    document.getElementById('errorMsg').textContent = '';
+   function checkReplyStatus() {
+    if (!waitingForReply || !currentSessionToken) return;
+    supabaseClient
+        .from('scan_logs')
+        .select('owner_response')
+        .eq('session_token', currentSessionToken)
+        .maybeSingle()
+        .setHeader('Accept', 'application/json')
+        .then(({ data }) => {
+            if (data && data.owner_response) {
+                waitingForReply = false;
+                const replyBox = document.getElementById('ownerReplyBox');
+                if (replyBox) {
+                    replyBox.outerHTML = `<div class="message-bubble owner-bubble" style="background:#dcfce7; padding:14px; border-radius:16px; margin:10px 0;">🚗 المالك: ${escapeHtml(data.owner_response)}</div>`;
                 }
-            });
-    }
+            }
+        });
+}
     setInterval(checkReplyStatus, 5000);
 
     function showToast(msg) {
