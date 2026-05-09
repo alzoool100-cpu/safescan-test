@@ -489,11 +489,14 @@ async function subscribeToMessages() {
             table: 'scan_logs',
             filter: `sticker_id=in.(${stickerIds.join(',')})`
         }, (payload) => {
-            allMessages.unshift(payload.new);
-            updateCounters();
-            renderMessages();
-            loadHomeStats();
-            showToast('📨 رسالة جديدة وصلت!');
+           const exists = allMessages.find(m => m.id === payload.new.id);
+if (!exists) {
+    allMessages.unshift(payload.new);
+    updateCounters();
+    renderMessages();
+    loadHomeStats();
+    showToast('📨 رسالة جديدة وصلت!');
+}
             if (safescanAudio) safescanAudio.play().catch(() => {});
         })
         .subscribe();
