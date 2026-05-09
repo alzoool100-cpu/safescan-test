@@ -162,7 +162,7 @@
    async function checkAdminAccess() {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (!user) {
-        document.body.innerHTML = '<div style="text-align:center;padding:80px;font-family:Tajawal,sans-serif"><h2>⛔ يجب تسجيل الدخول أولاً</h2><a href="/login.html">تسجيل الدخول</a></div>';
+        document.body.innerHTML = '<div style="text-align:center;padding:80px;font-family:Tajawal,sans-serif"><h2>⛔ يجب تسجيل الدخول أولاً</h2><a href="/login.html?admin=true">تسجيل الدخول</a></div>';
         return;
     }
     const { data: profile } = await supabaseClient.from('profiles').select('is_admin').eq('id', user.id).single();
