@@ -103,6 +103,9 @@
         </div>
         <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px">
             <h4 data-key="edit_profile">تعديل بيانات المركبة</h4>
+            <label>📸 صورة المركبة</label>
+<input type="file" id="editVehicleImage" accept="image/*" onchange="previewEditImage(event)" style="margin-bottom:8px">
+<img id="editImagePreview" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px;display:none;">
             <label data-key="vehicle_name_label">اسم المركبة</label>
             <input type="text" id="editCarName" class="edit-input" data-placeholder="vehicle_name_label" placeholder="اسم المركبة">
             <label data-key="plate_number_label">رقم اللوحة</label>
@@ -414,6 +417,22 @@
     function closeConversation(){document.getElementById('conversationPage').classList.remove('active');selectedMessageId=null;}
     async function sendReplyFromConv(){const reply=document.getElementById('convReplyText').value.trim();if(!reply||!selectedMessageId)return;const {error}=await supabaseClient.from('scan_logs').update({owner_response:reply,status:'closed'}).eq('id',selectedMessageId);if(error){showToast('❌ فشل');return;}showToast('✅ '+safeT('reply_sent'));document.getElementById('convReplyText').value='';closeConversation();loadMessages();}
     async function saveProfile(){
+        const imageFile = document.getElementById('editVehicleImage').files[0];
+if (imageFile) {
+    const ext = imageFile.name.split('.').pop();
+    const filePath = `vehicles/${currentUser.id}/${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabaseClient.storage
+        .from('vehicle-images')
+        .upload(filePath, imageFile, { upsert: true });
+    if (!uploadError) {
+        const { data: urlData } = supabaseClient.storage
+            .from('vehicle-images')
+            .getPublicUrl(filePath);
+        await supabaseClient.from('vehicles')
+            .update({ image_url: urlData.publicUrl })
+            .eq('id', currentVehicle.id);
+    }
+}
         const carName = document.getElementById('editCarName').value.trim();
         const plate = document.getElementById('editPlate').value.trim();
         const model = document.getElementById('editModel').value.trim();
@@ -444,6 +463,15 @@
     async function logout(){await supabaseClient.auth.signOut();window.location.href='/index.html';}
     const langSelectEl = document.getElementById('langSelect');
     if(langSelectEl && typeof setLanguage === 'function'){ langSelectEl.value = currentLang || 'ar'; langSelectEl.addEventListener('change', function(){ setLanguage(this.value); }); }
+    function previewEditImage(event) {
+    const file = event.target.files[0];
+    const preview = document.getElementById('editImagePreview');
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) { preview.src = e.target.result; preview.style.display = 'block'; };
+        reader.readAsDataURL(file);
+    }
+}
     initDashboard();
 </script>
 </body>
