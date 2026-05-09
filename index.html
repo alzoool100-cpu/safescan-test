@@ -329,7 +329,6 @@ if (method === 'sms' && vehicleData?.phone) {
         quota.count++;
         localStorage.setItem(quotaKey, JSON.stringify(quota));
         waitingForReply = true;
-        document.getElementById('messageInput').disabled = true;
 
         localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
 
