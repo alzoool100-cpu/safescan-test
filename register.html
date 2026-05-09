@@ -187,12 +187,27 @@
         const userId = authData.user.id;
         await supabaseClient.from('profiles').update({ phone: phone }).eq('id', userId);
 
+        let imageUrl = null;
+const imageFile = document.getElementById('vehicleImage').files[0];
+if (imageFile) {
+    const ext = imageFile.name.split('.').pop();
+    const filePath = `vehicles/${userId}/${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabaseClient.storage
+        .from('vehicle-images')
+        .upload(filePath, imageFile, { upsert: true });
+    if (!uploadError) {
+        const { data: urlData } = supabaseClient.storage
+            .from('vehicle-images')
+            .getPublicUrl(filePath);
+        imageUrl = urlData.publicUrl;
+    }
+}
         const carName = document.getElementById('carName').value;
         const plateNumber = document.getElementById('plateNumber').value;
         const model = document.getElementById('model').value;
         const driverName = document.getElementById('driverName').value;
 
-        const { data: vehicle, error: vehicleError } = await supabaseClient.from('vehicles').insert([{ user_id: userId, custom_name: carName || 'سيارتي', plate_number: plateNumber || null, model: model || null, driver_name: driverName || null, is_active: true }]).select().single();
+        const { data: vehicle, error: vehicleError } = await supabaseClient.from('vehicles').insert([{ user_id: userId, custom_name: carName || 'سيارتي', image_url: imageUrl, plate_number: plateNumber || null, model: model || null, driver_name: driverName || null, is_active: true }]).select().single();
         if (vehicleError) { errorEl.textContent = '❌ خطأ في إنشاء المركبة'; return; }
 
         const { error: updateError } = await supabaseClient.from('stickers').update({ vehicle_id: vehicle.id, status: 'active', activated_at: new Date() }).eq('id', sticker.id);
