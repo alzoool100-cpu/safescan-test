@@ -188,7 +188,7 @@
         document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
         const nav = document.querySelector(`.nav-item[onclick="switchPage('${page}')"]`);
         if(nav) nav.classList.add('active');
-        if(page==='inbox') loadMessages();
+        if(page==='inbox') loadMessages(); subscribeToMessages();
         if(page==='home') { loadHomeStats(); updateToggleUI(); }
     }
 
@@ -473,6 +473,31 @@ if (imageFile) {
     }
 }
     initDashboard();
+async function subscribeToMessages() {
+    if (!currentVehicle) return;
+    const { data: stickers } = await supabaseClient
+        .from('stickers')
+        .select('id')
+        .eq('vehicle_id', currentVehicle.id);
+    if (!stickers?.length) return;
+    const stickerIds = stickers.map(s => s.id);
+    supabaseClient
+        .channel('new-messages')
+        .on('postgres_changes', {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'scan_logs',
+            filter: `sticker_id=in.(${stickerIds.join(',')})`
+        }, (payload) => {
+            allMessages.unshift(payload.new);
+            updateCounters();
+            renderMessages();
+            loadHomeStats();
+            showToast('📨 رسالة جديدة وصلت!');
+            if (safescanAudio) safescanAudio.play().catch(() => {});
+        })
+        .subscribe();
+}
 </script>
 </body>
 </html>
