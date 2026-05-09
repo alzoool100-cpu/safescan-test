@@ -158,8 +158,21 @@
         alert('تم الحظر');
     };
 
+   async function checkAdminAccess() {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) {
+        document.body.innerHTML = '<div style="text-align:center;padding:80px;font-family:Tajawal,sans-serif"><h2>⛔ يجب تسجيل الدخول أولاً</h2><a href="/login.html">تسجيل الدخول</a></div>';
+        return;
+    }
+    const { data: profile } = await supabaseClient.from('profiles').select('is_admin').eq('id', user.id).single();
+    if (!profile?.is_admin) {
+        document.body.innerHTML = '<div style="text-align:center;padding:80px;font-family:Tajawal,sans-serif"><h2>⛔ غير مصرح لك بالدخول</h2></div>';
+        return;
+    }
     loadStats();
     loadTabContent();
+}
+checkAdminAccess();
 </script>
 </body>
 </html>
