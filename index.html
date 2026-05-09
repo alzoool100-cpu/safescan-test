@@ -226,7 +226,7 @@
             if (v && !v.is_active) { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
         }
 
-        const sTok = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+        const sTok = crypto.randomUUID();
         currentSessionToken = sTok;
         const { error: insertError } = await supabaseClient
             .from('scan_logs')
