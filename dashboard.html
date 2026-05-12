@@ -64,6 +64,7 @@
     <div class="header"><h3 data-key="settings_tab">⚙️ الإعدادات</h3></div>
     <div class="card">
         <div class="settings-row"><span data-key="settings_show_phone">📱 إظهار رقمي للزوار</span><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showPhoneToggle" onchange="toggleShowPhone()"><span id="showPhoneLabel" data-key="show_label_off">إخفاء</span></label></div>
+        <div class="settings-row"><span>📸 إظهار صورة سيارتي للزوار</span><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showImageToggle" onchange="toggleShowImage()"><span id="showImageLabel">إخفاء</span></label></div>
         <div class="settings-row" id="contactOptionsRow" style="display:none"><span data-key="contact_options">خيارات التواصل</span>
             <select id="contactMethod" onchange="updateContactMethod()" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px;font-size:14px;color:var(--text-primary)">
                 <option value="all" data-key="show_all_contact">🌐 إظهار الكل</option>
@@ -205,6 +206,11 @@
             document.getElementById('showPhoneLabel').innerText = isShow ? 'إظهار' : 'إخفاء';
             document.getElementById('contactOptionsRow').style.display = isShow ? 'block' : 'none';
             localStorage.setItem('safescan_show_phone', isShow);
+            const isShowImage = currentVehicle?.show_image ?? true;
+const showImageToggle = document.getElementById('showImageToggle');
+const showImageLabel = document.getElementById('showImageLabel');
+if (showImageToggle) showImageToggle.checked = isShowImage;
+if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إخفاء';
             const method = profile.contact_method || localStorage.getItem('safescan_contact_method') || 'all';
             document.getElementById('contactMethod').value = method;
             localStorage.setItem('safescan_contact_method', method);
@@ -271,6 +277,13 @@
         document.getElementById('contactOptionsRow').style.display = newValue ? 'block' : 'none';
         if(currentUser) await supabaseClient.from('profiles').update({show_phone: newValue}).eq('id', currentUser.id);
     }
+    async function toggleShowImage() {
+    const newValue = document.getElementById('showImageToggle').checked;
+    document.getElementById('showImageLabel').innerText = newValue ? 'إظهار' : 'إخفاء';
+    if (currentVehicle) {
+        await supabaseClient.from('vehicles').update({ show_image: newValue }).eq('id', currentVehicle.id);
+    }
+}
     async function updateContactMethod(){
         const method = document.getElementById('contactMethod').value;
         localStorage.setItem('safescan_contact_method', method);
