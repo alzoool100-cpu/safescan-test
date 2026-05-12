@@ -206,11 +206,6 @@
             document.getElementById('showPhoneLabel').innerText = isShow ? 'إظهار' : 'إخفاء';
             document.getElementById('contactOptionsRow').style.display = isShow ? 'block' : 'none';
             localStorage.setItem('safescan_show_phone', isShow);
-            const isShowImage = currentVehicle?.show_image ?? true;
-const showImageToggle = document.getElementById('showImageToggle');
-const showImageLabel = document.getElementById('showImageLabel');
-if (showImageToggle) showImageToggle.checked = isShowImage;
-if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إخفاء';
             const method = profile.contact_method || localStorage.getItem('safescan_contact_method') || 'all';
             document.getElementById('contactMethod').value = method;
             localStorage.setItem('safescan_contact_method', method);
@@ -222,6 +217,11 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إ�
         const {data:vehicles}=await supabaseClient.from('vehicles').select('*').eq('user_id',user.id).limit(1);
         if(vehicles?.length){
             currentVehicle=vehicles[0]; active=currentVehicle.is_active;
+            const isShowImage = currentVehicle?.show_image ?? true;
+const showImageToggle = document.getElementById('showImageToggle');
+const showImageLabel = document.getElementById('showImageLabel');
+if (showImageToggle) showImageToggle.checked = isShowImage;
+if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إخفاء';
             document.getElementById('vehicleDisplay').innerText = currentVehicle.custom_name || safeT('vehicle_default');
             document.getElementById('vehicleName').innerHTML = '🚗 <span data-key="vehicle_default">' + (currentVehicle.custom_name || safeT('vehicle_default')) + '</span>';
             document.getElementById('editCarName').value = currentVehicle.custom_name || '';
