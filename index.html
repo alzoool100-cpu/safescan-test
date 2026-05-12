@@ -365,7 +365,7 @@ document.getElementById('sessionArea').innerHTML = `
                 const replyBox = document.getElementById('ownerReplyBox');
                 if (replyBox) {
                    lastOwnerResponse = data.owner_response;
-                    replyBox.outerHTML = `<div class="message-bubble owner-bubble" style="background:#dcfce7; padding:14px; border-radius:16px; margin:10px 0;">🚗 المالك: ${escapeHtml(data.owner_response)}<br><button onclick="translateOwnerMsg()"/?sl=auto&tl='+currentLang||navigator.language.split('-')[0]+'&text='+encodeURIComponent(lastOwnerResponse)+'&op=translate','_blank')" data-text="${escapeHtml(data.owner_response)}" style="background:none;border:none;color:green;cursor:pointer;font-size:12px;margin-top:6px;">🌐 ترجمة</button></div>`;
+                    replyBox.outerHTML = `<div class="message-bubble owner-bubble" style="background:#dcfce7; padding:14px; border-radius:16px; margin:10px 0;">🚗 المالك: ${escapeHtml(data.owner_response)}<br><button onclick="translateOwnerMsg()" style="background:none;border:none;color:green;cursor:pointer;font-size:12px;margin-top:6px;">🌐 ترجمة</button></div>`;
                 }
             }
         });
