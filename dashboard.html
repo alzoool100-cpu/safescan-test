@@ -433,7 +433,7 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إ�
         const imageFile = document.getElementById('editVehicleImage').files[0];
 if (imageFile) {
     const ext = imageFile.name.split('.').pop();
-    const filePath = `vehicles/${currentUser.id}/${Date.now()}.${ext}`;
+    const filePath = `${currentUser.id}/${Date.now()}.${ext}`;
     const { error: uploadError } = await supabaseClient.storage
         .from('vehicle-images')
         .upload(filePath, imageFile, { upsert: true });
