@@ -189,7 +189,7 @@
         document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
         const nav = document.querySelector(`.nav-item[onclick="switchPage('${page}')"]`);
         if(nav) nav.classList.add('active');
-        if(page==='inbox') loadMessages(); subscribeToMessages();
+        if(page==='inbox') loadMessages();
         if(page==='home') { loadHomeStats(); updateToggleUI(); }
     }
 
