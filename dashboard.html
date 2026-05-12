@@ -400,7 +400,9 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إ�
                 const isBlocked = blockedFingerprints.includes(log.visitor_fingerprint);
                 blockBtn = `<button onclick="event.stopPropagation(); ${isBlocked ? 'unblockVisitor' : 'blockVisitor'}('${log.visitor_fingerprint}')" style="background:none; border:none; color:var(--color-primary); cursor:pointer; font-size:12px; margin-top:4px;">${isBlocked ? '🔓 إلغاء الحظر' : '🚫 حظر'}</button>`;
             }
-            html += `<div class="inbox-item" onclick="openConversation('${log.id}')"><div class="msg-preview">"${escapeHtml(log.visitor_message?.substring(0,50)||'')}"</div><div class="msg-time">${timeStr} · ${log.status==='pending'?'🆕 '+safeT('new_msgs'):'✅ '+safeT('replied_msgs')}</div><button onclick="event.stopPropagation(); showPhoneToVisitor('${log.id}')" style="background:none; border:none; color:var(--color-primary); cursor:pointer; font-size:12px; margin-top:4px;" data-key="show_phone_to_visitor_btn">📞 إظهار رقمي</button>${blockBtn}</div>`;
+            const phoneMatch = log.visitor_message?.match(/📱 للتواصل:\s*([\d\+]+)/);
+            const callBtn = phoneMatch ? `<a href="tel:${phoneMatch[1]}" onclick="event.stopPropagation()" style="color:green;font-size:12px;margin-top:4px;display:inline-block;text-decoration:none;">📞 اتصال: ${phoneMatch[1]}</a> ` : '';
+            html += `<div class="inbox-item" onclick="openConversation('${log.id}')"><div class="msg-preview">"${escapeHtml(log.visitor_message?.substring(0,50)||'')}"</div><div class="msg-time">${timeStr} · ${log.status==='pending'?'🆕 '+safeT('new_msgs'):'✅ '+safeT('replied_msgs')}</div><button onclick="event.stopPropagation(); showPhoneToVisitor('${log.id}')" style="background:none; border:none; color:var(--color-primary); cursor:pointer; font-size:12px; margin-top:4px;" data-key="show_phone_to_visitor_btn">📞 إظهار رقمي</button>${callBtn}${blockBtn}</div>`;
         });
         document.getElementById('inboxContainer').innerHTML=html;
     }
@@ -410,7 +412,7 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إ�
         const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);
         if(!stickers?.length){document.getElementById('inboxContainer').innerHTML='<div class="loading">لا توجد استيكرات</div>';return;}
         const stickerIds=stickers.map(s=>s.id);
-        const {data:logs,error}=await supabaseClient.from('scan_logs').select('*').in('sticker_id',stickerIds).order('created_at',{ascending:false}).limit(50);
+        const {data:logs,error}=await supabaseClient.from('scan_logs').select('*').in('sticker_id',stickerIds).order('created_at',{ascending:false}).limit(200);
         if(error){document.getElementById('inboxContainer').innerHTML='<div class="loading">خطأ</div>';return;}
         allMessages=logs||[];
         updateCounters();
