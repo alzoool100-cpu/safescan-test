@@ -102,7 +102,8 @@
     let currentSessionToken = '';
     let waitingForReply = false;
     let vehicleData = null;
-let contactMethod = 'all';
+    let lastOwnerResponse = '';
+    let contactMethod = 'all';
 let currentStep = 'method';
 
     // ========== بصمة الزائر ==========
@@ -362,7 +363,8 @@ document.getElementById('sessionArea').innerHTML = `
                 waitingForReply = false;
                 const replyBox = document.getElementById('ownerReplyBox');
                 if (replyBox) {
-                    replyBox.outerHTML = `<div class="message-bubble owner-bubble" style="background:#dcfce7; padding:14px; border-radius:16px; margin:10px 0;">🚗 المالك: ${escapeHtml(data.owner_response)}<br><button onclick="window.open('https://translate.google.com/?sl=auto&tl='+currentLang||navigator.language.split('-')[0]+'&text='+encodeURIComponent(this.dataset.text)+'&op=translate','_blank')" data-text="${escapeHtml(data.owner_response)}" style="background:none;border:none;color:green;cursor:pointer;font-size:12px;margin-top:6px;">🌐 ترجمة</button></div>`;
+                   lastOwnerResponse = data.owner_response;
+                    replyBox.outerHTML = `<div class="message-bubble owner-bubble" style="background:#dcfce7; padding:14px; border-radius:16px; margin:10px 0;">🚗 المالك: ${escapeHtml(data.owner_response)}<br><button onclick="window.open('https://translate.google.com/?sl=auto&tl='+currentLang||navigator.language.split('-')[0]+'&text='+encodeURIComponent(lastOwnerResponse)+'&op=translate','_blank')" data-text="${escapeHtml(data.owner_response)}" style="background:none;border:none;color:green;cursor:pointer;font-size:12px;margin-top:6px;">🌐 ترجمة</button></div>`;
                 }
             }
         });
