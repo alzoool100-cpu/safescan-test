@@ -327,6 +327,12 @@ if (method === 'sms' && vehicleData?.phone) {
             .insert([{sticker_id: sticker.id, visitor_message: msg, session_token: sTok, status: 'pending', visitor_fingerprint: fingerprint}]);
         if (insertError) { errEl.textContent = '❌ فشل'; return; }
 
+        fetch('/.netlify/functions/send-push', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sticker_id: sticker.id, message: msg })
+        }).catch(() => {});
+
         quota.count++;
         localStorage.setItem(quotaKey, JSON.stringify(quota));
         waitingForReply = true;
