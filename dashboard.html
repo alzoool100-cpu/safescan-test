@@ -357,7 +357,7 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إ�
         if (perm !== 'granted') { alert('❌ تم رفض الإذن'); return; }
         try {
             const reg = await navigator.serviceWorker.ready;
-            const VAPID_KEY = 'BO5viopA4No_R3572yTWr1z6vAOPGGr3TRnXPl2_yIgLrLGOAou6-ZCzCluZ8DMgQ69u1WXjiBCmocvR4qG6NXA';
+            const VAPID_KEY = 'BHZbBLH8k38U6yXsaFaluUMT6pzZ9shK8Y6mOyIKklhDtBfW-X3ZoeCTT_NVOEIa1zFtNKZVWjeza61hCK5ZutU';
             const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: VAPID_KEY });
             const { error } = await supabaseClient.from('push_subscriptions').insert({ user_id: currentUser.id, subscription: JSON.stringify(sub) });
             if (error) throw error;
