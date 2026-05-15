@@ -331,7 +331,7 @@ if (method === 'sms' && vehicleData?.phone) {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ sticker_id: sticker.id, message: msg })
-        }).catch(() => {});
+        }).then(r => r.json()).then(d => console.log('[Push]', JSON.stringify(d))).catch(e => console.log('[Push Error]', e.message));
 
         quota.count++;
         localStorage.setItem(quotaKey, JSON.stringify(quota));

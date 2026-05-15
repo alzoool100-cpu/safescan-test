@@ -359,6 +359,8 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إ�
             const reg = await navigator.serviceWorker.ready;
             const VAPID_KEY = 'BHZbBLH8k38U6yXsaFaluUMT6pzZ9shK8Y6mOyIKklhDtBfW-X3ZoeCTT_NVOEIa1zFtNKZVWjeza61hCK5ZutU';
             const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: VAPID_KEY });
+            // احذف أي اشتراكات قديمة أولاً ثم أضف الجديد فقط
+            await supabaseClient.from('push_subscriptions').delete().eq('user_id', currentUser.id);
             const { error } = await supabaseClient.from('push_subscriptions').insert({ user_id: currentUser.id, subscription: JSON.stringify(sub) });
             if (error) throw error;
             btn.textContent = '🔕 مُفعّلة'; btn.classList.add('active');
