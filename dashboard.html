@@ -14,9 +14,17 @@
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         OneSignalDeferred.push(async function(OneSignal) {
             if (typeof ONESIGNAL_APP_ID !== 'undefined' && ONESIGNAL_APP_ID !== 'YOUR_ONESIGNAL_APP_ID') {
+                // Unregister old service-worker.js to avoid conflicts with OneSignalSDK.sw.js
+                if ('serviceWorker' in navigator) {
+                    const regs = await navigator.serviceWorker.getRegistrations();
+                    for (const reg of regs) {
+                        if (reg.active && reg.active.scriptURL.includes('service-worker.js')) {
+                            await reg.unregister();
+                        }
+                    }
+                }
                 await OneSignal.init({
                     appId: ONESIGNAL_APP_ID,
-                    serviceWorkerPath: '/service-worker.js',
                     notifyButton: { enable: false },
                 });
                 if (window._safescanUserId) {
