@@ -14,7 +14,11 @@
         window.OneSignalDeferred = window.OneSignalDeferred || [];
         OneSignalDeferred.push(async function(OneSignal) {
             if (typeof ONESIGNAL_APP_ID !== 'undefined' && ONESIGNAL_APP_ID !== 'YOUR_ONESIGNAL_APP_ID') {
-                await OneSignal.init({ appId: ONESIGNAL_APP_ID, notifyButton: { enable: false } });
+                await OneSignal.init({
+                    appId: ONESIGNAL_APP_ID,
+                    serviceWorkerPath: '/service-worker.js',
+                    notifyButton: { enable: false },
+                });
                 if (window._safescanUserId) {
                     try { await OneSignal.login(window._safescanUserId); } catch(e) {}
                 }
