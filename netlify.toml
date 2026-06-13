@@ -1,6 +1,13 @@
 [build]
   command   = "npm install"
+  publish   = "."
   functions = "netlify/functions"
+
+[[headers]]
+  for = "/*.sw.js"
+  [headers.values]
+    Content-Type = "application/javascript"
+    Service-Worker-Allowed = "/"
 
 [[headers]]
   for = "/*"
