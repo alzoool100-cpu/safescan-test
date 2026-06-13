@@ -4,6 +4,12 @@
   functions = "netlify/functions"
 
 [[headers]]
+  for = "/OneSignalSDKWorker.js"
+  [headers.values]
+    Content-Type = "application/javascript"
+    Service-Worker-Allowed = "/"
+
+[[headers]]
   for = "/*.sw.js"
   [headers.values]
     Content-Type = "application/javascript"
