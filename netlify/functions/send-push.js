@@ -38,16 +38,16 @@ exports.handler = async (event) => {
 
     const pushBody = message ? message.substring(0, 80) : 'زائر أرسل رسالة لمركبتك';
 
-    const res = await fetch('https://onesignal.com/api/v1/notifications', {
+    const res = await fetch('https://api.onesignal.com/notifications', {
       method: 'POST',
       headers: {
-        'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`,
+        'Authorization': `Key ${process.env.ONESIGNAL_REST_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         app_id: process.env.ONESIGNAL_APP_ID,
-        include_external_user_ids: [vehicle.user_id],
-        channel_for_external_user_ids: 'push',
+        target_channel: 'push',
+        include_aliases: { external_id: [vehicle.user_id] },
         headings: { en: '🚗 SafeScan', ar: '🚗 SafeScan' },
         contents: { en: pushBody, ar: pushBody },
         url: 'https://calm-chebakia-9ddff4.netlify.app/dashboard.html',
