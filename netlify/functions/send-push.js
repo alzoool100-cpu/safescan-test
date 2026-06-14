@@ -38,10 +38,10 @@ exports.handler = async (event) => {
 
     const pushBody = message ? message.substring(0, 80) : 'زائر أرسل رسالة لمركبتك';
 
-    const res = await fetch('https://api.onesignal.com/notifications', {
+    const res = await fetch('https://onesignal.com/api/v1/notifications', {
       method: 'POST',
       headers: {
-        'Authorization': `Key ${process.env.ONESIGNAL_REST_API_KEY}`,
+        'Authorization': `Basic ${process.env.ONESIGNAL_REST_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
