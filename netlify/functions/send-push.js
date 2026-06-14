@@ -10,9 +10,15 @@ exports.handler = async (event) => {
   if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers, body: '' };
 
   if (event.httpMethod === 'GET') {
+    const key = process.env.ONESIGNAL_REST_API_KEY || '';
+    const keyType = key.startsWith('os_v2_app_') ? 'app_key_v2 ✅'
+                  : key.startsWith('os_v2_org_') ? 'org_key_WRONG ❌'
+                  : key.length > 10 ? 'legacy_key_v1'
+                  : 'MISSING ❌';
     return { statusCode: 200, headers, body: JSON.stringify({
       ok: true,
       service: 'OneSignal',
+      key_type: keyType,
       env: {
         SUPABASE_URL:           !!process.env.SUPABASE_URL,
         SUPABASE_SERVICE_KEY:   !!process.env.SUPABASE_SERVICE_KEY,
