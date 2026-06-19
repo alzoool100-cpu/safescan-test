@@ -174,7 +174,8 @@ const name = [carIdentity, vehicleData.plate_number].filter(Boolean).join(' Â· Ù
     document.getElementById('stepMethod').style.display = 'block';
     document.getElementById('stepMessage').style.display = 'none';
     document.getElementById('stepAccident').style.display = 'none';
-    const m = contactMethod;
+    const showContact = vehicleData?.show_phone !== false;
+    const m = showContact ? contactMethod : '';
     document.getElementById('btnWhatsapp').style.display = (m==='all'||m==='whatsapp') ? 'block' : 'none';
     document.getElementById('btnSms').style.display = (m==='all'||m==='sms') ? 'block' : 'none';
     document.getElementById('btnCall').style.display = (m==='all'||m==='phone') ? 'block' : 'none';
