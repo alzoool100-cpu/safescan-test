@@ -28,8 +28,15 @@
                     appId: ONESIGNAL_APP_ID,
                     notifyButton: { enable: false },
                 });
+                window._oneSignalReady = true;
+                // Re-link user whenever subscription becomes active (e.g. after opting in)
+                OneSignal.User.PushSubscription.addEventListener('change', function(ev) {
+                    if (ev.current?.optedIn && window._safescanUserId) {
+                        OneSignal.login(window._safescanUserId).catch(function(){});
+                    }
+                });
                 if (window._safescanUserId) {
-                    try { await OneSignal.login(window._safescanUserId); } catch(e) {}
+                    try { await OneSignal.login(window._safescanUserId); } catch(e) { console.warn('[OneSignal] login err:', e.message); }
                 }
                 if (typeof restorePushButtonState === 'function') restorePushButtonState();
             }
@@ -219,14 +226,28 @@
         if(page==='home') { loadHomeStats(); updateToggleUI(); }
     }
 
+    async function loginToOneSignal(userId) {
+        for (var i = 0; i < 20; i++) {
+            if (window._oneSignalReady) {
+                try {
+                    await OneSignal.login(userId);
+                    console.log('[SafeScan] OneSignal linked:', userId);
+                } catch(e) {
+                    console.warn('[SafeScan] OneSignal login failed:', e.message);
+                }
+                return;
+            }
+            await new Promise(function(r){ setTimeout(r, 500); });
+        }
+        console.warn('[SafeScan] OneSignal not ready after 10s');
+    }
+
     async function initDashboard() {
         const {data:{user},error}=await supabaseClient.auth.getUser();
         if(error||!user){alert(safeT('login_required'));window.location.href='/login.html';return;}
         currentUser=user;
         window._safescanUserId = user.id;
-        if (window.OneSignal && typeof OneSignal.login === 'function') {
-            try { await OneSignal.login(user.id); } catch(e) {}
-        }
+        loginToOneSignal(user.id);
 
         const {data:profile}=await supabaseClient.from('profiles').select('phone,show_phone,contact_method,blocked_ips').eq('id',user.id).maybeSingle();
         if(profile){
