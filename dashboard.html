@@ -31,6 +31,7 @@
                 if (window._safescanUserId) {
                     try { await OneSignal.login(window._safescanUserId); } catch(e) {}
                 }
+                if (typeof restorePushButtonState === 'function') restorePushButtonState();
             }
         });
     </script>
