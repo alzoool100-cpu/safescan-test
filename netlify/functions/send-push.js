@@ -61,8 +61,10 @@ exports.handler = async (event) => {
     });
 
     const result = await res.json();
-    console.log('OneSignal result:', JSON.stringify(result));
-    return { statusCode: 200, headers, body: JSON.stringify({ ok: true, recipients: result.recipients, errors: result.errors }) };
+    const recipients = result.recipients ?? 0;
+    console.log('OneSignal result:', JSON.stringify(result), '| target user_id:', vehicle.user_id);
+    if (!recipients) console.warn('0 recipients — OneSignal.login() may not be linked for user:', vehicle.user_id);
+    return { statusCode: 200, headers, body: JSON.stringify({ ok: recipients > 0, recipients, errors: result.errors }) };
 
   } catch (err) {
     console.error('send-push error:', err.message);
