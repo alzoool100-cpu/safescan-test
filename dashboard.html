@@ -24,21 +24,26 @@
                     }
                     if (removed) { window.location.reload(); return; }
                 }
-                await OneSignal.init({
-                    appId: ONESIGNAL_APP_ID,
-                    notifyButton: { enable: false },
-                });
-                window._oneSignalReady = true;
-                // Re-link user whenever subscription becomes active (e.g. after opting in)
-                OneSignal.User.PushSubscription.addEventListener('change', function(ev) {
-                    if (ev.current?.optedIn && window._safescanUserId) {
-                        OneSignal.login(window._safescanUserId).catch(function(){});
+                try {
+                    await OneSignal.init({
+                        appId: ONESIGNAL_APP_ID,
+                        notifyButton: { enable: false },
+                    });
+                    window._oneSignalReady = true;
+                    console.log('[SafeScan] OneSignal init OK');
+                    // Re-link user whenever subscription becomes active (e.g. after opting in)
+                    OneSignal.User.PushSubscription.addEventListener('change', function(ev) {
+                        if (ev.current?.optedIn && window._safescanUserId) {
+                            OneSignal.login(window._safescanUserId).catch(function(){});
+                        }
+                    });
+                    if (window._safescanUserId) {
+                        try { await OneSignal.login(window._safescanUserId); } catch(e) { console.warn('[OneSignal] login err:', e.message); }
                     }
-                });
-                if (window._safescanUserId) {
-                    try { await OneSignal.login(window._safescanUserId); } catch(e) { console.warn('[OneSignal] login err:', e.message); }
+                    if (typeof restorePushButtonState === 'function') restorePushButtonState();
+                } catch(initErr) {
+                    console.error('[SafeScan] OneSignal init FAILED:', initErr.message);
                 }
-                if (typeof restorePushButtonState === 'function') restorePushButtonState();
             }
         });
     </script>
@@ -239,7 +244,7 @@
             }
             await new Promise(function(r){ setTimeout(r, 500); });
         }
-        console.warn('[SafeScan] OneSignal not ready after 10s');
+        console.error('[SafeScan] OneSignal not ready after 10s — init may have failed');
     }
 
     async function initDashboard() {
