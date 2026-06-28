@@ -31,14 +31,15 @@
                     });
                     window._oneSignalReady = true;
                     console.log('[SafeScan] OneSignal init OK');
-                    // Re-link user whenever subscription becomes active (e.g. after opting in)
+                    // Save subscription ID to Supabase whenever subscription changes
                     OneSignal.User.PushSubscription.addEventListener('change', function(ev) {
-                        if (ev.current?.optedIn && window._safescanUserId) {
-                            OneSignal.login(window._safescanUserId).catch(function(){});
+                        if (ev.current?.optedIn) {
+                            if (typeof saveOneSignalSubId === 'function') saveOneSignalSubId();
                         }
                     });
-                    if (window._safescanUserId) {
-                        try { await OneSignal.login(window._safescanUserId); } catch(e) { console.warn('[OneSignal] login err:', e.message); }
+                    // Save immediately if already subscribed
+                    if (OneSignal.User.PushSubscription.optedIn) {
+                        if (typeof saveOneSignalSubId === 'function') saveOneSignalSubId();
                     }
                     if (typeof restorePushButtonState === 'function') restorePushButtonState();
                 } catch(initErr) {
@@ -231,20 +232,12 @@
         if(page==='home') { loadHomeStats(); updateToggleUI(); }
     }
 
-    async function loginToOneSignal(userId) {
-        for (var i = 0; i < 20; i++) {
-            if (window._oneSignalReady) {
-                try {
-                    await OneSignal.login(userId);
-                    console.log('[SafeScan] OneSignal linked:', userId);
-                } catch(e) {
-                    console.warn('[SafeScan] OneSignal login failed:', e.message);
-                }
-                return;
-            }
-            await new Promise(function(r){ setTimeout(r, 500); });
-        }
-        console.error('[SafeScan] OneSignal not ready after 10s — init may have failed');
+    async function saveOneSignalSubId() {
+        if (!currentUser || !window._oneSignalReady) return;
+        var subId = OneSignal.User.PushSubscription.id;
+        if (!subId) return;
+        await supabaseClient.from('profiles').update({ onesignal_sub_id: subId }).eq('id', currentUser.id);
+        console.log('[SafeScan] subscription ID saved:', subId);
     }
 
     async function initDashboard() {
@@ -252,7 +245,8 @@
         if(error||!user){alert(safeT('login_required'));window.location.href='/login.html';return;}
         currentUser=user;
         window._safescanUserId = user.id;
-        loginToOneSignal(user.id);
+        // Save OneSignal subscription ID to Supabase so send-push can target by subscription_id
+        setTimeout(saveOneSignalSubId, 3000);
 
         const {data:profile}=await supabaseClient.from('profiles').select('phone,show_phone,contact_method,blocked_ips').eq('id',user.id).maybeSingle();
         if(profile){

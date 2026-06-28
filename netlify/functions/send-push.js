@@ -42,7 +42,14 @@ exports.handler = async (event) => {
     const { data: vehicle } = await supabase.from('vehicles').select('user_id').eq('id', sticker.vehicle_id).maybeSingle();
     if (!vehicle) { console.log('vehicle not found'); return { statusCode: 200, headers, body: JSON.stringify({ step: 'no_vehicle' }) }; }
 
+    const { data: profile } = await supabase.from('profiles').select('onesignal_sub_id').eq('id', vehicle.user_id).maybeSingle();
     const pushBody = message ? message.substring(0, 80) : 'زائر أرسل رسالة لمركبتك';
+
+    const targeting = profile?.onesignal_sub_id
+      ? { include_subscription_ids: [profile.onesignal_sub_id] }
+      : { include_aliases: { external_id: [vehicle.user_id] } };
+
+    console.log('targeting method:', profile?.onesignal_sub_id ? 'subscription_id' : 'external_id');
 
     const res = await fetch('https://api.onesignal.com/notifications', {
       method: 'POST',
@@ -53,7 +60,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         app_id: process.env.ONESIGNAL_APP_ID,
         target_channel: 'push',
-        include_aliases: { external_id: [vehicle.user_id] },
+        ...targeting,
         headings: { en: '🚗 SafeScan', ar: '🚗 SafeScan' },
         contents: { en: pushBody, ar: pushBody },
         url: 'https://calm-chebakia-9ddff4.netlify.app/dashboard.html',
