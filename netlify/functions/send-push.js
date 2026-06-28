@@ -64,6 +64,10 @@ exports.handler = async (event) => {
         headings: { en: '🚗 SafeScan', ar: '🚗 SafeScan' },
         contents: { en: pushBody, ar: pushBody },
         url: 'https://calm-chebakia-9ddff4.netlify.app/dashboard.html',
+        // Wake device immediately even in Doze/battery-saver mode
+        priority: 10,
+        android_visibility: 1,
+        ttl: 86400,
       }),
     });
 
