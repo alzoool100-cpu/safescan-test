@@ -8,6 +8,7 @@
   [headers.values]
     Content-Type = "application/javascript"
     Service-Worker-Allowed = "/"
+    Cache-Control = "no-cache, no-store, must-revalidate"
 
 [[headers]]
   for = "/*.sw.js"

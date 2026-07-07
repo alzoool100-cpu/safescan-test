@@ -24,6 +24,12 @@
                     }
                     if (removed) { window.location.reload(); return; }
                 }
+                // Force SW update on every open so Chrome doesn't get stuck with stale/frozen SW
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(regs) {
+                        regs.forEach(function(reg) { reg.update(); });
+                    });
+                }
                 try {
                     await OneSignal.init({
                         appId: ONESIGNAL_APP_ID,
@@ -574,6 +580,19 @@ if (imageFile) {
     }
 }
     initDashboard();
+
+    // Play custom sound when app opened via notification tap (?ns=1)
+    if (new URLSearchParams(window.location.search).get('ns') === '1') {
+        // Wait for audio functions to be defined then play
+        setTimeout(function() {
+            if (typeof playNotificationSound === 'function') {
+                playNotificationSound();
+            }
+        }, 800);
+        // Clean URL so refresh doesn't retrigger
+        history.replaceState(null, '', window.location.pathname);
+    }
+
 async function subscribeToMessages() {
     if (!currentVehicle) return;
     const { data: stickers } = await supabaseClient
