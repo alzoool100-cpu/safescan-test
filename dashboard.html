@@ -24,6 +24,12 @@
                     }
                     if (removed) { window.location.reload(); return; }
                 }
+                // Force SW update on every open so Chrome doesn't get stuck with stale/frozen SW
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.getRegistrations().then(function(regs) {
+                        regs.forEach(function(reg) { reg.update(); });
+                    });
+                }
                 try {
                     await OneSignal.init({
                         appId: ONESIGNAL_APP_ID,
