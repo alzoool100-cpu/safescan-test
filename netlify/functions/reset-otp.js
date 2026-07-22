@@ -26,7 +26,7 @@ exports.handler = async (event) => {
     if (!profile) return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
 
     const otp = String(Math.floor(100000 + Math.random() * 900000));
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
+    const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
 
     const { error: upsertError } = await supabase
       .from('otp_resets')
@@ -37,7 +37,7 @@ exports.handler = async (event) => {
       return { statusCode: 500, headers, body: JSON.stringify({ error: 'db_error' }) };
     }
 
-    const pushBody = `🔐 رمز التحقق: ${otp} — صالح لمدة 10 دقائق`;
+    const pushBody = `🔐 رمز التحقق: ${otp} — صالح لمدة 30 دقيقة`;
     const targeting = profile.onesignal_sub_id
       ? { include_subscription_ids: [profile.onesignal_sub_id] }
       : { include_aliases: { external_id: [profile.id] } };
@@ -56,7 +56,7 @@ exports.handler = async (event) => {
         contents: { en: pushBody, ar: pushBody },
         priority: 10,
         android_visibility: 1,
-        ttl: 600,
+        ttl: 1800,
       }),
     });
 
