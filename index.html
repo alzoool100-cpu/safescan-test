@@ -73,9 +73,7 @@
 
     <div style="margin-top:20px;border-top:1px solid var(--border-color);padding-top:16px;">
         <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px" data-key="get_sticker_desc">هل تريد استيكر لسيارتك؟</p>
-        <a href="https://safescan.app/store" target="_blank" style="text-decoration:none;">
-            <button class="btn btn-outline" style="width:100%;" data-key="get_sticker">🛒 احصل على استيكر SafeScan</button>
-        </a>
+        <button class="btn btn-outline" style="width:100%;" data-key="get_sticker" onclick="showToast('🚧 المتجر قريباً!')">🛒 احصل على استيكر SafeScan</button>
     </div>
     <div style="margin-top:16px;font-size:13px;">
         <a href="/login.html" style="color: var(--text-muted);" data-key="owner_login">🔐 مالك السيارة؟ سجل دخولك</a>
@@ -124,7 +122,7 @@ let currentStep = 'method';
                 .select('status')
                 .eq('qr_token', stickerToken)
                 .maybeSingle()
-                .setHeader('Accept', 'application/json');
+                ;
             if (s && s.status === 'factory_new') window.location.href = '/register.html?token=' + stickerToken;
         } catch(e) {}
     }
@@ -280,7 +278,7 @@ if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || ms
 
         const { data: sticker, error: se } = await supabaseClient
             .from('stickers').select('id, status, vehicle_id').eq('qr_token', stickerToken)
-            .maybeSingle().setHeader('Accept', 'application/json');
+            .maybeSingle();
         if (se || !sticker) { errEl.textContent = '❌ ' + (t('sticker_invalid') || 'استيكر غير صالح'); return; }
         if (sticker.status !== 'active') {
             errEl.textContent = '❌ ' + (sticker.status === 'inactive' ? 'المالك أوقف الاستقبال مؤقتاً' : t('sticker_invalid') || 'استيكر غير مفعّل');
@@ -290,10 +288,10 @@ if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || ms
         // جلب قائمة المحظورين للمالك
         if (sticker.vehicle_id) {
             const { data: vehicle } = await supabaseClient
-                .from('vehicles').select('user_id').eq('id', sticker.vehicle_id).maybeSingle().setHeader('Accept', 'application/json');
+                .from('vehicles').select('user_id').eq('id', sticker.vehicle_id).maybeSingle();
             if (vehicle) {
                 const { data: profile } = await supabaseClient
-                    .from('profiles').select('blocked_ips').eq('id', vehicle.user_id).maybeSingle().setHeader('Accept', 'application/json');
+                    .from('profiles').select('blocked_ips').eq('id', vehicle.user_id).maybeSingle();
                 let blocked = [];
                 try { blocked = JSON.parse(profile?.blocked_ips || '[]'); } catch(e) {}
                 if (blocked.includes(fingerprint)) {
@@ -304,7 +302,7 @@ if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || ms
         }
 
         if (sticker.vehicle_id) {
-            const { data: v } = await supabaseClient.from('vehicles').select('is_active').eq('id', sticker.vehicle_id).maybeSingle().setHeader('Accept', 'application/json');
+            const { data: v } = await supabaseClient.from('vehicles').select('is_active').eq('id', sticker.vehicle_id).maybeSingle();
             if (v && !v.is_active) { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
         }
 
@@ -362,10 +360,11 @@ document.getElementById('sessionArea').innerHTML = `
         .select('owner_response')
         .eq('session_token', currentSessionToken)
         .maybeSingle()
-        .setHeader('Accept', 'application/json')
+
         .then(({ data }) => {
             if (data && data.owner_response) {
                 waitingForReply = false;
+                clearInterval(replyCheckInterval);
                 const replyBox = document.getElementById('ownerReplyBox');
                 if (replyBox) {
                    lastOwnerResponse = data.owner_response;
@@ -374,7 +373,7 @@ document.getElementById('sessionArea').innerHTML = `
             }
         });
 }
-    setInterval(checkReplyStatus, 5000);
+    const replyCheckInterval = setInterval(checkReplyStatus, 5000);
 
     function showToast(msg) {
         const old = document.querySelector('.toast');

@@ -8,8 +8,8 @@
     <link rel="manifest" href="/manifest.json">
     <script>
         if ('serviceWorker' in navigator) {
-                .then(reg => console.log('Service Worker registered', reg.scope))
-                .catch(err => console.error('Service Worker failed', err));
+            navigator.serviceWorker.register('/OneSignalSDKWorker.js')
+                .catch(err => console.error('SW registration failed', err));
         }
     </script>
     <style>
@@ -62,7 +62,7 @@
             .select('visitor_message, owner_response, status, show_phone_to_visitor, sticker_id')
             .eq('session_token', sessionToken)
             .maybeSingle()
-            .setHeader('Accept', 'application/json');
+            ;
 
         if (error || !data) {
             statusDiv.innerHTML = '<div class="error-text">❌ الجلسة غير موجودة أو انتهت</div>';
@@ -90,21 +90,21 @@
                     .select('vehicle_id')
                     .eq('id', data.sticker_id)
                     .maybeSingle()
-                    .setHeader('Accept', 'application/json');
+                    ;
                 if (sticker) {
                     const { data: vehicle } = await supabaseClient
                         .from('vehicles')
                         .select('user_id')
                         .eq('id', sticker.vehicle_id)
                         .maybeSingle()
-                        .setHeader('Accept', 'application/json');
+                        ;
                     if (vehicle) {
                         const { data: profile } = await supabaseClient
                             .from('profiles')
                             .select('phone')
                             .eq('id', vehicle.user_id)
                             .maybeSingle()
-                            .setHeader('Accept', 'application/json');
+                            ;
                         if (profile?.phone) {
                             html += `<div class="message-bubble owner-bubble">📱 ${t('phone_revealed_chat') || 'رقم المالك:'} <a href="tel:${profile.phone}" style="color: var(--color-primary); font-weight: 700;">${profile.phone}</a></div>`;
                         }

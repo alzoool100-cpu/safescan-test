@@ -209,7 +209,6 @@
     let currentUser=null, currentVehicle=null, active=true, selectedMessageId=null;
     let allMessages=[], currentFilter='pending';
     let blockedFingerprints = [];
-    var safescanAudio = null; // kept for compatibility but unused
 
     function safeT(key) { return typeof t === 'function' ? t(key) : key; }
 
@@ -557,7 +556,7 @@ if (imageFile) {
         if (error || !stickers?.length) { container.innerHTML = '<div class="loading">لا توجد استيكرات بعد</div>'; return; }
         let html = '';
         stickers.forEach(s => {
-            const qrLink = `https://calm-chebakia-9ddff4.netlify.app/?token=${s.qr_token}`;
+            const qrLink = `${APP_BASE_URL}/?token=${s.qr_token}`;
             const statusColor = s.status === 'active' ? 'var(--color-success)' : (s.status === 'inactive' ? 'var(--color-danger)' : 'var(--color-warning)');
             html += `<div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid var(--border-color);"><span>${s.qr_token || '---'}</span><span style="color: ${statusColor}; font-weight: 600;">${s.status === 'active' ? '🟢 مفعل' : (s.status === 'inactive' ? '🔴 موقف' : '🟡 جديد')}</span><button onclick="copyToClipboard('${qrLink}')" style="background:none; border:none; color: var(--color-primary); cursor:pointer;" title="نسخ الرابط">📋</button></div>`;
         });
@@ -593,34 +592,6 @@ if (imageFile) {
         history.replaceState(null, '', window.location.pathname);
     }
 
-async function subscribeToMessages() {
-    if (!currentVehicle) return;
-    const { data: stickers } = await supabaseClient
-        .from('stickers')
-        .select('id')
-        .eq('vehicle_id', currentVehicle.id);
-    if (!stickers?.length) return;
-    const stickerIds = stickers.map(s => s.id);
-    supabaseClient
-        .channel('new-messages')
-        .on('postgres_changes', {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'scan_logs',
-            filter: `sticker_id=in.(${stickerIds.join(',')})`
-        }, (payload) => {
-           const exists = allMessages.find(m => m.id === payload.new.id);
-if (!exists) {
-    allMessages.unshift(payload.new);
-    updateCounters();
-    renderMessages();
-    loadHomeStats();
-    showToast('📨 رسالة جديدة وصلت!');
-}
-            if (safescanAudio) safescanAudio.play().catch(() => {});
-        })
-        .subscribe();
-}
 </script>
 </body>
 </html>
