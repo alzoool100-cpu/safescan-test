@@ -63,7 +63,7 @@ exports.handler = async (event) => {
         ...targeting,
         headings: { en: '🚗 SafeScan', ar: '🚗 SafeScan' },
         contents: { en: pushBody, ar: pushBody },
-        url: 'https://calm-chebakia-9ddff4.netlify.app/dashboard.html?ns=1',
+        url: `${process.env.APP_BASE_URL || 'https://calm-chebakia-9ddff4.netlify.app'}/dashboard.html?ns=1`,
         // Wake device immediately even in Doze/battery-saver mode
         priority: 10,
         android_visibility: 1,
