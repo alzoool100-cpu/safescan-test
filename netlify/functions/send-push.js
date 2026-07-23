@@ -64,8 +64,6 @@ exports.handler = async (event) => {
     }
 
     const sessionToken = randomUUID();
-    const visitorIp = (event.headers['x-forwarded-for'] || '').split(',')[0].trim()
-      || event.headers['client-ip'] || '';
 
     const { error: logError } = await supabase.from('scan_logs').insert([{
       sticker_id,
@@ -73,7 +71,6 @@ exports.handler = async (event) => {
       session_token: sessionToken,
       status: 'pending',
       visitor_fingerprint: fingerprint || '',
-      visitor_ip: visitorIp,
     }]);
 
     if (logError) {
