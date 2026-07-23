@@ -102,12 +102,17 @@
         container.innerHTML = '<div class="loading">جار التحميل...</div>';
 
         if (currentTab === 'users') {
-            const { data: profiles, error } = await supabaseClient.from('profiles').select('id, phone, show_phone');
+            const { data: profiles, error } = await supabaseClient.from('profiles').select('id, phone, show_phone, is_admin_blocked');
             if (error) { container.innerHTML = '<div class="error-text">خطأ في التحميل</div>'; return; }
             if (!profiles || profiles.length === 0) { container.innerHTML = '<p>لا يوجد مستخدمون بعد.</p>'; return; }
-            let html = `<table><tr><th>#</th><th>رقم الجوال</th><th>إظهار الرقم</th><th>حظر</th></tr>`;
+            let html = `<table><tr><th>#</th><th>رقم الجوال</th><th>إظهار الرقم</th><th>الحالة</th><th>إجراء</th></tr>`;
             profiles.forEach((p, i) => {
-                html += `<tr><td>${i+1}</td><td>${p.phone || 'غير مسجل'}</td><td>${p.show_phone ? '✅' : '❌'}</td><td><button onclick="blockUser('${p.id}')" style="background:none;border:none;color:var(--color-danger);cursor:pointer">🚫 حظر</button></td></tr>`;
+                const isBlocked = p.is_admin_blocked;
+                const statusBadge = isBlocked ? '<span class="badge badge-closed">🚫 محظور</span>' : '<span class="badge badge-active">✅ نشط</span>';
+                const actionBtn = isBlocked
+                    ? `<button onclick="toggleBlock('${p.id}', false)" style="background:none;border:none;color:var(--color-success);cursor:pointer;font-size:13px;">✅ رفع الحظر</button>`
+                    : `<button onclick="toggleBlock('${p.id}', true)" style="background:none;border:none;color:var(--color-danger);cursor:pointer;font-size:13px;">🚫 حظر</button>`;
+                html += `<tr><td>${i+1}</td><td>${p.phone || 'غير مسجل'}</td><td>${p.show_phone ? '✅' : '❌'}</td><td>${statusBadge}</td><td>${actionBtn}</td></tr>`;
             });
             html += '</table>';
             container.innerHTML = html;
@@ -146,16 +151,13 @@
         }
     }
 
-    window.blockUser = async function(userId) {
-        if (!confirm('هل أنت متأكد من حظر هذا المستخدم؟')) return;
-        const { data: profile } = await supabaseClient.from('profiles').select('blocked_ips').eq('id', userId).single();
-        const ip = prompt('أدخل عنوان IP للحظر (أو اتركه فارغاً لحظر الجميع):');
-        if (!ip) return;
-        let blocked = [];
-        try { blocked = JSON.parse(profile?.blocked_ips || '[]'); } catch(e) {}
-        if (!blocked.includes(ip)) blocked.push(ip);
-        await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blocked) }).eq('id', userId);
-        alert('تم الحظر');
+    window.toggleBlock = async function(userId, block) {
+        const msg = block ? 'هل أنت متأكد من حظر هذا المستخدم؟ لن يتمكن من إرسال رسائل.' : 'هل تريد رفع الحظر عن هذا المستخدم؟';
+        if (!confirm(msg)) return;
+        const { error } = await supabaseClient.from('profiles').update({ is_admin_blocked: block }).eq('id', userId);
+        if (error) { alert('❌ حدث خطأ'); return; }
+        alert(block ? '✅ تم حظر المستخدم' : '✅ تم رفع الحظر');
+        loadTabContent();
     };
 
    async function checkAdminAccess() {
