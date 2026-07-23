@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const { randomUUID } = require('crypto');
 
 exports.handler = async (event) => {
   const headers = {
@@ -31,20 +32,56 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: '{}' };
 
   try {
-    const { sticker_id, message } = JSON.parse(event.body || '{}');
+    const { sticker_id, message, fingerprint } = JSON.parse(event.body || '{}');
     if (!sticker_id) return { statusCode: 400, headers, body: JSON.stringify({ error: 'missing sticker_id' }) };
 
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
     const { data: sticker } = await supabase.from('stickers').select('vehicle_id').eq('id', sticker_id).maybeSingle();
-    if (!sticker) { console.log('sticker not found:', sticker_id); return { statusCode: 200, headers, body: JSON.stringify({ step: 'no_sticker' }) }; }
+    if (!sticker) { console.log('sticker not found:', sticker_id); return { statusCode: 200, headers, body: JSON.stringify({ error: 'no_sticker' }) }; }
 
-    const { data: vehicle } = await supabase.from('vehicles').select('user_id').eq('id', sticker.vehicle_id).maybeSingle();
-    if (!vehicle) { console.log('vehicle not found'); return { statusCode: 200, headers, body: JSON.stringify({ step: 'no_vehicle' }) }; }
+    const { data: vehicle } = await supabase.from('vehicles').select('user_id, is_active').eq('id', sticker.vehicle_id).maybeSingle();
+    if (!vehicle) { console.log('vehicle not found'); return { statusCode: 200, headers, body: JSON.stringify({ error: 'no_vehicle' }) }; }
 
-    const { data: profile } = await supabase.from('profiles').select('onesignal_sub_id').eq('id', vehicle.user_id).maybeSingle();
+    if (!vehicle.is_active) {
+      return { statusCode: 200, headers, body: JSON.stringify({ error: 'owner_inactive' }) };
+    }
+
+    const { data: profile } = await supabase.from('profiles')
+      .select('onesignal_sub_id, is_admin_blocked, blocked_ips')
+      .eq('id', vehicle.user_id).maybeSingle();
+
+    if (profile?.is_admin_blocked) {
+      return { statusCode: 200, headers, body: JSON.stringify({ error: 'blocked' }) };
+    }
+
+    if (fingerprint) {
+      let blocked = [];
+      try { blocked = JSON.parse(profile?.blocked_ips || '[]'); } catch (e) {}
+      if (blocked.includes(fingerprint)) {
+        return { statusCode: 200, headers, body: JSON.stringify({ error: 'blocked' }) };
+      }
+    }
+
+    const sessionToken = randomUUID();
+    const visitorIp = (event.headers['x-forwarded-for'] || '').split(',')[0].trim()
+      || event.headers['client-ip'] || '';
+
+    const { error: logError } = await supabase.from('scan_logs').insert([{
+      sticker_id,
+      visitor_message: (message || '').substring(0, 500),
+      session_token: sessionToken,
+      status: 'pending',
+      visitor_fingerprint: fingerprint || '',
+      visitor_ip: visitorIp,
+    }]);
+
+    if (logError) {
+      console.error('scan_logs insert error:', logError);
+      return { statusCode: 500, headers, body: JSON.stringify({ error: 'db_error' }) };
+    }
+
     const pushBody = message ? message.substring(0, 80) : 'زائر أرسل رسالة لمركبتك';
-
     const targeting = profile?.onesignal_sub_id
       ? { include_subscription_ids: [profile.onesignal_sub_id] }
       : { include_aliases: { external_id: [vehicle.user_id] } };
@@ -64,7 +101,6 @@ exports.handler = async (event) => {
         headings: { en: '🚗 SafeScan', ar: '🚗 SafeScan' },
         contents: { en: pushBody, ar: pushBody },
         url: `${process.env.APP_BASE_URL || 'https://calm-chebakia-9ddff4.netlify.app'}/dashboard.html?ns=1`,
-        // Wake device immediately even in Doze/battery-saver mode
         priority: 10,
         android_visibility: 1,
         ttl: 86400,
@@ -75,7 +111,8 @@ exports.handler = async (event) => {
     const recipients = result.recipients ?? 0;
     console.log('OneSignal result:', JSON.stringify(result), '| target user_id:', vehicle.user_id);
     if (!recipients) console.warn('0 recipients — OneSignal.login() may not be linked for user:', vehicle.user_id);
-    return { statusCode: 200, headers, body: JSON.stringify({ ok: recipients > 0, recipients, errors: result.errors }) };
+
+    return { statusCode: 200, headers, body: JSON.stringify({ ok: true, session_token: sessionToken, recipients, errors: result.errors }) };
 
   } catch (err) {
     console.error('send-push error:', err.message);
