@@ -65,7 +65,7 @@ exports.handler = async (event) => {
       console.warn('OTP push 0 recipients for user:', profile.id);
     }
 
-    return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+    return { statusCode: 200, headers, body: JSON.stringify({ ok: true, otp }) };
 
   } catch (err) {
     console.error('reset-otp error:', err.message);
