@@ -48,7 +48,6 @@
     let isReplied = false;
 
     async function loadMessages() {
-        if (!supabaseClient) return;
         const messagesDiv = document.getElementById('messages');
         const statusDiv = document.getElementById('status');
         if (!sessionToken) {
@@ -57,16 +56,22 @@
         }
 
         statusDiv.innerHTML = '<div class="loading">⏳ جار التحميل...</div>';
-        const { data, error } = await supabaseClient
-            .from('scan_logs')
-            .select('visitor_message, owner_response, status, show_phone_to_visitor, sticker_id')
-            .eq('session_token', sessionToken)
-            .maybeSingle()
-            ;
-
-        if (error || !data) {
-            statusDiv.innerHTML = '<div class="error-text">❌ الجلسة غير موجودة أو انتهت</div>';
-            clearInterval(autoRefreshInterval);
+        let data;
+        try {
+            const res = await fetch('/.netlify/functions/check-reply', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: sessionToken })
+            });
+            const json = await res.json();
+            if (!json.found) {
+                statusDiv.innerHTML = '<div class="error-text">❌ الجلسة غير موجودة أو انتهت</div>';
+                clearInterval(autoRefreshInterval);
+                return;
+            }
+            data = json;
+        } catch (err) {
+            statusDiv.innerHTML = '<div class="error-text">❌ خطأ في التحميل</div>';
             return;
         }
 

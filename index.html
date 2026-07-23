@@ -285,31 +285,6 @@ if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || ms
             return;
         }
 
-        // جلب قائمة المحظورين للمالك
-        if (sticker.vehicle_id) {
-            const { data: vehicle } = await supabaseClient
-                .from('vehicles').select('user_id').eq('id', sticker.vehicle_id).maybeSingle();
-            if (vehicle) {
-                const { data: profile } = await supabaseClient
-                    .from('profiles').select('blocked_ips, is_admin_blocked').eq('id', vehicle.user_id).maybeSingle();
-                if (profile?.is_admin_blocked) {
-                    errEl.textContent = '❌ ' + (t('blocked_message') || 'تم حظرك من قبل المالك');
-                    return;
-                }
-                let blocked = [];
-                try { blocked = JSON.parse(profile?.blocked_ips || '[]'); } catch(e) {}
-                if (blocked.includes(fingerprint)) {
-                    errEl.textContent = '❌ ' + (t('blocked_message') || 'تم حظرك من قبل المالك');
-                    return;
-                }
-            }
-        }
-
-        if (sticker.vehicle_id) {
-            const { data: v } = await supabaseClient.from('vehicles').select('is_active').eq('id', sticker.vehicle_id).maybeSingle();
-            if (v && !v.is_active) { errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح'); return; }
-        }
-
         const method = document.getElementById('messageInput').dataset.method || 'message';
 if (method === 'whatsapp' && vehicleData?.phone) {
     const waMsg = encodeURIComponent(msg);
@@ -320,18 +295,30 @@ if (method === 'sms' && vehicleData?.phone) {
     window.location.href = `sms:${vehicleData.phone}?body=${encodeURIComponent(msg)}`;
     return;
 }
-        const sTok = crypto.randomUUID();
-        currentSessionToken = sTok;
-        const { error: insertError } = await supabaseClient
-            .from('scan_logs')
-            .insert([{sticker_id: sticker.id, visitor_message: msg, session_token: sTok, status: 'pending', visitor_fingerprint: fingerprint}]);
-        if (insertError) { errEl.textContent = '❌ فشل'; return; }
-
-        fetch('/.netlify/functions/send-push', {
+        const pushRes = await fetch('/.netlify/functions/send-push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sticker_id: sticker.id, message: msg })
-        }).then(r => r.json()).then(d => console.log('[Push]', JSON.stringify(d))).catch(e => console.log('[Push Error]', e.message));
+          body: JSON.stringify({ sticker_id: sticker.id, message: msg, fingerprint })
+        });
+        const pushData = await pushRes.json();
+        console.log('[Push]', JSON.stringify(pushData));
+
+        if (pushData.error === 'blocked') {
+            errEl.textContent = '❌ ' + (t('blocked_message') || 'تم حظرك من قبل المالك');
+            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
+            return;
+        }
+        if (pushData.error === 'owner_inactive') {
+            errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح');
+            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
+            return;
+        }
+        if (!pushData.session_token) {
+            errEl.textContent = '❌ فشل في الإرسال. حاول مجدداً.';
+            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
+            return;
+        }
+        currentSessionToken = pushData.session_token;
 
         quota.count++;
         localStorage.setItem(quotaKey, JSON.stringify(quota));
@@ -359,23 +346,24 @@ document.getElementById('sessionArea').innerHTML = `
 
    function checkReplyStatus() {
     if (!waitingForReply || !currentSessionToken) return;
-    supabaseClient
-        .from('scan_logs')
-        .select('owner_response')
-        .eq('session_token', currentSessionToken)
-        .maybeSingle()
-
-        .then(({ data }) => {
-            if (data && data.owner_response) {
-                waitingForReply = false;
-                clearInterval(replyCheckInterval);
-                const replyBox = document.getElementById('ownerReplyBox');
-                if (replyBox) {
-                   lastOwnerResponse = data.owner_response;
-                    replyBox.outerHTML = `<div class="message-bubble owner-bubble" style="background:#dcfce7; padding:14px; border-radius:16px; margin:10px 0;">🚗 المالك: ${escapeHtml(data.owner_response)}<br><button onclick="translateOwnerMsg()" style="background:none;border:none;color:green;cursor:pointer;font-size:12px;margin-top:6px;">🌐 ترجمة</button></div>`;
-                }
+    fetch('/.netlify/functions/check-reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: currentSessionToken })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data && data.owner_response) {
+            waitingForReply = false;
+            clearInterval(replyCheckInterval);
+            const replyBox = document.getElementById('ownerReplyBox');
+            if (replyBox) {
+                lastOwnerResponse = data.owner_response;
+                replyBox.outerHTML = `<div class="message-bubble owner-bubble" style="background:#dcfce7; padding:14px; border-radius:16px; margin:10px 0;">🚗 المالك: ${escapeHtml(data.owner_response)}<br><button onclick="translateOwnerMsg()" style="background:none;border:none;color:green;cursor:pointer;font-size:12px;margin-top:6px;">🌐 ترجمة</button></div>`;
             }
-        });
+        }
+    })
+    .catch(e => console.log('[Reply Error]', e.message));
 }
     const replyCheckInterval = setInterval(checkReplyStatus, 5000);
 
