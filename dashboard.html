@@ -261,18 +261,29 @@
         console.log('[SafeScan] subscription ID saved:', subId);
     }
 
+    async function loginToOneSignal(userId) {
+        for (var i = 0; i < 30; i++) {
+            if (window._oneSignalReady) {
+                try {
+                    await OneSignal.login(userId);
+                    console.log('[SafeScan] OneSignal.login() OK');
+                } catch(e) {
+                    console.error('[SafeScan] OneSignal.login() failed:', e.message);
+                }
+                saveOneSignalSubId();
+                return;
+            }
+            await new Promise(function(r){ setTimeout(r, 500); });
+        }
+        console.warn('[SafeScan] OneSignal not ready after 15s');
+    }
+
     async function initDashboard() {
         const {data:{user},error}=await supabaseClient.auth.getUser();
         if(error||!user){alert(safeT('login_required'));window.location.href='/login.html';return;}
         currentUser=user;
         window._safescanUserId = user.id;
-        // Wait for OneSignal then save subscription ID (retries until ready)
-        (async function() {
-            for (var i = 0; i < 30; i++) {
-                if (window._oneSignalReady) { saveOneSignalSubId(); return; }
-                await new Promise(function(r){ setTimeout(r, 500); });
-            }
-        })();
+        loginToOneSignal(user.id);
 
         const {data:profile}=await supabaseClient.from('profiles').select('phone,show_phone,contact_method,blocked_ips').eq('id',user.id).maybeSingle();
         if(profile){
