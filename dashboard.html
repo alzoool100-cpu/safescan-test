@@ -317,6 +317,30 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إ�
         loadMyStickers();
         setTimeout(setupRealtime, 3000);
         applyTranslations();
+        setTimeout(checkInstallPrompt, 3000);
+    }
+
+    function checkInstallPrompt() {
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        if (isStandalone) return;
+        if (localStorage.getItem('safescan_install_dismissed')) return;
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        if (!isIOS && !isAndroid) return;
+        const instructions = isIOS
+            ? '📋 افتح قائمة المشاركة (□↑) في Safari ثم اضغط "إضافة إلى الشاشة الرئيسية"'
+            : '📋 افتح قائمة المتصفح (⋮) ثم اضغط "إضافة إلى الشاشة الرئيسية"';
+        const banner = document.createElement('div');
+        banner.id = 'installBanner';
+        banner.style.cssText = 'position:fixed;bottom:74px;left:12px;right:12px;background:var(--color-primary);color:white;border-radius:16px;padding:14px 16px;z-index:9998;box-shadow:0 4px 20px rgba(0,0,0,0.3);display:flex;align-items:flex-start;gap:12px;animation:slideDown 0.4s ease;';
+        banner.innerHTML = `<div style="flex:1;"><div style="font-weight:700;font-size:14px;margin-bottom:5px;">📲 أضف SafeScan لشاشتك الرئيسية</div><div style="font-size:12px;opacity:0.9;line-height:1.5;">${instructions}</div><div style="font-size:11px;opacity:0.75;margin-top:6px;">⚡ إشعارات فورية وأداء أفضل بكثير</div></div><button onclick="dismissInstallPrompt()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:18px;flex-shrink:0;line-height:1;">✕</button>`;
+        document.body.appendChild(banner);
+    }
+
+    function dismissInstallPrompt() {
+        localStorage.setItem('safescan_install_dismissed', '1');
+        const banner = document.getElementById('installBanner');
+        if (banner) banner.remove();
     }
 
     function setupRealtime() {

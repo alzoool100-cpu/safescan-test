@@ -291,7 +291,11 @@ if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || ms
                 .from('vehicles').select('user_id').eq('id', sticker.vehicle_id).maybeSingle();
             if (vehicle) {
                 const { data: profile } = await supabaseClient
-                    .from('profiles').select('blocked_ips').eq('id', vehicle.user_id).maybeSingle();
+                    .from('profiles').select('blocked_ips, is_admin_blocked').eq('id', vehicle.user_id).maybeSingle();
+                if (profile?.is_admin_blocked) {
+                    errEl.textContent = '❌ ' + (t('blocked_message') || 'تم حظرك من قبل المالك');
+                    return;
+                }
                 let blocked = [];
                 try { blocked = JSON.parse(profile?.blocked_ips || '[]'); } catch(e) {}
                 if (blocked.includes(fingerprint)) {
