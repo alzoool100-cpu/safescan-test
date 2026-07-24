@@ -79,7 +79,9 @@
         let html = `<div class="message-bubble visitor-bubble">🧑 زائر: ${escapeHtml(data.visitor_message)}</div>`;
 
         if (data.owner_response) {
-            html += `<div class="message-bubble owner-bubble">🚗 مالك: ${escapeHtml(data.owner_response)}</div>`;
+            const visitorLang = (navigator.language || 'en').split('-')[0];
+            const translateUrl = 'https://translate.google.com/?sl=auto&tl=' + visitorLang + '&text=' + encodeURIComponent(data.owner_response) + '&op=translate';
+            html += `<div class="message-bubble owner-bubble">🚗 مالك: ${escapeHtml(data.owner_response)}<br><a href="${translateUrl}" target="_blank" style="color:#888;font-size:12px;text-decoration:none;margin-top:6px;display:inline-block;">🌐 Translate</a></div>`;
             isReplied = true;
             clearInterval(autoRefreshInterval);
             statusDiv.innerHTML = '<div class="status-badge status-replied">✅ ' + (t('session_ended') || 'تم الرد - انتهت الجلسة') + '</div>';
