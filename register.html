@@ -64,10 +64,10 @@
             </div>
             <div id="regStrengthLabel" class="strength-label"></div>
             <ul class="requirements" id="regReqList">
-                <li id="regReqLength">❌ 8 حروف إنجليزية على الأقل</li>
-                <li id="regReqUpper">❌ حرف كبير (A-Z)</li>
-                <li id="regReqNumber">❌ رقم (0-9)</li>
-                <li id="regReqSymbol">❌ رمز (مثل @ أو # أو $)</li>
+                <li id="regReqLength" data-key="req_length">❌ 8 حروف إنجليزية على الأقل</li>
+                <li id="regReqUpper" data-key="req_upper">❌ حرف كبير (A-Z)</li>
+                <li id="regReqNumber" data-key="req_number">❌ رقم (0-9)</li>
+                <li id="regReqSymbol" data-key="req_symbol">❌ رمز (@ # $)</li>
             </ul>
         </div>
 
@@ -139,15 +139,15 @@
         fill.style.width = percent + '%';
 
         let strengthText = '';
-        if (score <= 1) { fill.style.background = 'var(--color-danger)'; strengthText = '🔴 ضعيفة'; }
-        else if (score <= 3) { fill.style.background = 'var(--color-warning)'; strengthText = '🟡 متوسطة'; }
-        else { fill.style.background = 'var(--color-success)'; strengthText = '🟢 قوية'; }
+        if (score <= 1) { fill.style.background = 'var(--color-danger)'; strengthText = '🔴 ' + t('password_weak'); }
+        else if (score <= 3) { fill.style.background = 'var(--color-warning)'; strengthText = '🟡 ' + t('password_medium'); }
+        else { fill.style.background = 'var(--color-success)'; strengthText = '🟢 ' + t('password_strong'); }
         label.textContent = strengthText;
 
-        updateRequirement('regReqLength', lengthOk, '8 حروف إنجليزية على الأقل');
-        updateRequirement('regReqUpper', hasUpper, 'حرف كبير (A-Z)');
-        updateRequirement('regReqNumber', hasNumber, 'رقم (0-9)');
-        updateRequirement('regReqSymbol', hasSymbol, 'رمز (مثل @ أو # أو $)');
+        updateRequirement('regReqLength', lengthOk, t('req_length'));
+        updateRequirement('regReqUpper', hasUpper, t('req_upper'));
+        updateRequirement('regReqNumber', hasNumber, t('req_number'));
+        updateRequirement('regReqSymbol', hasSymbol, t('req_symbol'));
     }
 
     function updateRequirement(id, condition, text) {
@@ -171,7 +171,7 @@
         errorEl.textContent = '';
 
         if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
-            errorEl.textContent = '❌ كلمة المرور ضعيفة. تأكد من 8 حروف إنجليزية + حرف كبير + رقم + رمز.';
+            errorEl.textContent = '❌ ' + t('password_weak_msg');
             return;
         }
 

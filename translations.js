@@ -179,7 +179,16 @@ const translations = {
     skip_send: "تخطي وإرسال بدون رقم",
     login_sub: "لأصحاب السيارات المسجلين",
     no_account: "ليس لديك حساب؟",
-    activate_new: "فعّل استيكر جديد"
+    activate_new: "فعّل استيكر جديد",
+    method_whatsapp: "💬 واتساب",
+    quick_custom: "✍️ رسالة خاصة",
+    send_otp_btn: "إرسال رمز التحقق",
+    otp_next_btn: "التالي — إدخال الرمز وتغيير كلمة المرور ←",
+    password_weak_msg: "كلمة المرور ضعيفة. تأكد من 8 حروف إنجليزية + حرف كبير + رقم + رمز.",
+    req_length: "8 حروف إنجليزية على الأقل",
+    req_upper: "حرف كبير (A-Z)",
+    req_number: "رقم (0-9)",
+    req_symbol: "رمز (@ # $)"
   },
   en: {
     error_msg: "Please write a message",
@@ -361,7 +370,16 @@ const translations = {
     skip_send: "Skip & Send Without Number",
     login_sub: "For registered car owners",
     no_account: "Don't have an account?",
-    activate_new: "Activate new sticker"
+    activate_new: "Activate new sticker",
+    method_whatsapp: "💬 WhatsApp",
+    quick_custom: "✍️ Custom Message",
+    send_otp_btn: "Send Verification Code",
+    otp_next_btn: "Next — Enter code & change password ←",
+    password_weak_msg: "Weak password. Need 8+ English letters, uppercase, number and symbol.",
+    req_length: "At least 8 letters",
+    req_upper: "Uppercase letter (A-Z)",
+    req_number: "Number (0-9)",
+    req_symbol: "Symbol (@ # $)"
   },
   hi: {
     error_msg: "कृपया एक संदेश लिखें",
@@ -542,7 +560,16 @@ const translations = {
     skip_send: "छोड़ें और बिना नंबर भेजें",
     login_sub: "पंजीकृत कार मालिकों के लिए",
     no_account: "खाता नहीं है?",
-    activate_new: "नया स्टिकर सक्रिय करें"
+    activate_new: "नया स्टिकर सक्रिय करें",
+    method_whatsapp: "💬 व्हाट्सएप",
+    quick_custom: "✍️ कस्टम संदेश",
+    send_otp_btn: "सत्यापन कोड भेजें",
+    otp_next_btn: "अगला ← कोड दर्ज करें और पासवर्ड बदलें",
+    password_weak_msg: "कमज़ोर पासवर्ड। 8+ अक्षर, बड़ा अक्षर, संख्या और प्रतीक चाहिए।",
+    req_length: "कम से कम 8 अक्षर",
+    req_upper: "बड़ा अक्षर (A-Z)",
+    req_number: "संख्या (0-9)",
+    req_symbol: "प्रतीक (@ # $)"
   },
   ur: {
     error_msg: "براہ کرم پیغام لکھیں",
@@ -723,7 +750,16 @@ const translations = {
     skip_send: "چھوڑیں اور بغیر نمبر بھیجیں",
     login_sub: "رجسٹرڈ گاڑی مالکان کے لیے",
     no_account: "اکاؤنٹ نہیں ہے؟",
-    activate_new: "نیا اسٹیکر فعال کریں"
+    activate_new: "نیا اسٹیکر فعال کریں",
+    method_whatsapp: "💬 واٹس ایپ",
+    quick_custom: "✍️ کسٹم پیغام",
+    send_otp_btn: "تصدیقی کوڈ بھیجیں",
+    otp_next_btn: "اگلا ← کوڈ درج کریں اور پاس ورڈ تبدیل کریں",
+    password_weak_msg: "کمزور پاس ورڈ۔ 8+ حروف، بڑا حرف، نمبر اور علامت درکار ہے۔",
+    req_length: "کم از کم 8 حروف",
+    req_upper: "بڑا حرف (A-Z)",
+    req_number: "نمبر (0-9)",
+    req_symbol: "علامت (@ # $)"
   }
 };
 
