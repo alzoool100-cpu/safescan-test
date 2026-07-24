@@ -36,7 +36,7 @@
     <p style="font-weight:600; margin-bottom:16px; font-size:17px;" data-key="choose_method">كيف تريد التواصل؟</p>
     <div style="display:flex; flex-direction:column; gap:10px;">
         <button class="btn btn-primary" onclick="selectMethod('message')" id="btnMessage" data-key="method_message">📨 رسالة داخل النظام</button>
-        <button class="btn btn-primary" onclick="selectMethod('whatsapp')" id="btnWhatsapp" style="background:#25D366;">💬 واتساب</button>
+        <button class="btn btn-primary" onclick="selectMethod('whatsapp')" id="btnWhatsapp" style="background:#25D366;" data-key="method_whatsapp">💬 واتساب</button>
         <button class="btn btn-primary" onclick="selectMethod('sms')" id="btnSms" style="background:#6c757d;" data-key="method_sms">📱 رسالة SMS</button>
         <button class="btn btn-primary" onclick="selectMethod('call')" id="btnCall" style="background:#17a2b8;" data-key="method_call">📞 اتصال مباشر</button>
     </div>
@@ -51,7 +51,7 @@
         <button class="btn-tag" onclick="selectQuickMsg(this, 'carsale')" data-key="quick_car_sale">🚗 السيارة للبيع؟</button>
         <button class="btn-tag" onclick="selectQuickMsg(this, 'platesale')" data-key="quick_plate_sale">🏷️ اللوحة للبيع؟</button>
         <button class="btn-tag" onclick="selectQuickMsg(this, 'accident')" data-key="quick_accident">⚠️ حادث / احتكاك</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'custom')">✍️ رسالة خاصة</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'custom')" data-key="quick_custom">✍️ رسالة خاصة</button>
     </div>
     <textarea id="messageInput" data-placeholder="message_placeholder" placeholder="اكتب رسالتك هنا..." style="margin-top:12px;"></textarea>
     <div id="errorMsg" class="error-text" style="margin:8px 0;"></div>
@@ -346,7 +346,7 @@ document.getElementById('sessionArea').innerHTML = `
         if (sendBtn) { sendBtn.textContent = '📨 إرسال الرسالة'; sendBtn.disabled = false; }
     }
 
-    function translateOwnerMsg(){ window.open('https://translate.google.com/?sl=auto&tl=' + (currentLang||'ar') + '&text=' + encodeURIComponent(lastOwnerResponse) + '&op=translate', '_blank'); }
+    function translateOwnerMsg(){ window.open('https://translate.google.com/m?sl=auto&tl=' + (currentLang||'ar') + '&q=' + encodeURIComponent(lastOwnerResponse), '_blank'); }
     function openChat() {
         if (currentSessionToken) window.open('/chat.html?session=' + currentSessionToken, '_blank');
     }
