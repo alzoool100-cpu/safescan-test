@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SafeScan - تسجيل الدخول</title>
     <link rel="stylesheet" href="base.css">
+    <script src="config.js"></script>
+    <script src="translations.js"></script>
     <style>
         .input-group { position: relative; margin-bottom: 16px; text-align: right; }
         .input-group label { display: block; font-weight: 500; margin-bottom: 6px; color: var(--text-secondary); }
@@ -13,39 +15,53 @@
     </style>
 </head>
 <body>
+    <div class="lang-dropdown">
+      <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="ar">العربية</option>
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+        <option value="ur">اردو</option>
+      </select>
+    </div>
+
     <div class="card">
         <div class="logo">
             <span class="logo-icon">🛡️</span>
             <span class="logo-text">SafeScan</span>
             <span class="nfc-badge">NFC</span>
         </div>
-        <h1>تسجيل الدخول</h1>
-        <div class="subtitle">لأصحاب السيارات المسجلين</div>
+        <h1 data-key="login_title">تسجيل الدخول</h1>
+        <div class="subtitle" data-key="login_sub">لأصحاب السيارات المسجلين</div>
 
         <form id="loginForm">
             <div class="input-group">
-                <label>رقم الجوال</label>
+                <label data-key="phone_label">رقم الجوال</label>
                 <span class="icon">📱</span>
                 <input type="tel" id="phone" placeholder="05xxxxxxxx">
             </div>
             <div class="input-group">
-                <label>كلمة المرور</label>
+                <label data-key="password_label">كلمة المرور</label>
                 <span class="icon">🔒</span>
-                <input type="password" id="password" placeholder="كلمة المرور">
+                <input type="password" id="password" data-placeholder="password_label" placeholder="كلمة المرور">
             </div>
-            <button type="submit" class="btn btn-primary">دخول</button>
+            <button type="submit" class="btn btn-primary" data-key="login_btn">دخول</button>
             <div id="errorMsg" class="error-text"></div>
         </form>
         <div style="text-align: left; margin-top: 8px;">
     <a href="/forgot-password.html" style="font-size: 13px; color: var(--text-muted); text-decoration: underline;" data-key="forgot_password_link">نسيت كلمة المرور؟</a>
 </div>
         <div class="footer-note">
-            ليس لديك حساب؟ <a href="/register.html" style="color: var(--color-primary);">فعّل استيكر جديد</a>
+            <span data-key="no_account">ليس لديك حساب؟</span> <a href="/register.html" style="color: var(--color-primary);" data-key="activate_new">فعّل استيكر جديد</a>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="config.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sel = document.getElementById('langSelect');
+            if (sel) sel.value = currentLang;
+        });
+    </script>
     <script>
         const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         if (!supabaseClient) alert('خطأ في تحميل المكتبات.');

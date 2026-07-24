@@ -162,7 +162,24 @@ const translations = {
     password_weak: "ضعيفة",
     password_medium: "متوسطة",
     password_strong: "قوية",
-    password_mismatch: "كلمتا المرور غير متطابقتين"
+    password_mismatch: "كلمتا المرور غير متطابقتين",
+    login_required: "يجب تسجيل الدخول أولاً",
+    reply_sent: "✅ تم إرسال الرد",
+    error_token: "لم يتم التعرف على الرابط",
+    sticker_invalid: "استيكر غير مفعّل",
+    owner_unavailable: "المالك غير متاح حالياً",
+    phone_revealed_chat: "رقم المالك",
+    choose_method: "كيف تريد التواصل؟",
+    method_message: "📨 رسالة داخل النظام",
+    method_sms: "📱 رسالة SMS",
+    method_call: "📞 اتصال مباشر",
+    choose_msg: "اختر رسالتك:",
+    back_btn: "← رجوع",
+    add_phone_accident: "📱 أضف رقمك ليتواصل معك المالك (اختياري)",
+    skip_send: "تخطي وإرسال بدون رقم",
+    login_sub: "لأصحاب السيارات المسجلين",
+    no_account: "ليس لديك حساب؟",
+    activate_new: "فعّل استيكر جديد"
   },
   en: {
     error_msg: "Please write a message",
@@ -327,7 +344,24 @@ const translations = {
     password_weak: "Weak",
     password_medium: "Medium",
     password_strong: "Strong",
-    password_mismatch: "Passwords do not match"
+    password_mismatch: "Passwords do not match",
+    login_required: "Login required",
+    reply_sent: "✅ Reply sent",
+    error_token: "Link not recognized",
+    sticker_invalid: "Sticker not activated",
+    owner_unavailable: "Owner currently unavailable",
+    phone_revealed_chat: "Owner's number",
+    choose_method: "How do you want to contact?",
+    method_message: "📨 System Message",
+    method_sms: "📱 SMS",
+    method_call: "📞 Direct Call",
+    choose_msg: "Choose your message:",
+    back_btn: "← Back",
+    add_phone_accident: "📱 Add your number so the owner can reach you (optional)",
+    skip_send: "Skip & Send Without Number",
+    login_sub: "For registered car owners",
+    no_account: "Don't have an account?",
+    activate_new: "Activate new sticker"
   },
   hi: {
     error_msg: "कृपया एक संदेश लिखें",
@@ -491,7 +525,24 @@ const translations = {
     password_weak: "कमज़ोर",
     password_medium: "मध्यम",
     password_strong: "मज़बूत",
-    password_mismatch: "पासवर्ड मेल नहीं खाते"
+    password_mismatch: "पासवर्ड मेल नहीं खाते",
+    login_required: "लॉगिन आवश्यक है",
+    reply_sent: "✅ जवाब भेजा गया",
+    error_token: "लिंक पहचाना नहीं गया",
+    sticker_invalid: "स्टिकर सक्रिय नहीं है",
+    owner_unavailable: "मालिक उपलब्ध नहीं है",
+    phone_revealed_chat: "मालिक का नंबर",
+    choose_method: "कैसे संपर्क करना चाहते हैं?",
+    method_message: "📨 सिस्टम संदेश",
+    method_sms: "📱 SMS",
+    method_call: "📞 सीधी कॉल",
+    choose_msg: "अपना संदेश चुनें:",
+    back_btn: "← वापस",
+    add_phone_accident: "📱 मालिक से संपर्क के लिए नंबर जोड़ें (वैकल्पिक)",
+    skip_send: "छोड़ें और बिना नंबर भेजें",
+    login_sub: "पंजीकृत कार मालिकों के लिए",
+    no_account: "खाता नहीं है?",
+    activate_new: "नया स्टिकर सक्रिय करें"
   },
   ur: {
     error_msg: "براہ کرم پیغام لکھیں",
@@ -655,13 +706,38 @@ const translations = {
     password_weak: "کمزور",
     password_medium: "درمیانی",
     password_strong: "مضبوط",
-    password_mismatch: "پاس ورڈ مماثل نہیں ہیں"
+    password_mismatch: "پاس ورڈ مماثل نہیں ہیں",
+    login_required: "لاگ ان ضروری ہے",
+    reply_sent: "✅ جواب بھیج دیا گیا",
+    error_token: "لنک پہچانا نہیں گیا",
+    sticker_invalid: "اسٹیکر فعال نہیں ہے",
+    owner_unavailable: "مالک ابھی دستیاب نہیں",
+    phone_revealed_chat: "مالک کا نمبر",
+    choose_method: "کیسے رابطہ کرنا چاہتے ہیں؟",
+    method_message: "📨 سسٹم پیغام",
+    method_sms: "📱 SMS",
+    method_call: "📞 براہ راست کال",
+    choose_msg: "اپنا پیغام چنیں:",
+    back_btn: "← واپس",
+    add_phone_accident: "📱 مالک سے رابطے کے لیے نمبر شامل کریں (اختیاری)",
+    skip_send: "چھوڑیں اور بغیر نمبر بھیجیں",
+    login_sub: "رجسٹرڈ گاڑی مالکان کے لیے",
+    no_account: "اکاؤنٹ نہیں ہے؟",
+    activate_new: "نیا اسٹیکر فعال کریں"
   }
 };
 
 let currentLang = localStorage.getItem('safescan_lang') || 'ar';
 function t(key) { return translations[currentLang]?.[key] || translations.en[key] || key; }
-function setLanguage(lang) { currentLang = lang; localStorage.setItem('safescan_lang', lang); applyTranslations(); }
+function setLanguage(lang) {
+  currentLang = lang;
+  localStorage.setItem('safescan_lang', lang);
+  document.documentElement.lang = lang;
+  document.documentElement.dir = (lang === 'ar' || lang === 'ur') ? 'rtl' : 'ltr';
+  const sel = document.getElementById('langSelect');
+  if (sel) sel.value = lang;
+  applyTranslations();
+}
 function applyTranslations() {
   document.querySelectorAll('[data-key]').forEach(el => { el.textContent = t(el.getAttribute('data-key')); });
   document.querySelectorAll('[data-placeholder]').forEach(el => { el.placeholder = t(el.getAttribute('data-placeholder')); });
