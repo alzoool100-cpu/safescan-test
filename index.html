@@ -28,42 +28,42 @@
     <img id="vehicleInfoImg" style="width:100%; max-height:200px; object-fit:cover; border-radius:16px; margin-bottom:12px; display:none;">
     <div id="vehicleInfoName" style="font-weight:700; font-size:18px; color:var(--text-primary);"></div>
 </div>
-<h1 style="font-size:20px; margin:8px 0;">📨 تواصل مع مالك السيارة</h1>
+<h1 style="font-size:20px; margin:8px 0;">📨 <span data-key="contact_owner">تواصل مع مالك السيارة</span></h1>
 <div style="background:var(--bg-tag); padding:8px 14px; border-radius:40px; font-size:12px; margin-bottom:16px; display:inline-block; color:var(--text-secondary);">
-    🔔 رسالتك آمنة · رقمك مخفي إلا باختيارك
+    🔔 <span data-key="safe_message">رسالتك آمنة · رقمك مخفي إلا باختيارك</span>
 </div>
 <div id="stepMethod" style="display:none; margin:20px 0;">
-    <p style="font-weight:600; margin-bottom:16px; font-size:17px;">كيف تريد التواصل؟</p>
+    <p style="font-weight:600; margin-bottom:16px; font-size:17px;" data-key="choose_method">كيف تريد التواصل؟</p>
     <div style="display:flex; flex-direction:column; gap:10px;">
-        <button class="btn btn-primary" onclick="selectMethod('message')" id="btnMessage">📨 رسالة داخل النظام (مع رد)</button>
+        <button class="btn btn-primary" onclick="selectMethod('message')" id="btnMessage" data-key="method_message">📨 رسالة داخل النظام</button>
         <button class="btn btn-primary" onclick="selectMethod('whatsapp')" id="btnWhatsapp" style="background:#25D366;">💬 واتساب</button>
-        <button class="btn btn-primary" onclick="selectMethod('sms')" id="btnSms" style="background:#6c757d;">📱 رسالة SMS</button>
-        <button class="btn btn-primary" onclick="selectMethod('call')" id="btnCall" style="background:#17a2b8;">📞 اتصال مباشر</button>
+        <button class="btn btn-primary" onclick="selectMethod('sms')" id="btnSms" style="background:#6c757d;" data-key="method_sms">📱 رسالة SMS</button>
+        <button class="btn btn-primary" onclick="selectMethod('call')" id="btnCall" style="background:#17a2b8;" data-key="method_call">📞 اتصال مباشر</button>
     </div>
 </div>
 
 <div id="stepMessage" style="display:none; margin:20px 0;">
-    <p id="stepMessageTitle" style="font-weight:600; margin-bottom:16px; font-size:17px;">اختر رسالتك:</p>
+    <p id="stepMessageTitle" style="font-weight:600; margin-bottom:16px; font-size:17px;" data-key="choose_msg">اختر رسالتك:</p>
     <div class="quick-msgs">
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'block')">🚫 تسد الطريق</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'lights')">💡 الأضواء مفتوحة</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'window')">🪟 النافذة مفتوحة</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'carsale')">🚗 السيارة للبيع؟</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'platesale')">🏷️ اللوحة للبيع؟</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'accident')">⚠️ حادث / احتكاك</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'block')" data-key="quick_block">🚫 تسد الطريق</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'lights')" data-key="quick_lights">💡 الأضواء مفتوحة</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'window')" data-key="quick_window">🪟 النافذة مفتوحة</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'carsale')" data-key="quick_car_sale">🚗 السيارة للبيع؟</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'platesale')" data-key="quick_plate_sale">🏷️ اللوحة للبيع؟</button>
+        <button class="btn-tag" onclick="selectQuickMsg(this, 'accident')" data-key="quick_accident">⚠️ حادث / احتكاك</button>
         <button class="btn-tag" onclick="selectQuickMsg(this, 'custom')">✍️ رسالة خاصة</button>
     </div>
-    <textarea id="messageInput" placeholder="الرسالة ستظهر هنا..." style="margin-top:12px;"></textarea>
+    <textarea id="messageInput" data-placeholder="message_placeholder" placeholder="اكتب رسالتك هنا..." style="margin-top:12px;"></textarea>
     <div id="errorMsg" class="error-text" style="margin:8px 0;"></div>
-    <button class="btn btn-primary" style="margin-top:8px;" onclick="sendMessage()">📨 إرسال</button>
-    <button class="btn btn-outline" style="margin-top:8px;" onclick="showMethodStep()">← رجوع</button>
+    <button class="btn btn-primary" style="margin-top:8px;" onclick="sendMessage()" data-key="send_btn">📨 إرسال</button>
+    <button class="btn btn-outline" style="margin-top:8px;" onclick="showMethodStep()" data-key="back_btn">← رجوع</button>
 </div>
 
 <div id="stepAccident" style="display:none; margin:20px 0;">
-    <p style="font-weight:600; margin-bottom:8px;">📱 أضف رقمك ليتواصل معك المالك (اختياري)</p>
+    <p style="font-weight:600; margin-bottom:8px;" data-key="add_phone_accident">📱 أضف رقمك ليتواصل معك المالك (اختياري)</p>
     <input type="tel" id="accidentPhone" placeholder="05xxxxxxxx" style="margin-bottom:12px;">
-    <button class="btn btn-primary" onclick="finalizeAccidentSend()">📨 إرسال</button>
-    <button class="btn btn-outline" style="margin-top:8px;" onclick="finalizeAccidentSend(true)">تخطي وإرسال بدون رقم</button>
+    <button class="btn btn-primary" onclick="finalizeAccidentSend()" data-key="send_btn">📨 إرسال</button>
+    <button class="btn btn-outline" style="margin-top:8px;" onclick="finalizeAccidentSend(true)" data-key="skip_send">تخطي وإرسال بدون رقم</button>
 </div>
     
 <div id="sessionArea" class="session-area" style="display:none; text-align: center;">
@@ -79,9 +79,9 @@
         <a href="/login.html" style="color: var(--text-muted);" data-key="owner_login">🔐 مالك السيارة؟ سجل دخولك</a>
     </div>
 <div style="margin-top:12px; font-size:12px; text-align:center; color:var(--text-muted);">
-    <a href="/privacy.html" style="color:var(--text-muted); text-decoration:none;">سياسة الخصوصية</a> · 
-    <a href="/terms.html" style="color:var(--text-muted); text-decoration:none;">شروط الاستخدام</a> · 
-    <a href="/support.html" style="color:var(--text-muted); text-decoration:none;">الدعم</a>
+    <a href="/privacy.html" style="color:var(--text-muted); text-decoration:none;" data-key="privacy_title">سياسة الخصوصية</a> ·
+    <a href="/terms.html" style="color:var(--text-muted); text-decoration:none;" data-key="terms_title">شروط الاستخدام</a> ·
+    <a href="/support.html" style="color:var(--text-muted); text-decoration:none;" data-key="support_title">الدعم</a>
     </div>
 </div>
 
@@ -91,6 +91,10 @@
 <script>
     const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     if (!supabaseClient) alert('خطأ في تحميل المكتبات.');
+    document.addEventListener('DOMContentLoaded', function() {
+        const sel = document.getElementById('langSelect');
+        if (sel) { sel.value = currentLang; }
+    });
 
     const urlParams = new URLSearchParams(window.location.search);
     const stickerToken = urlParams.get('token');
