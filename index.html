@@ -288,7 +288,10 @@ if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || ms
         const method = document.getElementById('messageInput').dataset.method || 'message';
 if (method === 'whatsapp' && vehicleData?.phone) {
     const waMsg = encodeURIComponent(msg);
-    window.open(`https://wa.me/${vehicleData.phone.replace(/[^0-9]/g,'')}?text=${waMsg}`, '_blank');
+    let waPhone = vehicleData.phone.replace(/[^0-9]/g, '');
+    if (waPhone.startsWith('0')) waPhone = '966' + waPhone.slice(1);
+    else if (!waPhone.startsWith('966') && waPhone.length <= 9) waPhone = '966' + waPhone;
+    window.open(`https://wa.me/${waPhone}?text=${waMsg}`, '_blank');
     return;
 }
 if (method === 'sms' && vehicleData?.phone) {
