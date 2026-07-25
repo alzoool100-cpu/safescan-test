@@ -6,19 +6,26 @@
     <title data-key="privacy_title">سياسة الخصوصية</title>
     <link rel="stylesheet" href="base.css">
     <link rel="manifest" href="/manifest.json">
-    <script>
-        if ('serviceWorker' in navigator) {
-        }
-    </script>
     <style>
-        .content { max-width: 650px; margin: 0 auto; text-align: right; line-height: 1.9; }
-        h2 { color: var(--color-primary); margin-top: 28px; font-size: 1.3rem; }
-        p, li { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 12px; }
-        ul { padding-right: 20px; }
+        .page-wrap { max-width: 680px; margin: 0 auto; padding: 70px 16px 40px; }
+        .page-header { text-align: center; margin-bottom: 24px; }
+        .page-meta { text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+        .sec { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 14px; box-shadow: var(--shadow-card); }
+        .sec-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .sec-icon { font-size: 20px; line-height: 1; }
+        .sec-title { font-size: 0.95rem; font-weight: 700; color: var(--color-primary); margin: 0; }
+        .sec-list { list-style: none; padding: 0; margin: 0; }
+        .sec-list li { font-size: 0.88rem; color: var(--text-secondary); padding: 6px 0; border-bottom: 1px solid var(--border-color); display: flex; gap: 8px; line-height: 1.5; }
+        .sec-list li:last-child { border-bottom: none; padding-bottom: 0; }
+        .sec-list li::before { content: "›"; color: var(--color-primary); font-weight: 700; font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+        .contact-sec { background: var(--color-primary); color: white; border-radius: var(--radius-lg); padding: 20px; margin-bottom: 14px; text-align: center; }
+        .contact-sec h2 { margin: 0 0 6px; font-size: 0.95rem; }
+        .contact-sec p { margin: 0 0 12px; font-size: 0.85rem; opacity: 0.9; }
+        .contact-sec a { color: white; font-weight: 700; font-size: 1.05rem; text-decoration: none; display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 20px; }
+        .back-link { display: block; text-align: center; color: var(--color-primary); padding: 14px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
-
 <button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
 
 <div class="lang-dropdown">
@@ -30,44 +37,91 @@
   </select>
 </div>
 
-<div class="card content">
-    <div class="logo">
-        <span class="logo-icon">🛡️</span>
-        <span class="logo-text">SafeScan</span>
+<div class="page-wrap">
+    <div class="page-header">
+        <div class="logo" style="justify-content:center;"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div>
+        <h1 data-key="privacy_title">سياسة الخصوصية</h1>
+        <p class="page-meta" data-key="privacy_last_update">آخر تحديث: يوليو 2026</p>
     </div>
-    <h1 data-key="privacy_title">سياسة الخصوصية</h1>
-    <p style="color: var(--text-muted);" data-key="privacy_last_update">آخر تحديث: 1 مايو 2026</p>
 
-    <h2 data-key="privacy_s1_title">1. المعلومات التي نجمعها</h2>
-    <p data-key="privacy_s1_text">نقوم بجمع الحد الأدنى من المعلومات الضرورية لتقديم الخدمة: رقم الجوال للتحقق وإرسال الإشعارات، وبيانات المركبة الاختيارية مثل اسم المركبة ورقم اللوحة والموديل. لا نقوم بجمع الاسم الكامل أو البريد الإلكتروني الشخصي أو أي معلومات ديموغرافية أخرى.</p>
-
-    <h2 data-key="privacy_s2_title">2. كيفية استخدام المعلومات</h2>
-    <p data-key="privacy_s2_text">نستخدم رقم جوالك فقط من أجل: إرسال إشعارات عند وصول رسالة جديدة، وإظهاره للزائرين فقط إذا قمت بتفعيل خيار 'إظهار رقمي للزوار'، وتسهيل التواصل المباشر عبر واتساب أو الاتصال. أنت تتحكم كليًا في هذا الإعداد.</p>
-
-    <h2 data-key="privacy_s3_title">3. مشاركة المعلومات</h2>
-    <p data-key="privacy_s3_text">نحن لا نشارك، لا نبيع، ولا نؤجر رقم جوالك أو أي بيانات أخرى مع أطراف ثالثة. معلوماتك تبقى خاصة بك وحدك.</p>
-
-    <h2 data-key="privacy_s4_title">4. حماية البيانات</h2>
-    <p data-key="privacy_s4_text">نستخدم قاعدة بيانات Supabase المُدارة، والتي توفر تشفيرًا للبيانات في حالة السكون (AES-256) وتشفيرًا أثناء النقل (TLS 1.3). جميع الاتصالات بين متصفحك وخوادمنا مشفرة بالكامل.</p>
-
-    <h2 data-key="privacy_s5_title">5. ملفات تعريف الارتباط (Cookies)</h2>
-    <p data-key="privacy_s5_text">نستخدم ملفات تعريف ارتباط ضرورية فقط لحفظ جلسة تسجيل الدخول وتفضيلات اللغة والوضع الليلي. لا نستخدم أي ملفات تعريف ارتباط للتتبع أو الإعلانات.</p>
-
-    <h2 data-key="privacy_s6_title">6. حقوقك</h2>
-    <p data-key="privacy_s6_text">يحق لك الوصول إلى بياناتك وتصحيحها، وإخفاء رقمك عن الزوار في أي وقت، وطلب حذف حسابك وجميع بياناتك المرتبطة به بشكل نهائي. لحذف حسابك، يرجى التواصل معنا عبر صفحة الدعم الفني.</p>
-
-    <h2 data-key="privacy_s7_title">7. الاحتفاظ بالبيانات</h2>
-    <p data-key="privacy_s7_text">نحتفظ برقم جوالك والرسائل المتبادلة طالما كان حسابك نشطًا. عند حذف حسابك، يتم حذف جميع بياناتك الشخصية بشكل دائم من خوادمنا خلال 30 يومًا.</p>
-
-    <h2 data-key="privacy_s8_title">8. تعديلات على سياسة الخصوصية</h2>
-    <p data-key="privacy_s8_text">قد نقوم بتحديث هذه السياسة من وقت لآخر. سيتم إخطارك بالتغييرات الجوهرية عبر رسالة تظهر في لوحة التحكم الخاصة بك.</p>
-
-    <h2 data-key="privacy_s9_title">9. اتصل بنا</h2>
-    <p data-key="privacy_s9_text">لأي استفسارات حول هذه السياسة، يرجى التواصل معنا عبر واتساب: <span dir="ltr">+966 54 105 4516</span> أو البريد الإلكتروني: <span dir="ltr">privacy@safescan.app</span></p>
-
-    <div style="margin-top: 32px; text-align: center; border-top: 1px solid var(--border-color); padding-top: 20px;">
-        <a href="#" onclick="history.back(); return false;" style="color: var(--color-primary);" data-key="privacy_back">العودة للصفحة السابقة</a>
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">📥</span><h2 class="sec-title" data-key="privacy_s1_title">1. ما نجمعه</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="privacy_s1_b1">رقم جوالك للتحقق وإرسال الإشعارات</span></li>
+            <li><span data-key="privacy_s1_b2">بيانات مركبتك الاختيارية: الاسم، اللوحة، الموديل</span></li>
+            <li><span data-key="privacy_s1_b3">لا نجمع اسمك أو بريدك الإلكتروني أو موقعك الجغرافي</span></li>
+        </ul>
     </div>
+
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">🎯</span><h2 class="sec-title" data-key="privacy_s2_title">2. لماذا نجمعها</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="privacy_s2_b1">إرسال إشعار عند وصول رسائل جديدة</span></li>
+            <li><span data-key="privacy_s2_b2">إظهار رقمك للزوار فقط إذا فعّلت هذا الخيار بنفسك</span></li>
+            <li><span data-key="privacy_s2_b3">تيسير التواصل المباشر عبر واتساب أو الاتصال</span></li>
+        </ul>
+    </div>
+
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">👁️</span><h2 class="sec-title" data-key="privacy_s3_title">3. من يرى بياناتك</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="privacy_s3_b1">لا يرى رقمك أحد إلا بإذنك الصريح</span></li>
+            <li><span data-key="privacy_s3_b2">الزوار يرون فقط ما تختار أنت إظهاره</span></li>
+            <li><span data-key="privacy_s3_b3">لا نشارك أي بيانات مع أي طرف خارجي</span></li>
+        </ul>
+    </div>
+
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">🔒</span><h2 class="sec-title" data-key="privacy_s4_title">4. كيف نحميها</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="privacy_s4_b1">قاعدة بيانات سحابية مشفرة بمعايير عالية</span></li>
+            <li><span data-key="privacy_s4_b2">تشفير كامل للبيانات أثناء النقل عبر الشبكة</span></li>
+            <li><span data-key="privacy_s4_b3">تشفير البيانات المخزنة بمعيار AES-256</span></li>
+        </ul>
+    </div>
+
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">🍪</span><h2 class="sec-title" data-key="privacy_s5_title">5. ملفات الارتباط (Cookies)</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="privacy_s5_b1">نستخدم فقط الكوكيز الضرورية لعمل التطبيق</span></li>
+            <li><span data-key="privacy_s5_b2">حفظ جلسة الدخول وتفضيلات اللغة والوضع الليلي</span></li>
+            <li><span data-key="privacy_s5_b3">لا كوكيز للتتبع أو الإعلانات المستهدفة</span></li>
+        </ul>
+    </div>
+
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">⚖️</span><h2 class="sec-title" data-key="privacy_s6_title">6. حقوقك</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="privacy_s6_b1">الاطلاع على بياناتك وتعديلها في أي وقت</span></li>
+            <li><span data-key="privacy_s6_b2">إخفاء رقمك عن جميع الزوار بضغطة واحدة</span></li>
+            <li><span data-key="privacy_s6_b3">طلب حذف حسابك وجميع بياناتك بشكل نهائي</span></li>
+        </ul>
+    </div>
+
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">📅</span><h2 class="sec-title" data-key="privacy_s7_title">7. الاحتفاظ بالبيانات</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="privacy_s7_b1">نحتفظ ببياناتك طالما حسابك نشط</span></li>
+            <li><span data-key="privacy_s7_b2">عند حذف حسابك، تُمسح جميع البيانات خلال 30 يوماً</span></li>
+        </ul>
+    </div>
+
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">🔄</span><h2 class="sec-title" data-key="privacy_s8_title">8. تعديلات السياسة</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="privacy_s8_b1">قد نحدّث هذه السياسة من وقت لآخر</span></li>
+            <li><span data-key="privacy_s8_b2">سيصلك إشعار داخل التطبيق عند أي تغيير جوهري</span></li>
+        </ul>
+    </div>
+
+    <div class="contact-sec">
+        <div style="font-size:24px;margin-bottom:8px;">💬</div>
+        <h2 data-key="privacy_s9_title">9. تواصل معنا</h2>
+        <p data-key="privacy_s9_contact">للاستفسارات حول خصوصيتك، تواصل معنا عبر واتساب</p>
+        <a href="https://wa.me/966541054516" dir="ltr">+966 54 105 4516</a>
+    </div>
+
+    <a href="#" onclick="history.back();return false;" class="back-link" data-key="privacy_back">← العودة للصفحة السابقة</a>
 </div>
 
 <script src="translations.js"></script>
@@ -75,7 +129,6 @@
     document.getElementById('langSelect').value = currentLang;
     applyTranslations();
     document.getElementById('langSelect').addEventListener('change', function() { setLanguage(this.value); });
-
     const dt = document.getElementById('darkModeToggle');
     if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
     dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };

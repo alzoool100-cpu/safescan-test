@@ -3,180 +3,517 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeScan - لوحة تحكم المشرف</title>
+    <title>SafeScan — لوحة المشرف</title>
     <link rel="stylesheet" href="base.css">
     <link rel="manifest" href="/manifest.json">
-    <script>
-        if ('serviceWorker' in navigator) {
-        }
-    </script>
     <style>
-        .admin-container { max-width: 700px; margin: 0 auto; }
-        .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tab { background: var(--bg-tag); border: 1px solid var(--border-color); padding: 10px 16px; border-radius: 40px; cursor: pointer; font-weight: 500; }
-        .tab.active { background: var(--color-primary); color: white; }
-        .stat-box { background: var(--bg-card); border-radius: 16px; padding: 16px; text-align: center; border: 1px solid var(--border-color); }
-        .stat-box .number { font-size: 28px; font-weight: 700; color: var(--color-primary); }
-        .stat-box .label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; margin-bottom: 24px; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th, td { padding: 12px; border-bottom: 1px solid var(--border-color); text-align: right; }
-        th { color: var(--text-secondary); font-weight: 600; }
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 20px; font-size: 12px; }
+        body { display: block; padding: 0; }
+        .admin-wrap { max-width: 920px; margin: 0 auto; padding: 16px 12px 40px; }
+
+        /* Header */
+        .admin-hdr { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 10px; box-shadow: var(--shadow-card); }
+        .admin-hdr-row { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; flex-wrap: wrap; gap: 8px; }
+        .admin-hdr h2 { margin: 0; font-size: 1.05rem; color: var(--text-primary); }
+        .meta-row { font-size: 11px; color: var(--text-muted); }
+        .btn-refresh { background: var(--bg-tag); border: 1px solid var(--border-color); border-radius: 30px; padding: 6px 14px; cursor: pointer; font-size: 12px; color: var(--text-secondary); font-family: var(--font-family); }
+
+        /* Tabs */
+        .tabs-row { display: flex; gap: 6px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 10px; flex-wrap: wrap; margin-bottom: 10px; box-shadow: var(--shadow-card); }
+        .tab { background: var(--bg-tag); border: 1px solid var(--border-color); padding: 8px 14px; border-radius: 30px; cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); font-family: var(--font-family); transition: all 0.15s; }
+        .tab.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+
+        /* Sections */
+        .section-block { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-card); }
+        .section-title { font-size: 0.88rem; font-weight: 700; color: var(--color-primary); margin-bottom: 14px; }
+
+        /* KPI Cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; }
+        .stat-card { background: var(--bg-tag); border: 1px solid var(--border-color); border-radius: 14px; padding: 14px 8px; text-align: center; }
+        .stat-num { font-size: 1.55rem; font-weight: 800; color: var(--color-primary); line-height: 1.1; }
+        .stat-lbl { font-size: 0.72rem; color: var(--text-muted); margin-top: 5px; line-height: 1.3; }
+        .stat-chg { font-size: 0.7rem; font-weight: 700; margin-top: 4px; }
+        .stat-chg.up  { color: var(--color-success); }
+        .stat-chg.dn  { color: var(--color-danger); }
+        .stat-chg.neu { color: var(--text-muted); }
+
+        /* Charts */
+        .chart-card { background: var(--bg-tag); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px; margin-bottom: 10px; }
+        .chart-card:last-child { margin-bottom: 0; }
+        .chart-title { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 12px; }
+        .chart-body { overflow-x: auto; }
+
+        /* Summaries */
+        .summary-card { background: var(--bg-tag); border: 1px solid var(--border-color); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+        .summary-card:last-child { margin-bottom: 0; }
+        .summary-hdr { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 0.88rem; font-weight: 700; color: var(--text-primary); }
+        .summary-icon { font-size: 18px; line-height: 1; }
+        .summary-text { font-size: 0.83rem; color: var(--text-secondary); line-height: 1.75; margin: 0; }
+
+        /* Tables */
+        .tbl-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border-color); }
+        table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 480px; }
+        th, td { padding: 10px 10px; border-bottom: 1px solid var(--border-color); text-align: right; vertical-align: middle; }
+        th { font-weight: 700; font-size: 11px; background: var(--bg-tag); color: var(--text-secondary); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: var(--bg-tag); }
+
+        /* Badges */
+        .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
         .badge-active { background: #dcfce7; color: #166534; }
-        .badge-new { background: #fef9c3; color: #854d0e; }
+        .badge-new    { background: #fef9c3; color: #854d0e; }
         .badge-closed { background: #f1f5f9; color: #475569; }
+        .dark-mode .badge-active { background: #14532d; color: #86efac; }
+        .dark-mode .badge-new    { background: #422006; color: #fde68a; }
+        .dark-mode .badge-closed { background: #1e293b; color: #94a3b8; }
+
+        /* Action buttons */
+        .act-btn { border: 1px solid currentColor; background: none; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-size: 11px; font-family: var(--font-family); }
+        .act-btn.block   { color: var(--color-danger); }
+        .act-btn.unblock { color: var(--color-success); }
+
+        /* Loading / error */
+        .loading-box { text-align: center; padding: 50px 20px; color: var(--text-muted); font-size: 0.9rem; }
+
+        @media (max-width: 560px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .tabs-row { gap: 4px; }
+            .tab { font-size: 0.75rem; padding: 7px 10px; }
+        }
     </style>
 </head>
 <body>
+
 <div id="pageContent" style="display:none">
-<div class="admin-container">
-    <div class="card" style="padding: 20px; max-width: 700px;">
-        <div class="logo">
+<div class="admin-wrap">
+
+    <!-- Header -->
+    <div class="admin-hdr">
+        <div class="logo" style="justify-content:flex-start;margin-bottom:0">
             <span class="logo-icon">🛡️</span>
             <span class="logo-text">SafeScan</span>
-            <span class="nfc-badge" style="background: var(--color-danger);">ADMIN</span>
+            <span class="nfc-badge" style="background:var(--color-danger)">ADMIN</span>
         </div>
-        <h2>لوحة تحكم المشرف</h2>
-
-        <!-- إحصائيات موسعة -->
-        <div class="stats-grid" id="statsContainer">
-            <div class="stat-box"><div class="number" id="totalScans">-</div><div class="label">مسح اليوم</div></div>
-            <div class="stat-box"><div class="number" id="weekScans">-</div><div class="label">مسح الأسبوع</div></div>
-            <div class="stat-box"><div class="number" id="monthScans">-</div><div class="label">مسح الشهر</div></div>
-            <div class="stat-box"><div class="number" id="yearScans">-</div><div class="label">مسح السنة</div></div>
-            <div class="stat-box"><div class="number" id="totalUsers">-</div><div class="label">مستخدم</div></div>
-            <div class="stat-box"><div class="number" id="totalStickers">-</div><div class="label">استيكر</div></div>
+        <div class="admin-hdr-row">
+            <h2>لوحة تحكم المشرف</h2>
+            <div style="display:flex;gap:8px;align-items:center">
+                <span id="lastUpdated" class="meta-row"></span>
+                <button onclick="refresh()" class="btn-refresh">🔄 تحديث</button>
+                <button id="dmBtn" onclick="toggleDark()" class="btn-refresh">🌙</button>
+            </div>
         </div>
-
-        <!-- تبويبات -->
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('users')">👥 المستخدمون</button>
-            <button class="tab" onclick="switchTab('stickers')">🏷️ الاستيكرات</button>
-            <button class="tab" onclick="switchTab('messages')">📋 الرسائل</button>
-            <button class="tab" onclick="switchTab('audit')">📊 سجل الزوار</button>
-        </div>
-
-        <div id="tabContent"><div class="loading">جار التحميل...</div></div>
     </div>
+
+    <!-- Tabs -->
+    <div class="tabs-row">
+        <button class="tab active" data-tab="overview"  onclick="switchTab('overview')">📊 نظرة عامة</button>
+        <button class="tab"        data-tab="users"     onclick="switchTab('users')">👥 المستخدمون</button>
+        <button class="tab"        data-tab="stickers"  onclick="switchTab('stickers')">🏷️ الاستيكرات</button>
+        <button class="tab"        data-tab="messages"  onclick="switchTab('messages')">📋 الرسائل</button>
+        <button class="tab"        data-tab="audit"     onclick="switchTab('audit')">🔍 سجل المسح</button>
+    </div>
+
+    <!-- Content -->
+    <div id="tabContent">
+        <div class="loading-box">⏳ جار التحميل...</div>
+    </div>
+
+</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script>
-    const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    if (!supabaseClient) alert('خطأ في تحميل المكتبات.');
-    let currentTab = 'users';
+const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentTab = 'overview';
+let cachedStats = null;
 
-    async function loadStats() {
-        const now = new Date();
-        const today = now.toISOString().split('T')[0];
-        const weekAgo = new Date(now.getTime() - 7*86400000).toISOString();
-        const monthAgo = new Date(now.getTime() - 30*86400000).toISOString();
-        const yearAgo = new Date(now.getTime() - 365*86400000).toISOString();
+// Dark mode
+if (localStorage.getItem('darkMode') === 'true') {
+    document.documentElement.classList.add('dark-mode');
+    document.getElementById('dmBtn').textContent = '☀️';
+}
+function toggleDark() {
+    const is = document.documentElement.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', is);
+    document.getElementById('dmBtn').textContent = is ? '☀️' : '🌙';
+}
 
-        const { count: todayScans } = await supabaseClient.from('audit_logs').select('*', { count: 'exact', head: true }).gte('scanned_at', today);
-        const { count: weekScans } = await supabaseClient.from('audit_logs').select('*', { count: 'exact', head: true }).gte('scanned_at', weekAgo);
-        const { count: monthScans } = await supabaseClient.from('audit_logs').select('*', { count: 'exact', head: true }).gte('scanned_at', monthAgo);
-        const { count: yearScans } = await supabaseClient.from('audit_logs').select('*', { count: 'exact', head: true }).gte('scanned_at', yearAgo);
-        const { count: usersCount } = await supabaseClient.from('profiles').select('*', { count: 'exact', head: true });
-        const { count: stickersCount } = await supabaseClient.from('stickers').select('*', { count: 'exact', head: true });
+// ── Auth helpers ─────────────────────────────────────────────────────────────
+async function getToken() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    return session?.access_token || '';
+}
 
-        document.getElementById('totalScans').innerText = todayScans || 0;
-        document.getElementById('weekScans').innerText = weekScans || 0;
-        document.getElementById('monthScans').innerText = monthScans || 0;
-        document.getElementById('yearScans').innerText = yearScans || 0;
-        document.getElementById('totalUsers').innerText = usersCount || 0;
-        document.getElementById('totalStickers').innerText = stickersCount || 0;
+async function adminFetch(action, method, body) {
+    const token = await getToken();
+    const opts = { method: method || 'GET', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(`/.netlify/functions/admin-stats?action=${action}`, opts);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+window.switchTab = function(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    loadTab(tab);
+};
+
+function refresh() {
+    cachedStats = null;
+    loadTab(currentTab);
+}
+
+async function loadTab(tab) {
+    const el = document.getElementById('tabContent');
+    el.innerHTML = '<div class="loading-box">⏳ جار التحميل...</div>';
+    try {
+        if (tab === 'overview')  await renderOverview(el);
+        else if (tab === 'users')    await renderUsers(el);
+        else if (tab === 'stickers') await renderStickers(el);
+        else if (tab === 'messages') await renderMessages(el);
+        else if (tab === 'audit')    await renderAudit(el);
+    } catch(err) {
+        el.innerHTML = `<div class="section-block"><p style="color:var(--color-danger)">❌ خطأ: ${err.message}</p></div>`;
     }
+}
 
-    window.switchTab = function(tab) {
-        currentTab = tab;
-        document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-        document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
-        loadTabContent();
-    };
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function pct(curr, prev) {
+    if (prev === 0 && curr === 0) return { text: '', cls: '' };
+    if (prev === 0) return { text: '↑ جديد', cls: 'up' };
+    const p = Math.round(((curr - prev) / prev) * 100);
+    if (p === 0) return { text: '— ثابت', cls: 'neu' };
+    return p > 0 ? { text: `↑ ${p}%`, cls: 'up' } : { text: `↓ ${Math.abs(p)}%`, cls: 'dn' };
+}
 
-    async function loadTabContent() {
-        const container = document.getElementById('tabContent');
-        container.innerHTML = '<div class="loading">جار التحميل...</div>';
+function kpiCard(num, label, change) {
+    const ch = change || { text: '', cls: '' };
+    return `<div class="stat-card">
+        <div class="stat-num">${num}</div>
+        <div class="stat-lbl">${label}</div>
+        ${ch.text ? `<div class="stat-chg ${ch.cls}">${ch.text}</div>` : ''}
+    </div>`;
+}
 
-        if (currentTab === 'users') {
-            const { data: profiles, error } = await supabaseClient.from('profiles').select('id, phone, show_phone, is_admin_blocked');
-            if (error) { container.innerHTML = '<div class="error-text">خطأ في التحميل</div>'; return; }
-            if (!profiles || profiles.length === 0) { container.innerHTML = '<p>لا يوجد مستخدمون بعد.</p>'; return; }
-            let html = `<table><tr><th>#</th><th>رقم الجوال</th><th>إظهار الرقم</th><th>الحالة</th><th>إجراء</th></tr>`;
-            profiles.forEach((p, i) => {
-                const isBlocked = p.is_admin_blocked;
-                const statusBadge = isBlocked ? '<span class="badge badge-closed">🚫 محظور</span>' : '<span class="badge badge-active">✅ نشط</span>';
-                const actionBtn = isBlocked
-                    ? `<button onclick="toggleBlock('${p.id}', false)" style="background:none;border:none;color:var(--color-success);cursor:pointer;font-size:13px;">✅ رفع الحظر</button>`
-                    : `<button onclick="toggleBlock('${p.id}', true)" style="background:none;border:none;color:var(--color-danger);cursor:pointer;font-size:13px;">🚫 حظر</button>`;
-                html += `<tr><td>${i+1}</td><td>${p.phone || 'غير مسجل'}</td><td>${p.show_phone ? '✅' : '❌'}</td><td>${statusBadge}</td><td>${actionBtn}</td></tr>`;
-            });
-            html += '</table>';
-            container.innerHTML = html;
-        } else if (currentTab === 'stickers') {
-            const { data: stickers, error } = await supabaseClient.from('stickers').select('id, qr_token, activation_code, status');
-            if (error) { container.innerHTML = '<div class="error-text">خطأ في التحميل</div>'; return; }
-            if (!stickers || stickers.length === 0) { container.innerHTML = '<p>لا توجد استيكرات بعد.</p>'; return; }
-            let html = `<table><tr><th>#</th><th>QR Token</th><th>رمز التفعيل</th><th>الحالة</th></tr>`;
-            stickers.forEach((s, i) => {
-                const badge = s.status === 'active' ? '<span class="badge badge-active">مفعل</span>' : s.status === 'factory_new' ? '<span class="badge badge-new">جديد</span>' : '<span class="badge badge-closed">' + s.status + '</span>';
-                html += `<tr><td>${i+1}</td><td>${s.qr_token || '-'}</td><td>${s.activation_code || '-'}</td><td>${badge}</td></tr>`;
-            });
-            html += '</table>';
-            container.innerHTML = html;
-        } else if (currentTab === 'messages') {
-            const { data: logs, error } = await supabaseClient.from('scan_logs').select('visitor_message, owner_response, status, created_at').order('created_at', { ascending: false }).limit(100);
-            if (error) { container.innerHTML = '<div class="error-text">خطأ في التحميل</div>'; return; }
-            if (!logs || logs.length === 0) { container.innerHTML = '<p>لا توجد رسائل بعد.</p>'; return; }
-            let html = `<table><tr><th>#</th><th>الزائر</th><th>المالك</th><th>الحالة</th><th>التاريخ</th></tr>`;
-            logs.forEach((l, i) => {
-                const badge = l.status === 'closed' ? '<span class="badge badge-closed">تم الرد</span>' : '<span class="badge badge-new">جديدة</span>';
-                html += `<tr><td>${i+1}</td><td>${l.visitor_message?.substring(0, 40) || '-'}</td><td>${l.owner_response?.substring(0, 40) || '-'}</td><td>${badge}</td><td>${new Date(l.created_at).toLocaleString('ar-SA')}</td></tr>`;
-            });
-            html += '</table>';
-            container.innerHTML = html;
-        } else if (currentTab === 'audit') {
-            const { data: logs, error } = await supabaseClient.from('audit_logs').select('*').order('scanned_at', { ascending: false }).limit(500);
-            if (error) { container.innerHTML = '<div class="error-text">خطأ في التحميل</div>'; return; }
-            if (!logs || logs.length === 0) { container.innerHTML = '<p>لا يوجد سجل بعد.</p>'; return; }
-            let html = `<table><tr><th>#</th><th>IP</th><th>الجهاز</th><th>الموقع</th><th>التاريخ</th></tr>`;
-            logs.forEach((l, i) => {
-                html += `<tr><td>${i+1}</td><td>${l.visitor_ip || '-'}</td><td>${l.user_agent?.substring(0, 30) || '-'}</td><td>${l.geo_info || '-'}</td><td>${new Date(l.scanned_at).toLocaleString('ar-SA')}</td></tr>`;
-            });
-            html += '</table>';
-            container.innerHTML = html;
-        }
+function barChart(data, vKey, labelFn, color) {
+    if (!data || !data.length) return '<p style="text-align:center;color:var(--text-muted);padding:24px">لا توجد بيانات</p>';
+    const max = Math.max(...data.map(d => d[vKey] || 0), 1);
+    const n = data.length;
+    const W = 600, CH = 120, LH = 22;
+    const slotW = W / n;
+    const bw = Math.max(2, slotW * 0.76);
+    const boff = (slotW - bw) / 2;
+    let s = `<svg viewBox="0 0 ${W} ${CH+LH}" style="width:100%;height:auto;display:block;overflow:visible">`;
+    s += `<line x1="0" y1="0.5" x2="${W}" y2="0.5" style="stroke:var(--border-color)" stroke-width="1"/>`;
+    s += `<line x1="0" y1="${CH/2}" x2="${W}" y2="${CH/2}" style="stroke:var(--border-color)" stroke-width="0.5" stroke-dasharray="4,3"/>`;
+    s += `<line x1="0" y1="${CH}" x2="${W}" y2="${CH}" style="stroke:var(--border-color)" stroke-width="1"/>`;
+    s += `<text x="1" y="9" font-size="9" style="fill:var(--text-muted)">${max}</text>`;
+    s += `<text x="1" y="${CH/2+4}" font-size="9" style="fill:var(--text-muted)">${Math.round(max/2)}</text>`;
+    data.forEach((d, i) => {
+        const v = d[vKey] || 0;
+        const bh = v > 0 ? Math.max(2, Math.round((v/max)*CH)) : 0;
+        const x = (i*slotW + boff).toFixed(1);
+        const y = CH - bh;
+        const cx = (i*slotW + slotW/2).toFixed(1);
+        s += `<rect x="${x}" y="${y}" width="${bw.toFixed(1)}" height="${bh}" style="fill:${color}" rx="2" opacity="${v ? 0.85 : 0.1}"/>`;
+        if (v > 0 && bh > 16) s += `<text x="${cx}" y="${y-3}" text-anchor="middle" font-size="9" style="fill:${color}" font-weight="700">${v}</text>`;
+        const lbl = labelFn(d, i, n);
+        if (lbl) s += `<text x="${cx}" y="${CH+LH-1}" text-anchor="middle" font-size="9" style="fill:var(--text-muted)">${lbl}</text>`;
+    });
+    return s + '</svg>';
+}
+
+function dayLabel(d, i, n) {
+    const step = n > 20 ? 5 : n > 10 ? 3 : 1;
+    if (i === 0 || i === n-1 || (i+1) % step === 0) {
+        const p = d.date.split('-');
+        return `${parseInt(p[2])}/${parseInt(p[1])}`;
     }
+    return '';
+}
 
-    window.toggleBlock = async function(userId, block) {
-        const msg = block ? 'هل أنت متأكد من حظر هذا المستخدم؟ لن يتمكن من إرسال رسائل.' : 'هل تريد رفع الحظر عن هذا المستخدم؟';
-        if (!confirm(msg)) return;
-        const { error } = await supabaseClient.from('profiles').update({ is_admin_blocked: block }).eq('id', userId);
-        if (error) { alert('❌ حدث خطأ'); return; }
+function monLabel(d) {
+    const p = d.month.split('-');
+    return `${parseInt(p[1])}/${p[0].slice(2)}`;
+}
+
+function trend(curr, prev) {
+    if (prev === 0 && curr === 0) return 'لم يُسجَّل أي نشاط';
+    if (prev === 0) return 'نشاط جديد مقارنةً بالفترة السابقة';
+    const p = Math.round(((curr - prev) / prev) * 100);
+    if (p === 0) return 'بدون تغيير ملحوظ';
+    const col = p > 0 ? 'var(--color-success)' : 'var(--color-danger)';
+    const word = p > 0 ? 'ارتفاع' : 'انخفاض';
+    return `<span style="color:${col};font-weight:700">${word} ${Math.abs(p)}%</span> مقارنةً بالفترة السابقة`;
+}
+
+// ── Overview ──────────────────────────────────────────────────────────────────
+async function renderOverview(el) {
+    if (!cachedStats) cachedStats = await adminFetch('stats');
+    const { scans, messages, stickers, users, charts } = cachedStats;
+
+    const respRate  = messages.total  > 0 ? Math.round(messages.replied  / messages.total  * 100) : 0;
+    const activRate = stickers.total  > 0 ? Math.round(stickers.active   / stickers.total  * 100) : 0;
+    const avgDaily  = scans.month     > 0 ? Math.round(scans.month / 30)  : 0;
+    const avgMonthly= scans.year      > 0 ? Math.round(scans.year  / 12)  : 0;
+    const todayDate = new Date().toLocaleDateString('ar-SA', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+    const PRIMARY = 'var(--color-primary)';
+    const SUCCESS = 'var(--color-success)';
+
+    el.innerHTML = `
+        <div class="section-block">
+            <div class="section-title">📡 عمليات المسح</div>
+            <div class="kpi-grid">
+                ${kpiCard(scans.today,   'مسح اليوم',         pct(scans.today,  scans.yesterday))}
+                ${kpiCard(scans.yesterday,'مسح الأمس',        { text: '', cls: '' })}
+                ${kpiCard(scans.week,    'مسح هذا الأسبوع',  pct(scans.week,   scans.prevWeek))}
+                ${kpiCard(scans.month,   'مسح آخر 30 يوماً', pct(scans.month,  scans.prevMonth))}
+                ${kpiCard(scans.year,    'مسح آخر 365 يوماً',pct(scans.year,   scans.prevYear))}
+                ${kpiCard(scans.total,   'إجمالي المسح',     null)}
+            </div>
+        </div>
+
+        <div class="section-block">
+            <div class="section-title">💬 الرسائل والتفاعل</div>
+            <div class="kpi-grid">
+                ${kpiCard(messages.today,  'رسائل اليوم',      null)}
+                ${kpiCard(messages.week,   'رسائل الأسبوع',   null)}
+                ${kpiCard(messages.month,  'رسائل الشهر',     null)}
+                ${kpiCard(messages.total,  'إجمالي الرسائل',  null)}
+                ${kpiCard(respRate  + '%', 'معدل الاستجابة',  null)}
+            </div>
+        </div>
+
+        <div class="section-block">
+            <div class="section-title">👤 المستخدمون والاستيكرات</div>
+            <div class="kpi-grid">
+                ${kpiCard(users.total,        'إجمالي المستخدمين',    null)}
+                ${kpiCard('+' + users.newThisMonth, 'جدد هذا الشهر', null)}
+                ${kpiCard(stickers.active + '/' + stickers.total, 'استيكرات نشطة', null)}
+                ${kpiCard(stickers.factoryNew, 'لم تُفعَّل بعد',     null)}
+                ${kpiCard(activRate + '%',    'معدل التفعيل',         null)}
+            </div>
+        </div>
+
+        <div class="section-block">
+            <div class="section-title">📈 رسوم بيانية</div>
+            <div class="chart-card">
+                <div class="chart-title">عمليات المسح اليومي — آخر 30 يوماً</div>
+                <div class="chart-body">${barChart(charts.dailyScans, 'count', dayLabel, PRIMARY)}</div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">عمليات المسح الشهري — آخر 12 شهراً</div>
+                <div class="chart-body">${barChart(charts.monthlyScans, 'count', monLabel, PRIMARY)}</div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">الرسائل الواردة يومياً — آخر 30 يوماً</div>
+                <div class="chart-body">${barChart(charts.dailyMsgs, 'count', dayLabel, SUCCESS)}</div>
+            </div>
+        </div>
+
+        <div class="section-block">
+            <div class="section-title">📝 التقارير النصية</div>
+
+            <div class="summary-card">
+                <div class="summary-hdr"><span class="summary-icon">📅</span>اليوم — ${todayDate}</div>
+                <p class="summary-text">
+                    سُجِّل اليوم <strong>${scans.today}</strong> عملية مسح و<strong>${messages.today}</strong> رسالة جديدة.
+                    مقارنةً بالأمس (<strong>${scans.yesterday}</strong> مسح)، ${trend(scans.today, scans.yesterday)}.
+                </p>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-hdr"><span class="summary-icon">📆</span>الأسبوع الحالي — آخر 7 أيام</div>
+                <p class="summary-text">
+                    حقّق الأسبوع الحالي <strong>${scans.week}</strong> عملية مسح و<strong>${messages.week}</strong> رسالة.
+                    مقارنةً بالأسبوع الماضي (<strong>${scans.prevWeek}</strong> مسح)، ${trend(scans.week, scans.prevWeek)}.
+                </p>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-hdr"><span class="summary-icon">🗓️</span>آخر 30 يوماً</div>
+                <p class="summary-text">
+                    وصل المسح خلال الثلاثين يوماً الماضية إلى <strong>${scans.month}</strong> عملية و<strong>${messages.month}</strong> رسالة،
+                    بمتوسط يومي <strong>${avgDaily}</strong> مسح.
+                    مقارنةً بالشهر السابق (<strong>${scans.prevMonth}</strong> مسح)، ${trend(scans.month, scans.prevMonth)}.
+                </p>
+            </div>
+
+            <div class="summary-card">
+                <div class="summary-hdr"><span class="summary-icon">📊</span>آخر 365 يوماً — التقرير السنوي</div>
+                <p class="summary-text">
+                    بلغ إجمالي المسح خلال السنة الماضية <strong>${scans.year}</strong> عملية بمتوسط شهري <strong>${avgMonthly}</strong>.
+                    مقارنةً بالسنة السابقة (<strong>${scans.prevYear}</strong> مسح)، ${trend(scans.year, scans.prevYear)}.<br><br>
+                    معدل تفعيل الاستيكرات: <strong>${activRate}%</strong>
+                    (<strong>${stickers.active}</strong> نشط من إجمالي <strong>${stickers.total}</strong> استيكر،
+                    و<strong>${stickers.factoryNew}</strong> بانتظار التفعيل).<br>
+                    معدل استجابة المالكين: <strong>${respRate}%</strong>
+                    (<strong>${messages.replied}</strong> رداً من <strong>${messages.total}</strong> رسالة).<br>
+                    إجمالي المستخدمين المسجّلين: <strong>${users.total}</strong>،
+                    أُضيف منهم <strong>${users.newThisMonth}</strong> خلال آخر 30 يوماً.
+                </p>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('lastUpdated').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-SA');
+}
+
+// ── Users ─────────────────────────────────────────────────────────────────────
+async function renderUsers(el) {
+    const { data } = await adminFetch('users');
+    if (!data || !data.length) { el.innerHTML = '<div class="section-block"><p>لا يوجد مستخدمون.</p></div>'; return; }
+
+    const blocked = data.filter(u => u.is_admin_blocked).length;
+    let html = `
+        <div class="section-block">
+            <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
+                ${kpiCard(data.length, 'إجمالي المستخدمين', null)}
+                ${kpiCard(data.length - blocked, 'نشط', null)}
+                ${kpiCard(blocked, 'محظور', null)}
+            </div>
+            <div class="section-title">👥 جميع المستخدمين</div>
+            <div class="tbl-wrap"><table>
+                <thead><tr><th>#</th><th>رقم الجوال</th><th>إظهار الرقم</th><th>الحالة</th><th>تاريخ التسجيل</th><th>إجراء</th></tr></thead>
+                <tbody>
+    `;
+
+    data.forEach((u, i) => {
+        const bl = u.is_admin_blocked;
+        const badge = bl ? '<span class="badge badge-closed">🚫 محظور</span>' : '<span class="badge badge-active">✅ نشط</span>';
+        const act = bl
+            ? `<button onclick="toggleBlock('${u.id}',false)" class="act-btn unblock">✅ رفع الحظر</button>`
+            : `<button onclick="toggleBlock('${u.id}',true)"  class="act-btn block">🚫 حظر</button>`;
+        const admin = u.is_admin ? ' <span style="font-size:10px;background:var(--color-danger);color:white;padding:1px 5px;border-radius:10px">مشرف</span>' : '';
+        const dt = u.created_at ? new Date(u.created_at).toLocaleDateString('ar-SA') : '—';
+        html += `<tr><td>${i+1}</td><td dir="ltr">${u.phone || '—'}${admin}</td><td>${u.show_phone ? '✅' : '❌'}</td><td>${badge}</td><td>${dt}</td><td>${act}</td></tr>`;
+    });
+
+    html += '</tbody></table></div></div>';
+    el.innerHTML = html;
+}
+
+window.toggleBlock = async function(uid, block) {
+    if (!confirm(block ? 'هل أنت متأكد من حظر هذا المستخدم؟' : 'هل تريد رفع الحظر؟')) return;
+    try {
+        await adminFetch('toggle-block', 'POST', { user_id: uid, block });
         alert(block ? '✅ تم حظر المستخدم' : '✅ تم رفع الحظر');
-        loadTabContent();
-    };
+        renderUsers(document.getElementById('tabContent'));
+    } catch(e) { alert('❌ خطأ: ' + e.message); }
+};
 
-   async function checkAdminAccess() {
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    if (!user) {
-        document.body.innerHTML = '<div style="text-align:center;padding:80px;font-family:Tajawal,sans-serif"><h2>⛔ يجب تسجيل الدخول أولاً</h2><a href="/login.html?admin=true">تسجيل الدخول</a></div>'; window.location.href = '/login.html?admin=true';
+// ── Stickers ──────────────────────────────────────────────────────────────────
+async function renderStickers(el) {
+    const { data } = await adminFetch('stickers');
+    if (!data || !data.length) { el.innerHTML = '<div class="section-block"><p>لا توجد استيكرات.</p></div>'; return; }
+
+    const active = data.filter(s => s.status === 'active').length;
+    const fnew   = data.filter(s => s.status === 'factory_new').length;
+    const rate   = Math.round(active / data.length * 100);
+
+    let html = `
+        <div class="section-block">
+            <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+                ${kpiCard(data.length, 'الإجمالي', null)}
+                ${kpiCard(active,      'نشط ✅',    null)}
+                ${kpiCard(fnew,        'لم يُفعَّل', null)}
+                ${kpiCard(rate + '%',  'معدل التفعيل', null)}
+            </div>
+            <div class="section-title">🏷️ جميع الاستيكرات</div>
+            <div class="tbl-wrap"><table>
+                <thead><tr><th>#</th><th>رمز التفعيل</th><th>الحالة</th><th>تاريخ الإنشاء</th></tr></thead>
+                <tbody>
+    `;
+
+    data.forEach((s, i) => {
+        const badge = s.status === 'active' ? '<span class="badge badge-active">نشط</span>'
+                    : s.status === 'factory_new' ? '<span class="badge badge-new">جديد</span>'
+                    : `<span class="badge badge-closed">${s.status}</span>`;
+        const dt = s.created_at ? new Date(s.created_at).toLocaleDateString('ar-SA') : '—';
+        html += `<tr><td>${i+1}</td><td dir="ltr" style="font-family:monospace;font-size:12px">${s.activation_code || '—'}</td><td>${badge}</td><td>${dt}</td></tr>`;
+    });
+
+    html += '</tbody></table></div></div>';
+    el.innerHTML = html;
+}
+
+// ── Messages ──────────────────────────────────────────────────────────────────
+async function renderMessages(el) {
+    const { data } = await adminFetch('messages');
+    if (!data || !data.length) { el.innerHTML = '<div class="section-block"><p>لا توجد رسائل.</p></div>'; return; }
+
+    const replied = data.filter(m => m.status === 'closed').length;
+    const rate = Math.round(replied / data.length * 100);
+
+    let html = `
+        <div class="section-block">
+            <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
+                ${kpiCard(data.length, 'إجمالي الرسائل',  null)}
+                ${kpiCard(replied,     'تلقت رداً ✅',    null)}
+                ${kpiCard(rate + '%',  'معدل الاستجابة',  null)}
+            </div>
+            <div class="section-title">📋 آخر ${data.length} رسالة</div>
+            <div class="tbl-wrap"><table>
+                <thead><tr><th>#</th><th>رسالة الزائر</th><th>رد المالك</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+                <tbody>
+    `;
+
+    data.forEach((m, i) => {
+        const badge = m.status === 'closed' ? '<span class="badge badge-active">تم الرد</span>' : '<span class="badge badge-new">جديدة</span>';
+        const dt = m.created_at ? new Date(m.created_at).toLocaleDateString('ar-SA') : '—';
+        html += `<tr><td>${i+1}</td><td>${(m.visitor_message || '—').substring(0, 55)}</td><td>${(m.owner_response || '—').substring(0, 55)}</td><td>${badge}</td><td>${dt}</td></tr>`;
+    });
+
+    html += '</tbody></table></div></div>';
+    el.innerHTML = html;
+}
+
+// ── Audit ─────────────────────────────────────────────────────────────────────
+async function renderAudit(el) {
+    const { data } = await adminFetch('audit');
+    if (!data || !data.length) { el.innerHTML = '<div class="section-block"><p>لا يوجد سجل.</p></div>'; return; }
+
+    let html = `
+        <div class="section-block">
+            <div class="section-title">🔍 سجل المسح — آخر ${data.length} عملية</div>
+            <div class="tbl-wrap"><table>
+                <thead><tr><th>#</th><th>IP</th><th>الجهاز</th><th>الموقع</th><th>التاريخ والوقت</th></tr></thead>
+                <tbody>
+    `;
+
+    data.forEach((l, i) => {
+        const dt = l.scanned_at ? new Date(l.scanned_at).toLocaleString('ar-SA') : '—';
+        html += `<tr><td>${i+1}</td><td dir="ltr" style="font-size:11px">${l.visitor_ip || '—'}</td><td style="font-size:11px">${(l.user_agent || '—').substring(0, 38)}</td><td>${l.geo_info || '—'}</td><td style="font-size:11px">${dt}</td></tr>`;
+    });
+
+    html += '</tbody></table></div></div>';
+    el.innerHTML = html;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+    if (!supabaseClient) {
+        document.body.innerHTML = '<div style="text-align:center;padding:80px;font-family:Tajawal,sans-serif"><h2>❌ خطأ في تحميل المكتبة</h2></div>';
         return;
     }
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    if (!user) { window.location.href = '/login.html?admin=true'; return; }
+
     const { data: profile } = await supabaseClient.from('profiles').select('is_admin').eq('id', user.id).single();
     if (!profile?.is_admin) {
-        document.body.innerHTML = '<div style="text-align:center;padding:80px;font-family:Tajawal,sans-serif"><h2>⛔ غير مصرح لك بالدخول</h2></div>';
+        document.body.innerHTML = '<div style="text-align:center;padding:80px;font-family:Tajawal,sans-serif;color:#c0392b"><h2>⛔ غير مصرح لك بالدخول</h2></div>';
         return;
     }
-       document.getElementById('pageContent').style.display = 'block';
-    loadStats();
-    loadTabContent();
+
+    document.getElementById('pageContent').style.display = 'block';
+    loadTab('overview');
 }
-checkAdminAccess();
+
+init();
 </script>
- </div>
 </body>
 </html>
