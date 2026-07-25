@@ -221,11 +221,59 @@ exports.handler = async (event) => {
     if (action === 'audit') {
       const { data, error } = await supabase
         .from('audit_logs')
-        .select('visitor_ip, user_agent, geo_info, scanned_at')
+        .select('visitor_ip, user_agent, geo_info, scanned_at, sticker_id, scan_type')
         .order('scanned_at', { ascending: false })
         .limit(500);
       if (error) throw error;
-      return { statusCode: 200, headers: H, body: JSON.stringify({ data: data || [] }) };
+
+      if (!data || data.length === 0) {
+        return { statusCode: 200, headers: H, body: JSON.stringify({ data: [] }) };
+      }
+
+      // Batch-lookup owner phone: audit_logs → stickers → vehicles → profiles
+      const auditStickerIds = [...new Set(data.map(r => r.sticker_id).filter(Boolean))];
+      const auditOwnerPhone = {};
+
+      if (auditStickerIds.length > 0) {
+        const { data: astickers } = await supabase
+          .from('stickers').select('id, vehicle_id').in('id', auditStickerIds);
+
+        if (astickers && astickers.length > 0) {
+          const avehicleIds = [...new Set(astickers.map(s => s.vehicle_id).filter(Boolean))];
+          const astkToVeh = Object.fromEntries(astickers.map(s => [s.id, s.vehicle_id]));
+
+          if (avehicleIds.length > 0) {
+            const { data: avehicles } = await supabase
+              .from('vehicles').select('id, user_id').in('id', avehicleIds);
+
+            if (avehicles && avehicles.length > 0) {
+              const avehToUser = Object.fromEntries(avehicles.map(v => [v.id, v.user_id]));
+              const auserIds = [...new Set(avehicles.map(v => v.user_id).filter(Boolean))];
+
+              if (auserIds.length > 0) {
+                const { data: aprofiles } = await supabase
+                  .from('profiles').select('id, phone').in('id', auserIds);
+
+                if (aprofiles) {
+                  const auserToPhone = Object.fromEntries(aprofiles.map(p => [p.id, p.phone]));
+                  auditStickerIds.forEach(sid => {
+                    const vid = astkToVeh[sid];
+                    const uid = vid ? avehToUser[vid] : null;
+                    auditOwnerPhone[sid] = uid ? (auserToPhone[uid] || null) : null;
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+
+      const enrichedAudit = data.map(r => ({
+        ...r,
+        owner_phone: r.sticker_id ? (auditOwnerPhone[r.sticker_id] || null) : null,
+      }));
+
+      return { statusCode: 200, headers: H, body: JSON.stringify({ data: enrichedAudit }) };
     }
 
     if (action === 'toggle-block' && event.httpMethod === 'POST') {
