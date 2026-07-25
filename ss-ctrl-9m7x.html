@@ -293,13 +293,14 @@ async function renderOverview(el) {
         <div class="section-block">
             <div class="section-title">👤 المستخدمون والاستيكرات</div>
             <div class="kpi-grid">
-                ${kpiCard(users.total,              'إجمالي المستخدمين',  null)}
-                ${kpiCard(stickers.total,           'إجمالي الاستيكرات',  null)}
-                ${kpiCard(stickers.active,          '✅ مفعّل',            null)}
-                ${kpiCard(stickers.printed,         '🖨️ مطبوع',            null)}
-                ${kpiCard(stickers.factoryNew,      '🏭 جاهز للطباعة',    null)}
-                ${kpiCard(stickers.inactive || 0,   '⛔ موقوف',            null)}
-                ${kpiCard(activRate + '%',          'معدل التفعيل',        null)}
+                ${kpiCard(users.total,                    'إجمالي المستخدمين', null)}
+                ${kpiCard(stickers.total,                 'إجمالي الاستيكرات', null)}
+                ${kpiCard(stickers.active,                '✅ مفعّل',           null)}
+                ${kpiCard(stickers.printed,               '🖨️ مطبوع',           null)}
+                ${kpiCard(stickers.readyToPrint || 0,     '🖨️ جاهز للطباعة',   null)}
+                ${kpiCard(stickers.factoryNew,            '🆕 جديد',            null)}
+                ${kpiCard(stickers.inactive || 0,         '⛔ موقوف',           null)}
+                ${kpiCard(activRate + '%',                'معدل التفعيل',       null)}
             </div>
         </div>
 
@@ -353,7 +354,7 @@ async function renderOverview(el) {
                     بلغ إجمالي المسح خلال السنة الماضية <strong>${scans.year}</strong> عملية بمتوسط شهري <strong>${avgMonthly}</strong>.
                     مقارنةً بالسنة السابقة (<strong>${scans.prevYear}</strong> مسح)، ${trend(scans.year, scans.prevYear)}.<br><br>
                     معدل تفعيل الاستيكرات: <strong>${activRate}%</strong>
-                    (<strong>${stickers.active}</strong> مفعّل، <strong>${stickers.printed}</strong> مطبوع، <strong>${stickers.factoryNew}</strong> جاهز للطباعة، <strong>${stickers.inactive || 0}</strong> موقوف، من إجمالي <strong>${stickers.total}</strong>).<br>
+                    (<strong>${stickers.active}</strong> مفعّل، <strong>${stickers.printed}</strong> مطبوع، <strong>${stickers.readyToPrint || 0}</strong> جاهز للطباعة، <strong>${stickers.factoryNew}</strong> جديد، <strong>${stickers.inactive || 0}</strong> موقوف، من إجمالي <strong>${stickers.total}</strong>).<br>
                     معدل استجابة المالكين: <strong>${respRate}%</strong>
                     (<strong>${messages.replied}</strong> رداً من <strong>${messages.total}</strong> رسالة).<br>
                     إجمالي المستخدمين المسجّلين: <strong>${users.total}</strong>.
@@ -409,10 +410,11 @@ window.toggleBlock = async function(uid, block) {
 
 // ── Stickers ──────────────────────────────────────────────────────────────────
 function stickerBadge(status) {
-    if (status === 'active')      return '<span class="badge badge-active">✅ مفعّل</span>';
-    if (status === 'printed')     return '<span class="badge badge-printed">🖨️ مطبوع</span>';
-    if (status === 'factory_new') return '<span class="badge badge-new">🏭 جاهز للطباعة</span>';
-    if (status === 'inactive')    return '<span class="badge badge-closed">⛔ موقوف</span>';
+    if (status === 'active')         return '<span class="badge badge-active">✅ مفعّل</span>';
+    if (status === 'printed')        return '<span class="badge badge-printed">🖨️ مطبوع</span>';
+    if (status === 'ready_to_print') return '<span class="badge" style="background:#ede9fe;color:#5b21b6">🖨️ جاهز للطباعة</span>';
+    if (status === 'factory_new')    return '<span class="badge badge-new">🆕 جديد</span>';
+    if (status === 'inactive')       return '<span class="badge badge-closed">⛔ موقوف</span>';
     return `<span class="badge badge-closed">${status || '—'}</span>`;
 }
 
@@ -420,21 +422,23 @@ async function renderStickers(el) {
     const { data } = await adminFetch('stickers');
     if (!data || !data.length) { el.innerHTML = '<div class="section-block"><p>لا توجد استيكرات.</p></div>'; return; }
 
-    const active   = data.filter(s => s.status === 'active').length;
-    const printed  = data.filter(s => s.status === 'printed').length;
-    const fnew     = data.filter(s => s.status === 'factory_new').length;
-    const inactive = data.filter(s => s.status === 'inactive').length;
-    const rate     = data.length > 0 ? (active / data.length * 100).toFixed(1) : '0.0';
+    const active       = data.filter(s => s.status === 'active').length;
+    const printed      = data.filter(s => s.status === 'printed').length;
+    const readyToPrint = data.filter(s => s.status === 'ready_to_print').length;
+    const fnew         = data.filter(s => s.status === 'factory_new').length;
+    const inactive     = data.filter(s => s.status === 'inactive').length;
+    const rate         = data.length > 0 ? (active / data.length * 100).toFixed(1) : '0.0';
 
     let html = `
         <div class="section-block">
             <div class="kpi-grid" style="margin-bottom:16px">
-                ${kpiCard(data.length, 'الإجمالي',            null)}
-                ${kpiCard(active,      '✅ مفعّل',             null)}
-                ${kpiCard(printed,     '🖨️ مطبوع',             null)}
-                ${kpiCard(fnew,        '🏭 جاهز للطباعة',     null)}
-                ${kpiCard(inactive,    '⛔ موقوف',             null)}
-                ${kpiCard(rate + '%',  'معدل التفعيل',         null)}
+                ${kpiCard(data.length,   'الإجمالي',           null)}
+                ${kpiCard(active,        '✅ مفعّل',            null)}
+                ${kpiCard(printed,       '🖨️ مطبوع',            null)}
+                ${kpiCard(readyToPrint,  '🖨️ جاهز للطباعة',    null)}
+                ${kpiCard(fnew,          '🆕 جديد',             null)}
+                ${kpiCard(inactive,      '⛔ موقوف',            null)}
+                ${kpiCard(rate + '%',    'معدل التفعيل',        null)}
             </div>
             <div class="section-title">🏷️ جميع الاستيكرات (${data.length})</div>
             <div class="tbl-wrap"><table>

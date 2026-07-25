@@ -79,7 +79,7 @@ exports.handler = async (event) => {
       const [
         r0, r1, r2, r3, r4, r5, r6, r7, r8,
         r9,
-        r10, r11, r12, r13, r22,
+        r10, r11, r12, r13, r22, r23,
         r14, r15, r16, r17, r18,
         r19, r20, r21,
       ] = await Promise.all([
@@ -100,6 +100,7 @@ exports.handler = async (event) => {
         supabase.from('stickers').select('*', { count: 'exact', head: true }).eq('status', 'printed'),
         supabase.from('stickers').select('*', { count: 'exact', head: true }).eq('status', 'factory_new'),
         supabase.from('stickers').select('*', { count: 'exact', head: true }).eq('status', 'inactive'),
+        supabase.from('stickers').select('*', { count: 'exact', head: true }).eq('status', 'ready_to_print'),
         // messages
         supabase.from('scan_logs').select('*', { count: 'exact', head: true }),
         supabase.from('scan_logs').select('*', { count: 'exact', head: true }).eq('status', 'closed'),
@@ -130,6 +131,7 @@ exports.handler = async (event) => {
             printed: r12.count || 0,
             factoryNew: r13.count || 0,
             inactive: r22.count || 0,
+            readyToPrint: r23.count || 0,
           },
           messages: {
             total: r14.count || 0, replied: r15.count || 0,
