@@ -66,18 +66,21 @@ exports.handler = async (event) => {
   try {
     if (action === 'stats') {
       const now = new Date();
-      const todayStr    = dateStr(now);
+      const todayStr     = dateStr(now);
       const yesterdayStr = dateStr(new Date(now - 86400000));
-      const weekAgo     = new Date(now - 7  * 86400000).toISOString();
-      const prevWeekAgo = new Date(now - 14 * 86400000).toISOString();
-      const monthAgo    = new Date(now - 30 * 86400000).toISOString();
-      const prevMonthAgo = new Date(now - 60 * 86400000).toISOString();
-      const yearAgo     = new Date(now - 365 * 86400000).toISOString();
-      const prevYearAgo = new Date(now - 730 * 86400000).toISOString();
+      const weekAgo      = new Date(now - 7   * 86400000).toISOString();
+      const prevWeekAgo  = new Date(now - 14  * 86400000).toISOString();
+      const monthAgo     = new Date(now - 30  * 86400000).toISOString();
+      const prevMonthAgo = new Date(now - 60  * 86400000).toISOString();
+      const yearAgo      = new Date(now - 365 * 86400000).toISOString();
+      const prevYearAgo  = new Date(now - 730 * 86400000).toISOString();
 
+      // NOTE: profiles table has no created_at — newUsersMonth removed
       const [
         r0, r1, r2, r3, r4, r5, r6, r7, r8,
-        r9, r10, r11, r12, r13, r14, r15, r16, r17, r18,
+        r9,
+        r10, r11, r12, r13,
+        r14, r15, r16, r17, r18,
         r19, r20, r21,
       ] = await Promise.all([
         supabase.from('audit_logs').select('*', { count: 'exact', head: true }).gte('scanned_at', todayStr),
@@ -89,16 +92,20 @@ exports.handler = async (event) => {
         supabase.from('audit_logs').select('*', { count: 'exact', head: true }).gte('scanned_at', yearAgo),
         supabase.from('audit_logs').select('*', { count: 'exact', head: true }).gte('scanned_at', prevYearAgo).lt('scanned_at', yearAgo),
         supabase.from('audit_logs').select('*', { count: 'exact', head: true }),
+        // users — no created_at on profiles
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }).gte('created_at', monthAgo),
+        // stickers by status
         supabase.from('stickers').select('*', { count: 'exact', head: true }),
         supabase.from('stickers').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+        supabase.from('stickers').select('*', { count: 'exact', head: true }).eq('status', 'printed'),
         supabase.from('stickers').select('*', { count: 'exact', head: true }).eq('status', 'factory_new'),
+        // messages
         supabase.from('scan_logs').select('*', { count: 'exact', head: true }),
         supabase.from('scan_logs').select('*', { count: 'exact', head: true }).eq('status', 'closed'),
         supabase.from('scan_logs').select('*', { count: 'exact', head: true }).gte('created_at', todayStr),
         supabase.from('scan_logs').select('*', { count: 'exact', head: true }).gte('created_at', weekAgo),
         supabase.from('scan_logs').select('*', { count: 'exact', head: true }).gte('created_at', monthAgo),
+        // chart data
         supabase.from('audit_logs').select('scanned_at').gte('scanned_at', monthAgo),
         supabase.from('audit_logs').select('scanned_at').gte('scanned_at', yearAgo),
         supabase.from('scan_logs').select('created_at').gte('created_at', monthAgo),
@@ -115,9 +122,17 @@ exports.handler = async (event) => {
             year: r6.count || 0, prevYear: r7.count || 0,
             total: r8.count || 0,
           },
-          users: { total: r9.count || 0, newThisMonth: r10.count || 0 },
-          stickers: { total: r11.count || 0, active: r12.count || 0, factoryNew: r13.count || 0 },
-          messages: { total: r14.count || 0, replied: r15.count || 0, today: r16.count || 0, week: r17.count || 0, month: r18.count || 0 },
+          users: { total: r9.count || 0 },
+          stickers: {
+            total: r10.count || 0,
+            active: r11.count || 0,
+            printed: r12.count || 0,
+            factoryNew: r13.count || 0,
+          },
+          messages: {
+            total: r14.count || 0, replied: r15.count || 0,
+            today: r16.count || 0, week: r17.count || 0, month: r18.count || 0,
+          },
           charts: {
             dailyScans: groupByDay(r19.data, 'scanned_at', 30),
             monthlyScans: groupByMonth(r20.data, 'scanned_at', 12),
@@ -128,10 +143,10 @@ exports.handler = async (event) => {
     }
 
     if (action === 'users') {
+      // profiles has no created_at — select without it, order by id
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, phone, show_phone, is_admin, is_admin_blocked, created_at')
-        .order('created_at', { ascending: false });
+        .select('id, phone, show_phone, is_admin, is_admin_blocked');
       if (error) throw error;
       return { statusCode: 200, headers: H, body: JSON.stringify({ data: data || [] }) };
     }
@@ -146,13 +161,61 @@ exports.handler = async (event) => {
     }
 
     if (action === 'messages') {
-      const { data, error } = await supabase
+      const { data: msgs, error } = await supabase
         .from('scan_logs')
-        .select('visitor_message, owner_response, status, created_at')
+        .select('visitor_message, owner_response, status, created_at, visitor_fingerprint, sticker_id')
         .order('created_at', { ascending: false })
         .limit(200);
       if (error) throw error;
-      return { statusCode: 200, headers: H, body: JSON.stringify({ data: data || [] }) };
+
+      if (!msgs || msgs.length === 0) {
+        return { statusCode: 200, headers: H, body: JSON.stringify({ data: [] }) };
+      }
+
+      // Batch-lookup owner phone: scan_logs → stickers → vehicles → profiles
+      const stickerIds = [...new Set(msgs.map(m => m.sticker_id).filter(Boolean))];
+      const ownerPhone = {};
+
+      if (stickerIds.length > 0) {
+        const { data: stickers } = await supabase
+          .from('stickers').select('id, vehicle_id').in('id', stickerIds);
+
+        if (stickers && stickers.length > 0) {
+          const vehicleIds = [...new Set(stickers.map(s => s.vehicle_id).filter(Boolean))];
+          const stkToVeh = Object.fromEntries(stickers.map(s => [s.id, s.vehicle_id]));
+
+          if (vehicleIds.length > 0) {
+            const { data: vehicles } = await supabase
+              .from('vehicles').select('id, user_id').in('id', vehicleIds);
+
+            if (vehicles && vehicles.length > 0) {
+              const vehToUser = Object.fromEntries(vehicles.map(v => [v.id, v.user_id]));
+              const userIds = [...new Set(vehicles.map(v => v.user_id).filter(Boolean))];
+
+              if (userIds.length > 0) {
+                const { data: profiles } = await supabase
+                  .from('profiles').select('id, phone').in('id', userIds);
+
+                if (profiles) {
+                  const userToPhone = Object.fromEntries(profiles.map(p => [p.id, p.phone]));
+                  stickerIds.forEach(sid => {
+                    const vid = stkToVeh[sid];
+                    const uid = vid ? vehToUser[vid] : null;
+                    ownerPhone[sid] = uid ? (userToPhone[uid] || null) : null;
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+
+      const enriched = msgs.map(m => ({
+        ...m,
+        owner_phone: m.sticker_id ? (ownerPhone[m.sticker_id] || null) : null,
+      }));
+
+      return { statusCode: 200, headers: H, body: JSON.stringify({ data: enriched }) };
     }
 
     if (action === 'audit') {
