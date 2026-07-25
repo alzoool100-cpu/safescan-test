@@ -293,12 +293,13 @@ async function renderOverview(el) {
         <div class="section-block">
             <div class="section-title">👤 المستخدمون والاستيكرات</div>
             <div class="kpi-grid">
-                ${kpiCard(users.total,         'إجمالي المستخدمين', null)}
-                ${kpiCard(stickers.total,      'إجمالي الاستيكرات', null)}
-                ${kpiCard(stickers.active,     '✅ مفعّل',           null)}
-                ${kpiCard(stickers.printed,    '🖨️ مطبوع',           null)}
-                ${kpiCard(stickers.factoryNew, '🏭 جديد (لم يُطبع)', null)}
-                ${kpiCard(activRate + '%',     'معدل التفعيل',       null)}
+                ${kpiCard(users.total,              'إجمالي المستخدمين',  null)}
+                ${kpiCard(stickers.total,           'إجمالي الاستيكرات',  null)}
+                ${kpiCard(stickers.active,          '✅ مفعّل',            null)}
+                ${kpiCard(stickers.printed,         '🖨️ مطبوع',            null)}
+                ${kpiCard(stickers.factoryNew,      '🏭 جاهز للطباعة',    null)}
+                ${kpiCard(stickers.inactive || 0,   '⛔ موقوف',            null)}
+                ${kpiCard(activRate + '%',          'معدل التفعيل',        null)}
             </div>
         </div>
 
@@ -352,7 +353,7 @@ async function renderOverview(el) {
                     بلغ إجمالي المسح خلال السنة الماضية <strong>${scans.year}</strong> عملية بمتوسط شهري <strong>${avgMonthly}</strong>.
                     مقارنةً بالسنة السابقة (<strong>${scans.prevYear}</strong> مسح)، ${trend(scans.year, scans.prevYear)}.<br><br>
                     معدل تفعيل الاستيكرات: <strong>${activRate}%</strong>
-                    (<strong>${stickers.active}</strong> نشط، <strong>${stickers.printed}</strong> مطبوع، <strong>${stickers.factoryNew}</strong> جديد من إجمالي <strong>${stickers.total}</strong>).<br>
+                    (<strong>${stickers.active}</strong> مفعّل، <strong>${stickers.printed}</strong> مطبوع، <strong>${stickers.factoryNew}</strong> جاهز للطباعة، <strong>${stickers.inactive || 0}</strong> موقوف، من إجمالي <strong>${stickers.total}</strong>).<br>
                     معدل استجابة المالكين: <strong>${respRate}%</strong>
                     (<strong>${messages.replied}</strong> رداً من <strong>${messages.total}</strong> رسالة).<br>
                     إجمالي المستخدمين المسجّلين: <strong>${users.total}</strong>.
@@ -410,7 +411,8 @@ window.toggleBlock = async function(uid, block) {
 function stickerBadge(status) {
     if (status === 'active')      return '<span class="badge badge-active">✅ مفعّل</span>';
     if (status === 'printed')     return '<span class="badge badge-printed">🖨️ مطبوع</span>';
-    if (status === 'factory_new') return '<span class="badge badge-new">🏭 جديد</span>';
+    if (status === 'factory_new') return '<span class="badge badge-new">🏭 جاهز للطباعة</span>';
+    if (status === 'inactive')    return '<span class="badge badge-closed">⛔ موقوف</span>';
     return `<span class="badge badge-closed">${status || '—'}</span>`;
 }
 
@@ -418,20 +420,21 @@ async function renderStickers(el) {
     const { data } = await adminFetch('stickers');
     if (!data || !data.length) { el.innerHTML = '<div class="section-block"><p>لا توجد استيكرات.</p></div>'; return; }
 
-    const active  = data.filter(s => s.status === 'active').length;
-    const printed = data.filter(s => s.status === 'printed').length;
-    const fnew    = data.filter(s => s.status === 'factory_new').length;
-    const other   = data.length - active - printed - fnew;
-    const rate    = data.length > 0 ? (active / data.length * 100).toFixed(1) : '0.0';
+    const active   = data.filter(s => s.status === 'active').length;
+    const printed  = data.filter(s => s.status === 'printed').length;
+    const fnew     = data.filter(s => s.status === 'factory_new').length;
+    const inactive = data.filter(s => s.status === 'inactive').length;
+    const rate     = data.length > 0 ? (active / data.length * 100).toFixed(1) : '0.0';
 
     let html = `
         <div class="section-block">
             <div class="kpi-grid" style="margin-bottom:16px">
-                ${kpiCard(data.length, 'الإجمالي',          null)}
-                ${kpiCard(active,      '✅ مفعّل',           null)}
-                ${kpiCard(printed,     '🖨️ مطبوع',           null)}
-                ${kpiCard(fnew,        '🏭 جديد (لم يُطبع)', null)}
-                ${kpiCard(rate + '%',  'معدل التفعيل',       null)}
+                ${kpiCard(data.length, 'الإجمالي',            null)}
+                ${kpiCard(active,      '✅ مفعّل',             null)}
+                ${kpiCard(printed,     '🖨️ مطبوع',             null)}
+                ${kpiCard(fnew,        '🏭 جاهز للطباعة',     null)}
+                ${kpiCard(inactive,    '⛔ موقوف',             null)}
+                ${kpiCard(rate + '%',  'معدل التفعيل',         null)}
             </div>
             <div class="section-title">🏷️ جميع الاستيكرات (${data.length})</div>
             <div class="tbl-wrap"><table>
@@ -510,49 +513,125 @@ async function renderMessages(el) {
 // ── Audit ─────────────────────────────────────────────────────────────────────
 async function renderAudit(el) {
     const { data } = await adminFetch('audit');
-    if (!data || !data.length) { el.innerHTML = '<div class="section-block"><p>لا يوجد سجل.</p></div>'; return; }
+    if (!data || !data.length) {
+        el.innerHTML = '<div class="section-block"><p style="color:var(--text-muted)">لا يوجد سجل بعد. سيظهر هنا عند أول مسح لاستيكر.</p></div>';
+        return;
+    }
 
     const nfcCount = data.filter(l => l.scan_type === 'nfc').length;
     const qrCount  = data.length - nfcCount;
 
+    // ── Hour-of-day
+    const hourCounts = Array(24).fill(0);
+    data.forEach(l => { if (l.scanned_at) hourCounts[new Date(l.scanned_at).getHours()]++; });
+    const hourData = hourCounts.map((count, h) => ({ h, count }));
+    const peakHour = hourCounts.indexOf(Math.max(...hourCounts));
+
+    // ── Day-of-week
+    const AR_DAYS = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const dayCounts = Array(7).fill(0);
+    data.forEach(l => { if (l.scanned_at) dayCounts[new Date(l.scanned_at).getDay()]++; });
+    const dayData = dayCounts.map((count, d) => ({ day: AR_DAYS[d], count }));
+    const peakDay = AR_DAYS[dayCounts.indexOf(Math.max(...dayCounts))];
+
+    // ── City ranking
+    const cityMap = {};
+    data.forEach(l => {
+        if (l.geo_info) {
+            const city = (l.geo_info.split('،')[0] || '').trim();
+            if (city) cityMap[city] = (cityMap[city] || 0) + 1;
+        }
+    });
+    const cityData = Object.entries(cityMap).sort((a, b) => b[1] - a[1]).map(([city, count]) => ({ city, count }));
+    const cityMax = cityData.length ? cityData[0].count : 1;
+
+    // ── Sticker scan ranking
+    const stickerMap = {};
+    data.forEach(l => {
+        if (l.sticker_id) {
+            if (!stickerMap[l.sticker_id]) stickerMap[l.sticker_id] = { phone: l.owner_phone, count: 0 };
+            stickerMap[l.sticker_id].count++;
+        }
+    });
+    const stickerRanking = Object.entries(stickerMap)
+        .map(([sid, v]) => ({ sticker_id: sid, phone: v.phone, count: v.count }))
+        .sort((a, b) => b.count - a.count);
+
+    const PRIMARY = 'var(--color-primary)';
+
     let html = `
         <div class="section-block">
-            <div class="kpi-row" style="margin-bottom:20px;">
-                <div class="kpi-card">
-                    <div class="kpi-label">📱 NFC</div>
-                    <div class="kpi-value">${nfcCount}</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">📷 QR Code</div>
-                    <div class="kpi-value">${qrCount}</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">📊 الإجمالي</div>
-                    <div class="kpi-value">${data.length}</div>
-                </div>
+            <div class="section-title">📊 إحصائيات عامة — إجمالي ${data.length} عملية مسح</div>
+            <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr)">
+                ${kpiCard(nfcCount,   '📱 NFC',      null)}
+                ${kpiCard(qrCount,    '📷 QR Code',  null)}
+                ${kpiCard(data.length,'📊 الإجمالي', null)}
             </div>
-            <div class="section-title">🔍 سجل المسح — آخر ${data.length} عملية</div>
+        </div>
+
+        <div class="section-block">
+            <div class="section-title">⏰ تحليل الأوقات</div>
+            <div class="chart-card">
+                <div class="chart-title">المسح حسب ساعة اليوم — الأكثر نشاطاً: ${peakHour}:00</div>
+                <div class="chart-body">${barChart(hourData, 'count', (d, i) => i % 3 === 0 ? d.h + ':00' : '', PRIMARY)}</div>
+            </div>
+            <div class="chart-card" style="margin-top:10px">
+                <div class="chart-title">المسح حسب يوم الأسبوع — الأكثر نشاطاً: ${peakDay}</div>
+                <div class="chart-body">${barChart(dayData, 'count', (d) => d.day, PRIMARY)}</div>
+            </div>
+        </div>
+
+        ${cityData.length ? `<div class="section-block">
+            <div class="section-title">📍 المدن الأكثر مسحاً</div>
+            ${cityData.map((c, i) => `
+                <div style="margin-bottom:10px">
+                    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+                        <span style="font-weight:600">${i+1}. ${c.city}</span>
+                        <span style="color:var(--color-primary);font-weight:700">${c.count}</span>
+                    </div>
+                    <div style="background:var(--border-color);border-radius:4px;height:7px">
+                        <div style="background:var(--color-primary);height:7px;border-radius:4px;width:${(c.count/cityMax*100).toFixed(0)}%"></div>
+                    </div>
+                </div>`).join('')}
+        </div>` : ''}
+
+        ${stickerRanking.length ? `<div class="section-block">
+            <div class="section-title">🏆 الاستيكرات حسب عدد المسح — ${stickerRanking.length} استيكر</div>
             <div class="tbl-wrap"><table>
-                <thead><tr><th>#</th><th>نوع المسح</th><th>IP</th><th>صاحب الاستيكر</th><th>الموقع</th><th>التاريخ والوقت</th></tr></thead>
+                <thead><tr><th>#</th><th>رقم المالك</th><th>عدد المسح</th></tr></thead>
                 <tbody>
+                    ${stickerRanking.map((s, i) => `<tr>
+                        <td style="font-weight:700">${i+1}</td>
+                        <td style="font-size:13px;font-weight:600">${s.phone || '—'}</td>
+                        <td><span class="badge badge-active">${s.count}</span></td>
+                    </tr>`).join('')}
+                </tbody>
+            </table></div>
+        </div>` : ''}
+
+        <div class="section-block">
+            <div class="section-title">🔍 سجل المسح التفصيلي — آخر ${data.length} عملية</div>
+            <div class="tbl-wrap"><table>
+                <thead><tr><th>#</th><th>نوع</th><th>IP</th><th>صاحب الاستيكر</th><th>الموقع</th><th>التاريخ والوقت</th></tr></thead>
+                <tbody>
+                    ${data.map((l, i) => {
+                        const dt = l.scanned_at ? new Date(l.scanned_at).toLocaleString('ar-SA') : '—';
+                        const scanBadge = l.scan_type === 'nfc'
+                            ? '<span class="badge badge-active">📱 NFC</span>'
+                            : '<span class="badge badge-printed">📷 QR</span>';
+                        return `<tr>
+                            <td>${i+1}</td>
+                            <td>${scanBadge}</td>
+                            <td dir="ltr" style="font-size:11px">${l.visitor_ip || '—'}</td>
+                            <td style="font-size:12px">${l.owner_phone || '—'}</td>
+                            <td>${l.geo_info || '—'}</td>
+                            <td style="font-size:11px">${dt}</td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table></div>
+        </div>
     `;
-
-    data.forEach((l, i) => {
-        const dt = l.scanned_at ? new Date(l.scanned_at).toLocaleString('ar-SA') : '—';
-        const scanBadge = l.scan_type === 'nfc'
-            ? '<span class="badge badge-active">📱 NFC</span>'
-            : '<span class="badge badge-printed">📷 QR</span>';
-        html += `<tr>
-            <td>${i+1}</td>
-            <td>${scanBadge}</td>
-            <td dir="ltr" style="font-size:11px">${l.visitor_ip || '—'}</td>
-            <td style="font-size:12px">${l.owner_phone || '—'}</td>
-            <td>${l.geo_info || '—'}</td>
-            <td style="font-size:11px">${dt}</td>
-        </tr>`;
-    });
-
-    html += '</tbody></table></div></div>';
     el.innerHTML = html;
 }
 
