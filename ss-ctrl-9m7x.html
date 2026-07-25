@@ -442,7 +442,7 @@ async function renderStickers(el) {
             </div>
             <div class="section-title">🏷️ جميع الاستيكرات (${data.length})</div>
             <div class="tbl-wrap"><table>
-                <thead><tr><th>#</th><th>رمز التفعيل</th><th>QR Token</th><th>الحالة</th><th>تاريخ الإنشاء</th></tr></thead>
+                <thead><tr><th>#</th><th>الرقم التسلسلي</th><th>رمز التفعيل</th><th>QR Token</th><th>الحالة</th><th>تاريخ الإنشاء</th></tr></thead>
                 <tbody>
     `;
 
@@ -451,6 +451,7 @@ async function renderStickers(el) {
         const qr = s.qr_token ? s.qr_token.substring(0, 12) + '…' : '—';
         html += `<tr>
             <td>${i+1}</td>
+            <td style="font-weight:700;color:var(--color-primary)">${s.serial_number || '—'}</td>
             <td dir="ltr" style="font-family:monospace;font-size:12px;font-weight:700">${s.activation_code || '—'}</td>
             <td dir="ltr" style="font-family:monospace;font-size:11px;color:var(--text-muted)">${qr}</td>
             <td>${stickerBadge(s.status)}</td>

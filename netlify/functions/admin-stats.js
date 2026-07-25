@@ -158,7 +158,7 @@ exports.handler = async (event) => {
     if (action === 'stickers') {
       const { data, error } = await supabase
         .from('stickers')
-        .select('id, qr_token, activation_code, status, created_at')
+        .select('id, qr_token, activation_code, serial_number, status, created_at')
         .order('created_at', { ascending: false });
       if (error) throw error;
       return { statusCode: 200, headers: H, body: JSON.stringify({ data: data || [] }) };
