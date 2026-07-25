@@ -6,19 +6,25 @@
     <title data-key="terms_title">شروط الاستخدام</title>
     <link rel="stylesheet" href="base.css">
     <link rel="manifest" href="/manifest.json">
-    <script>
-        if ('serviceWorker' in navigator) {
-        }
-    </script>
     <style>
-        .content { max-width: 650px; margin: 0 auto; text-align: right; line-height: 1.9; }
-        h2 { color: var(--color-primary); margin-top: 28px; font-size: 1.3rem; }
-        p, li { font-size: 0.95rem; color: var(--text-secondary); margin-bottom: 12px; }
-        ul { padding-right: 20px; }
+        .page-wrap { max-width: 680px; margin: 0 auto; padding: 70px 16px 40px; }
+        .page-header { text-align: center; margin-bottom: 24px; }
+        .page-meta { text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+        .sec { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 14px; box-shadow: var(--shadow-card); }
+        .sec-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .sec-icon { font-size: 20px; line-height: 1; }
+        .sec-title { font-size: 0.95rem; font-weight: 700; color: var(--color-primary); margin: 0; }
+        .sec-list { list-style: none; padding: 0; margin: 0; }
+        .sec-list li { font-size: 0.88rem; color: var(--text-secondary); padding: 6px 0; border-bottom: 1px solid var(--border-color); display: flex; gap: 8px; line-height: 1.5; }
+        .sec-list li:last-child { border-bottom: none; padding-bottom: 0; }
+        .sec-list li::before { content: "›"; color: var(--color-primary); font-weight: 700; font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+        .contact-sec { background: var(--color-primary); color: white; border-radius: var(--radius-lg); padding: 20px; margin-bottom: 14px; text-align: center; }
+        .contact-sec p { margin: 0 0 12px; font-size: 0.85rem; opacity: 0.9; }
+        .contact-sec a { color: white; font-weight: 700; font-size: 1.05rem; text-decoration: none; display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 20px; }
+        .back-link { display: block; text-align: center; color: var(--color-primary); padding: 14px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
-
 <button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
 
 <div class="lang-dropdown">
@@ -30,35 +36,81 @@
   </select>
 </div>
 
-<div class="card content">
-    <div class="logo">
-        <span class="logo-icon">🛡️</span>
-        <span class="logo-text">SafeScan</span>
+<div class="page-wrap">
+    <div class="page-header">
+        <div class="logo" style="justify-content:center;"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div>
+        <h1 data-key="terms_title">شروط الاستخدام</h1>
+        <p class="page-meta" data-key="terms_last_update">آخر تحديث: يوليو 2026</p>
     </div>
-    <h1 data-key="terms_title">شروط الاستخدام</h1>
-    <p style="color: var(--text-muted);" data-key="terms_last_update">آخر تحديث: 1 مايو 2026</p>
 
-    <h2 data-key="terms_s1_title">1. وصف الخدمة</h2>
-    <p data-key="terms_s1_text">SafeScan هي خدمة تقنية تقدم استيكرًا ذكيًا (QR + NFC) يوضع على المركبات، يمكّن الآخرين من مسح الكود والتواصل مع مالك المركبة بشكل مجهول وآمن. تشمل الخدمة الموقع الإلكتروني، لوحة التحكم، ونظام المراسلة المؤقتة.</p>
-
-    <h2 data-key="terms_s2_title">2. التزامات المستخدم</h2>
-    <p data-key="terms_s2_text">بصفتك مالكًا للمركبة، تتعهد بتقديم رقم جوال صحيح، وعدم استخدام الخدمة لأي غرض غير قانوني، والحفاظ على سرية رمز التفعيل وكلمة المرور. بصفتك زائرًا، تتعهد باستخدام الخدمة للتواصل المشروع فقط وعدم المضايقة أو إرسال رسائل غير مرغوب فيها.</p>
-
-    <h2 data-key="terms_s3_title">3. حدود المسؤولية</h2>
-    <p data-key="terms_s3_text">يتم تقديم الخدمة "كما هي" دون أي ضمانات. SafeScan لا تتحمل أي مسؤولية عن أي تأخير أو انقطاع في الخدمة، أو أي أضرار ناتجة عن استخدامك للخدمة.</p>
-
-    <h2 data-key="terms_s4_title">4. إنهاء الخدمة</h2>
-    <p data-key="terms_s4_text">تحتفظ SafeScan بالحق في إنهاء أو تعليق حساب أي مستخدم ينتهك هذه الشروط. للمستخدم الحق في إنهاء حسابه في أي وقت عن طريق التواصل مع الدعم الفني.</p>
-
-    <h2 data-key="terms_s5_title">5. القانون المطبق</h2>
-    <p data-key="terms_s5_text">تخضع هذه الشروط وتفسر وفقًا لأنظمة المملكة العربية السعودية. أي نزاع ينشأ عن هذه الشروط يخضع للاختصاص القضائي للمحاكم السعودية.</p>
-
-    <h2 data-key="terms_s6_title">6. اتصل بنا</h2>
-    <p data-key="terms_s6_text">لأي استفسارات حول هذه الشروط، يرجى التواصل معنا عبر واتساب: <span dir="ltr">+966 54 105 4516</span> أو البريد الإلكتروني: <span dir="ltr">legal@safescan.app</span></p>
-
-    <div style="margin-top: 32px; text-align: center; border-top: 1px solid var(--border-color); padding-top: 20px;">
-        <a href="#" onclick="history.back(); return false;" style="color: var(--color-primary);" data-key="terms_back">العودة للصفحة السابقة</a>
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">🔍</span><h2 class="sec-title" data-key="terms_s1_title">1. ما هي SafeScan</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="terms_s1_b1">استيكر ذكي (QR + NFC) يُوضع على مركبتك</span></li>
+            <li><span data-key="terms_s1_b2">يتيح للآخرين التواصل معك بشكل مجهول وآمن</span></li>
+            <li><span data-key="terms_s1_b3">تشمل الخدمة: الموقع، لوحة التحكم، ونظام الرسائل المؤقتة</span></li>
+        </ul>
     </div>
+
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">🚗</span><h2 class="sec-title" data-key="terms_s2_title">2. التزامات المالك</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="terms_s2_b1">تقديم رقم جوال صحيح وفعّال</span></li>
+            <li><span data-key="terms_s2_b2">الحفاظ على سرية رمز التفعيل وكلمة المرور</span></li>
+            <li><span data-key="terms_s2_b3">عدم استخدام الخدمة لأغراض مخالفة للنظام</span></li>
+        </ul>
+    </div>
+
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">🧑</span><h2 class="sec-title" data-key="terms_s3_title">3. التزامات الزائر</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="terms_s3_b1">استخدام الخدمة للتواصل المشروع فقط</span></li>
+            <li><span data-key="terms_s3_b2">عدم مضايقة أو تهديد مالك المركبة</span></li>
+            <li><span data-key="terms_s3_b3">عدم إرسال رسائل متكررة أو ذات طابع مسيء</span></li>
+        </ul>
+    </div>
+
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">🚫</span><h2 class="sec-title" data-key="terms_s4_title">4. ما لا يُسمح به</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="terms_s4_b1">انتحال صفة شخص آخر أو مركبة أخرى</span></li>
+            <li><span data-key="terms_s4_b2">محاولة اختراق النظام أو التلاعب بالرسائل</span></li>
+            <li><span data-key="terms_s4_b3">استخدام الخدمة لأغراض تجارية بدون إذن مسبق</span></li>
+        </ul>
+    </div>
+
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">⚠️</span><h2 class="sec-title" data-key="terms_s5_title">5. حدود المسؤولية</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="terms_s5_b1">تُقدَّم الخدمة كما هي دون أي ضمانات صريحة أو ضمنية</span></li>
+            <li><span data-key="terms_s5_b2">لا تتحمل SafeScan المسؤولية عن أي انقطاع أو تأخير غير مقصود</span></li>
+            <li><span data-key="terms_s5_b3">الاستخدام على مسؤوليتك الشخصية الكاملة</span></li>
+        </ul>
+    </div>
+
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">🔚</span><h2 class="sec-title" data-key="terms_s6_title">6. إنهاء الحساب</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="terms_s6_b1">يحق لـ SafeScan تعليق أو إنهاء الحساب عند انتهاك هذه الشروط</span></li>
+            <li><span data-key="terms_s6_b2">يحق لك إنهاء حسابك في أي وقت عبر التواصل معنا</span></li>
+        </ul>
+    </div>
+
+    <div class="sec">
+        <div class="sec-head"><span class="sec-icon">🏛️</span><h2 class="sec-title" data-key="terms_s7_title">7. القانون المطبق</h2></div>
+        <ul class="sec-list">
+            <li><span data-key="terms_s7_b1">تخضع هذه الشروط لأنظمة المملكة العربية السعودية</span></li>
+            <li><span data-key="terms_s7_b2">أي نزاع يُحال للجهات القضائية المختصة في المملكة</span></li>
+        </ul>
+    </div>
+
+    <div class="contact-sec">
+        <div style="font-size:24px;margin-bottom:8px;">💬</div>
+        <p data-key="privacy_s9_contact">للاستفسارات، تواصل معنا عبر واتساب</p>
+        <a href="https://wa.me/966541054516" dir="ltr">+966 54 105 4516</a>
+    </div>
+
+    <a href="#" onclick="history.back();return false;" class="back-link" data-key="terms_back">← العودة للصفحة السابقة</a>
 </div>
 
 <script src="translations.js"></script>
@@ -66,7 +118,6 @@
     document.getElementById('langSelect').value = currentLang;
     applyTranslations();
     document.getElementById('langSelect').addEventListener('change', function() { setLanguage(this.value); });
-
     const dt = document.getElementById('darkModeToggle');
     if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
     dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
