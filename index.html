@@ -128,7 +128,7 @@ let currentStep = 'method';
                 .eq('qr_token', stickerToken)
                 .maybeSingle()
                 ;
-            if (s && (s.status === 'printed' || s.status === 'factory_new')) window.location.href = '/register.html?token=' + stickerToken;
+            if (s && (s.status === 'printed' || s.status === 'factory_new' || s.status === 'ready_to_print')) window.location.href = '/register.html?token=' + stickerToken;
         } catch(e) {}
     }
     checkStickerAndRedirect();
