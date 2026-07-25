@@ -98,6 +98,7 @@
 
     const urlParams = new URLSearchParams(window.location.search);
     const stickerToken = urlParams.get('token');
+    const scanType = urlParams.get('nfc') === '1' ? 'nfc' : 'qr';
     let currentSessionToken = '';
     let waitingForReply = false;
     let vehicleData = null;
@@ -137,9 +138,16 @@ async function loadVehicleData() {
     if (!stickerToken || !supabaseClient) return;
     try {
         const { data: sticker } = await supabaseClient
-            .from('stickers').select('vehicle_id')
+            .from('stickers').select('id, vehicle_id')
             .eq('qr_token', stickerToken).maybeSingle();
         if (!sticker) return;
+        if (sticker.id) {
+            fetch('/.netlify/functions/log-scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sticker_id: sticker.id, scan_type: scanType }),
+            }).catch(() => {});
+        }
         const { data: vehicle } = await supabaseClient
             .from('vehicles').select('user_id, custom_name, model, plate_number, image_url, show_image, is_active')
             .eq('id', sticker.vehicle_id).maybeSingle();

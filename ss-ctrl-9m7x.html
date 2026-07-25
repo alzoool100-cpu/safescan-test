@@ -59,12 +59,14 @@
 
         /* Badges */
         .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-        .badge-active { background: #dcfce7; color: #166534; }
-        .badge-new    { background: #fef9c3; color: #854d0e; }
-        .badge-closed { background: #f1f5f9; color: #475569; }
-        .dark-mode .badge-active { background: #14532d; color: #86efac; }
-        .dark-mode .badge-new    { background: #422006; color: #fde68a; }
-        .dark-mode .badge-closed { background: #1e293b; color: #94a3b8; }
+        .badge-active   { background: #dcfce7; color: #166534; }
+        .badge-new      { background: #fef9c3; color: #854d0e; }
+        .badge-printed  { background: #dbeafe; color: #1e40af; }
+        .badge-closed   { background: #f1f5f9; color: #475569; }
+        .dark-mode .badge-active  { background: #14532d; color: #86efac; }
+        .dark-mode .badge-new     { background: #422006; color: #fde68a; }
+        .dark-mode .badge-printed { background: #1e3a8a; color: #93c5fd; }
+        .dark-mode .badge-closed  { background: #1e293b; color: #94a3b8; }
 
         /* Action buttons */
         .act-btn { border: 1px solid currentColor; background: none; padding: 4px 10px; border-radius: 20px; cursor: pointer; font-size: 11px; font-family: var(--font-family); }
@@ -291,11 +293,12 @@ async function renderOverview(el) {
         <div class="section-block">
             <div class="section-title">👤 المستخدمون والاستيكرات</div>
             <div class="kpi-grid">
-                ${kpiCard(users.total,        'إجمالي المستخدمين',    null)}
-                ${kpiCard('+' + users.newThisMonth, 'جدد هذا الشهر', null)}
-                ${kpiCard(stickers.active + '/' + stickers.total, 'استيكرات نشطة', null)}
-                ${kpiCard(stickers.factoryNew, 'لم تُفعَّل بعد',     null)}
-                ${kpiCard(activRate + '%',    'معدل التفعيل',         null)}
+                ${kpiCard(users.total,         'إجمالي المستخدمين', null)}
+                ${kpiCard(stickers.total,      'إجمالي الاستيكرات', null)}
+                ${kpiCard(stickers.active,     '✅ مفعّل',           null)}
+                ${kpiCard(stickers.printed,    '🖨️ مطبوع',           null)}
+                ${kpiCard(stickers.factoryNew, '🏭 جديد (لم يُطبع)', null)}
+                ${kpiCard(activRate + '%',     'معدل التفعيل',       null)}
             </div>
         </div>
 
@@ -349,12 +352,10 @@ async function renderOverview(el) {
                     بلغ إجمالي المسح خلال السنة الماضية <strong>${scans.year}</strong> عملية بمتوسط شهري <strong>${avgMonthly}</strong>.
                     مقارنةً بالسنة السابقة (<strong>${scans.prevYear}</strong> مسح)، ${trend(scans.year, scans.prevYear)}.<br><br>
                     معدل تفعيل الاستيكرات: <strong>${activRate}%</strong>
-                    (<strong>${stickers.active}</strong> نشط من إجمالي <strong>${stickers.total}</strong> استيكر،
-                    و<strong>${stickers.factoryNew}</strong> بانتظار التفعيل).<br>
+                    (<strong>${stickers.active}</strong> نشط، <strong>${stickers.printed}</strong> مطبوع، <strong>${stickers.factoryNew}</strong> جديد من إجمالي <strong>${stickers.total}</strong>).<br>
                     معدل استجابة المالكين: <strong>${respRate}%</strong>
                     (<strong>${messages.replied}</strong> رداً من <strong>${messages.total}</strong> رسالة).<br>
-                    إجمالي المستخدمين المسجّلين: <strong>${users.total}</strong>،
-                    أُضيف منهم <strong>${users.newThisMonth}</strong> خلال آخر 30 يوماً.
+                    إجمالي المستخدمين المسجّلين: <strong>${users.total}</strong>.
                 </p>
             </div>
         </div>
@@ -378,7 +379,7 @@ async function renderUsers(el) {
             </div>
             <div class="section-title">👥 جميع المستخدمين</div>
             <div class="tbl-wrap"><table>
-                <thead><tr><th>#</th><th>رقم الجوال</th><th>إظهار الرقم</th><th>الحالة</th><th>تاريخ التسجيل</th><th>إجراء</th></tr></thead>
+                <thead><tr><th>#</th><th>رقم الجوال</th><th>إظهار الرقم</th><th>الحالة</th><th>إجراء</th></tr></thead>
                 <tbody>
     `;
 
@@ -389,8 +390,7 @@ async function renderUsers(el) {
             ? `<button onclick="toggleBlock('${u.id}',false)" class="act-btn unblock">✅ رفع الحظر</button>`
             : `<button onclick="toggleBlock('${u.id}',true)"  class="act-btn block">🚫 حظر</button>`;
         const admin = u.is_admin ? ' <span style="font-size:10px;background:var(--color-danger);color:white;padding:1px 5px;border-radius:10px">مشرف</span>' : '';
-        const dt = u.created_at ? new Date(u.created_at).toLocaleDateString('ar-SA') : '—';
-        html += `<tr><td>${i+1}</td><td dir="ltr">${u.phone || '—'}${admin}</td><td>${u.show_phone ? '✅' : '❌'}</td><td>${badge}</td><td>${dt}</td><td>${act}</td></tr>`;
+        html += `<tr><td>${i+1}</td><td dir="ltr">${u.phone || '—'}${admin}</td><td>${u.show_phone ? '✅' : '❌'}</td><td>${badge}</td><td>${act}</td></tr>`;
     });
 
     html += '</tbody></table></div></div>';
@@ -407,34 +407,48 @@ window.toggleBlock = async function(uid, block) {
 };
 
 // ── Stickers ──────────────────────────────────────────────────────────────────
+function stickerBadge(status) {
+    if (status === 'active')      return '<span class="badge badge-active">✅ مفعّل</span>';
+    if (status === 'printed')     return '<span class="badge badge-printed">🖨️ مطبوع</span>';
+    if (status === 'factory_new') return '<span class="badge badge-new">🏭 جديد</span>';
+    return `<span class="badge badge-closed">${status || '—'}</span>`;
+}
+
 async function renderStickers(el) {
     const { data } = await adminFetch('stickers');
     if (!data || !data.length) { el.innerHTML = '<div class="section-block"><p>لا توجد استيكرات.</p></div>'; return; }
 
-    const active = data.filter(s => s.status === 'active').length;
-    const fnew   = data.filter(s => s.status === 'factory_new').length;
-    const rate   = Math.round(active / data.length * 100);
+    const active  = data.filter(s => s.status === 'active').length;
+    const printed = data.filter(s => s.status === 'printed').length;
+    const fnew    = data.filter(s => s.status === 'factory_new').length;
+    const other   = data.length - active - printed - fnew;
+    const rate    = data.length > 0 ? (active / data.length * 100).toFixed(1) : '0.0';
 
     let html = `
         <div class="section-block">
-            <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
-                ${kpiCard(data.length, 'الإجمالي', null)}
-                ${kpiCard(active,      'نشط ✅',    null)}
-                ${kpiCard(fnew,        'لم يُفعَّل', null)}
-                ${kpiCard(rate + '%',  'معدل التفعيل', null)}
+            <div class="kpi-grid" style="margin-bottom:16px">
+                ${kpiCard(data.length, 'الإجمالي',          null)}
+                ${kpiCard(active,      '✅ مفعّل',           null)}
+                ${kpiCard(printed,     '🖨️ مطبوع',           null)}
+                ${kpiCard(fnew,        '🏭 جديد (لم يُطبع)', null)}
+                ${kpiCard(rate + '%',  'معدل التفعيل',       null)}
             </div>
-            <div class="section-title">🏷️ جميع الاستيكرات</div>
+            <div class="section-title">🏷️ جميع الاستيكرات (${data.length})</div>
             <div class="tbl-wrap"><table>
-                <thead><tr><th>#</th><th>رمز التفعيل</th><th>الحالة</th><th>تاريخ الإنشاء</th></tr></thead>
+                <thead><tr><th>#</th><th>رمز التفعيل</th><th>QR Token</th><th>الحالة</th><th>تاريخ الإنشاء</th></tr></thead>
                 <tbody>
     `;
 
     data.forEach((s, i) => {
-        const badge = s.status === 'active' ? '<span class="badge badge-active">نشط</span>'
-                    : s.status === 'factory_new' ? '<span class="badge badge-new">جديد</span>'
-                    : `<span class="badge badge-closed">${s.status}</span>`;
         const dt = s.created_at ? new Date(s.created_at).toLocaleDateString('ar-SA') : '—';
-        html += `<tr><td>${i+1}</td><td dir="ltr" style="font-family:monospace;font-size:12px">${s.activation_code || '—'}</td><td>${badge}</td><td>${dt}</td></tr>`;
+        const qr = s.qr_token ? s.qr_token.substring(0, 12) + '…' : '—';
+        html += `<tr>
+            <td>${i+1}</td>
+            <td dir="ltr" style="font-family:monospace;font-size:12px;font-weight:700">${s.activation_code || '—'}</td>
+            <td dir="ltr" style="font-family:monospace;font-size:11px;color:var(--text-muted)">${qr}</td>
+            <td>${stickerBadge(s.status)}</td>
+            <td>${dt}</td>
+        </tr>`;
     });
 
     html += '</tbody></table></div></div>';
@@ -446,26 +460,47 @@ async function renderMessages(el) {
     const { data } = await adminFetch('messages');
     if (!data || !data.length) { el.innerHTML = '<div class="section-block"><p>لا توجد رسائل.</p></div>'; return; }
 
-    const replied = data.filter(m => m.status === 'closed').length;
-    const rate = Math.round(replied / data.length * 100);
+    const replied  = data.filter(m => m.status === 'closed').length;
+    const pending  = data.length - replied;
+    const rate     = Math.round(replied / data.length * 100);
+    const withPhone = data.filter(m => m.owner_phone).length;
 
     let html = `
         <div class="section-block">
-            <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
-                ${kpiCard(data.length, 'إجمالي الرسائل',  null)}
-                ${kpiCard(replied,     'تلقت رداً ✅',    null)}
-                ${kpiCard(rate + '%',  'معدل الاستجابة',  null)}
+            <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
+                ${kpiCard(data.length, 'إجمالي الرسائل', null)}
+                ${kpiCard(replied,     'تلقت رداً ✅',   null)}
+                ${kpiCard(pending,     'بانتظار الرد',   null)}
+                ${kpiCard(rate + '%',  'معدل الاستجابة', null)}
             </div>
             <div class="section-title">📋 آخر ${data.length} رسالة</div>
             <div class="tbl-wrap"><table>
-                <thead><tr><th>#</th><th>رسالة الزائر</th><th>رد المالك</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+                <thead><tr>
+                    <th>#</th>
+                    <th>رسالة الزائر</th>
+                    <th>رد المالك</th>
+                    <th>المالك (جوال)</th>
+                    <th>بصمة الزائر</th>
+                    <th>الحالة</th>
+                    <th>التاريخ</th>
+                </tr></thead>
                 <tbody>
     `;
 
     data.forEach((m, i) => {
-        const badge = m.status === 'closed' ? '<span class="badge badge-active">تم الرد</span>' : '<span class="badge badge-new">جديدة</span>';
-        const dt = m.created_at ? new Date(m.created_at).toLocaleDateString('ar-SA') : '—';
-        html += `<tr><td>${i+1}</td><td>${(m.visitor_message || '—').substring(0, 55)}</td><td>${(m.owner_response || '—').substring(0, 55)}</td><td>${badge}</td><td>${dt}</td></tr>`;
+        const badge  = m.status === 'closed' ? '<span class="badge badge-active">تم الرد</span>' : '<span class="badge badge-new">جديدة</span>';
+        const dt     = m.created_at ? new Date(m.created_at).toLocaleDateString('ar-SA') : '—';
+        const phone  = m.owner_phone ? `<span dir="ltr" style="font-size:11px">${m.owner_phone}</span>` : '<span style="color:var(--text-muted)">—</span>';
+        const fp     = m.visitor_fingerprint ? `<span dir="ltr" style="font-size:10px;font-family:monospace;color:var(--text-muted)">${m.visitor_fingerprint.substring(0, 10)}…</span>` : '—';
+        html += `<tr>
+            <td>${i+1}</td>
+            <td>${(m.visitor_message || '—').substring(0, 45)}</td>
+            <td>${(m.owner_response  || '—').substring(0, 45)}</td>
+            <td>${phone}</td>
+            <td>${fp}</td>
+            <td>${badge}</td>
+            <td style="font-size:11px">${dt}</td>
+        </tr>`;
     });
 
     html += '</tbody></table></div></div>';
@@ -477,17 +512,44 @@ async function renderAudit(el) {
     const { data } = await adminFetch('audit');
     if (!data || !data.length) { el.innerHTML = '<div class="section-block"><p>لا يوجد سجل.</p></div>'; return; }
 
+    const nfcCount = data.filter(l => l.scan_type === 'nfc').length;
+    const qrCount  = data.length - nfcCount;
+
     let html = `
         <div class="section-block">
+            <div class="kpi-row" style="margin-bottom:20px;">
+                <div class="kpi-card">
+                    <div class="kpi-label">📱 NFC</div>
+                    <div class="kpi-value">${nfcCount}</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">📷 QR Code</div>
+                    <div class="kpi-value">${qrCount}</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">📊 الإجمالي</div>
+                    <div class="kpi-value">${data.length}</div>
+                </div>
+            </div>
             <div class="section-title">🔍 سجل المسح — آخر ${data.length} عملية</div>
             <div class="tbl-wrap"><table>
-                <thead><tr><th>#</th><th>IP</th><th>الجهاز</th><th>الموقع</th><th>التاريخ والوقت</th></tr></thead>
+                <thead><tr><th>#</th><th>نوع المسح</th><th>IP</th><th>صاحب الاستيكر</th><th>الموقع</th><th>التاريخ والوقت</th></tr></thead>
                 <tbody>
     `;
 
     data.forEach((l, i) => {
         const dt = l.scanned_at ? new Date(l.scanned_at).toLocaleString('ar-SA') : '—';
-        html += `<tr><td>${i+1}</td><td dir="ltr" style="font-size:11px">${l.visitor_ip || '—'}</td><td style="font-size:11px">${(l.user_agent || '—').substring(0, 38)}</td><td>${l.geo_info || '—'}</td><td style="font-size:11px">${dt}</td></tr>`;
+        const scanBadge = l.scan_type === 'nfc'
+            ? '<span class="badge badge-active">📱 NFC</span>'
+            : '<span class="badge badge-printed">📷 QR</span>';
+        html += `<tr>
+            <td>${i+1}</td>
+            <td>${scanBadge}</td>
+            <td dir="ltr" style="font-size:11px">${l.visitor_ip || '—'}</td>
+            <td style="font-size:12px">${l.owner_phone || '—'}</td>
+            <td>${l.geo_info || '—'}</td>
+            <td style="font-size:11px">${dt}</td>
+        </tr>`;
     });
 
     html += '</tbody></table></div></div>';
