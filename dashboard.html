@@ -110,6 +110,7 @@
     <div class="card">
         <div class="settings-row"><span data-key="settings_show_phone">📱 إظهار رقمي للزوار</span><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showPhoneToggle" onchange="toggleShowPhone()"><span id="showPhoneLabel" data-key="show_label_off">إخفاء</span></label></div>
         <div class="settings-row"><span>📸 إظهار صورة سيارتي للزوار</span><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showImageToggle" onchange="toggleShowImage()"><span id="showImageLabel">إخفاء</span></label></div>
+        <div class="settings-row"><span>🚗 إظهار بيانات المركبة للزوار</span><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showDetailsToggle" onchange="toggleShowDetails()"><span id="showDetailsLabel">إخفاء</span></label></div>
         <div class="settings-row" id="contactOptionsRow" style="display:none"><span data-key="contact_options">خيارات التواصل</span>
             <select id="contactMethod" onchange="updateContactMethod()" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px;font-size:14px;color:var(--text-primary)">
                 <option value="all" data-key="show_all_contact">🌐 إظهار الكل</option>
@@ -322,6 +323,11 @@ const showImageToggle = document.getElementById('showImageToggle');
 const showImageLabel = document.getElementById('showImageLabel');
 if (showImageToggle) showImageToggle.checked = isShowImage;
 if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إخفاء';
+            const isShowDetails = currentVehicle?.show_details ?? false;
+            const showDetailsToggle = document.getElementById('showDetailsToggle');
+            const showDetailsLabel = document.getElementById('showDetailsLabel');
+            if (showDetailsToggle) showDetailsToggle.checked = isShowDetails;
+            if (showDetailsLabel) showDetailsLabel.innerText = isShowDetails ? 'إظهار' : 'إخفاء';
             document.getElementById('vehicleDisplay').innerText = currentVehicle.custom_name || safeT('vehicle_default');
             document.getElementById('vehicleName').innerHTML = '🚗 <span data-key="vehicle_default">' + (currentVehicle.custom_name || safeT('vehicle_default')) + '</span>';
             document.getElementById('editCarName').value = currentVehicle.custom_name || '';
@@ -377,7 +383,7 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إ�
                     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'scan_logs', filter: `sticker_id=eq.${s.id}` }, (payload) => {
                         allMessages.unshift(payload.new);
                         updateCounters();
-                        playNotificationSound(); showToast('📩 رسالة جديدة');
+                        playNotificationSound(); showToast(t('new_message_toast'));
                         renderMessages(); loadHomeStats();
                     })
                     .subscribe();
@@ -409,6 +415,14 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إ�
     document.getElementById('showImageLabel').innerText = newValue ? 'إظهار' : 'إخفاء';
     if (currentVehicle) {
         await supabaseClient.from('vehicles').update({ show_image: newValue }).eq('id', currentVehicle.id);
+    }
+}
+    async function toggleShowDetails() {
+    const newValue = document.getElementById('showDetailsToggle').checked;
+    document.getElementById('showDetailsLabel').innerText = newValue ? 'إظهار' : 'إخفاء';
+    if (currentVehicle) {
+        await supabaseClient.from('vehicles').update({ show_details: newValue }).eq('id', currentVehicle.id);
+        showToast(newValue ? '✅ سيرى الزوار بيانات مركبتك' : '✅ تم إخفاء بيانات المركبة');
     }
 }
     async function updateContactMethod(){
@@ -613,9 +627,9 @@ if (imageFile) {
         });
         container.innerHTML = html;
     }
-    function copyToClipboard(text) { navigator.clipboard.writeText(text).then(() => showToast('✅ تم نسخ الرابط')).catch(() => showToast('❌ فشل النسخ')); }
-    async function blockVisitor(fingerprint) { if (!blockedFingerprints.includes(fingerprint)) { blockedFingerprints.push(fingerprint); await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id); showToast('✅ تم حظر الزائر'); loadMessages(); } }
-    async function unblockVisitor(fingerprint) { blockedFingerprints = blockedFingerprints.filter(f => f !== fingerprint); await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id); showToast('✅ تم إلغاء الحظر'); loadMessages(); }
+    function copyToClipboard(text) { navigator.clipboard.writeText(text).then(() => showToast(t('link_copied'))).catch(() => showToast(t('link_copy_failed'))); }
+    async function blockVisitor(fingerprint) { if (!blockedFingerprints.includes(fingerprint)) { blockedFingerprints.push(fingerprint); await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id); showToast(t('visitor_blocked_toast')); loadMessages(); } }
+    async function unblockVisitor(fingerprint) { blockedFingerprints = blockedFingerprints.filter(f => f !== fingerprint); await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id); showToast(t('visitor_unblocked_toast')); loadMessages(); }
     function showToast(msg){const old=document.querySelector('.toast');if(old)old.remove();const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3500);}
     async function logout(){localStorage.removeItem('safescan_login_ts');await supabaseClient.auth.signOut();window.location.href='/login.html';}
     const langSelectEl = document.getElementById('langSelect');

@@ -265,11 +265,11 @@ if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || ms
     return;
 }
         errEl.textContent = '';
-        if (!msg) { errEl.textContent = '❌ اكتب رسالة'; if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; } return; }
+        if (!msg) { errEl.textContent = '❌ ' + t('msg_empty'); if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; } return; }
         if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); return; }
 
         if (waitingForReply) {
-            errEl.textContent = '❌ انتظر رد المالك أولاً قبل إرسال رسالة أخرى.';
+            errEl.textContent = '❌ ' + t('wait_reply_first');
             return;
         }
 
@@ -278,7 +278,7 @@ if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || ms
         let quota = JSON.parse(localStorage.getItem(quotaKey) || '{"count":0,"resetAt":0}');
         if (now > quota.resetAt) { quota = { count: 0, resetAt: now + 3600000 }; }
         if (quota.count >= 3) {
-            errEl.textContent = '❌ لقد أرسلت 3 رسائل. يمكنك المحاولة بعد قليل أو انتظار رد المالك.';
+            errEl.textContent = '❌ ' + t('rate_limit_client');
             return;
         }
 
@@ -322,17 +322,17 @@ if (method === 'sms' && vehicleData?.phone) {
             return;
         }
         if (pushData.error === 'rate_limited') {
-            errEl.textContent = '❌ لقد أرسلت عدة رسائل. يمكنك المحاولة بعد ساعة.';
+            errEl.textContent = '❌ ' + t('rate_limited');
             if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
             return;
         }
         if (pushData.error === 'owner_inactive') {
-            errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح');
+            errEl.textContent = '❌ ' + (t('owner_unavailable') || t('owner_stopped'));
             if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
             return;
         }
         if (!pushData.session_token) {
-            errEl.textContent = '❌ فشل في الإرسال. حاول مجدداً.';
+            errEl.textContent = '❌ ' + t('send_failed');
             if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
             return;
         }
@@ -349,14 +349,14 @@ document.getElementById('stepMethod').style.display = 'none';
 document.getElementById('stepAccident').style.display = 'none';
 document.getElementById('sessionArea').style.display = 'block';
 document.getElementById('sessionArea').innerHTML = `
-    <div class="message-bubble visitor-bubble" style="background:#e0f2fe; padding:14px; border-radius:16px; margin-bottom:10px;">🧑 أنت: ${escapeHtml(msg)}</div>
+    <div class="message-bubble visitor-bubble">🧑 أنت: ${escapeHtml(msg)}</div>
     <div id="ownerReplyBox" style="text-align:center; color: var(--text-muted); padding:10px;">⏳ في انتظار رد المالك...</div>
     <p class="info-text" style="margin-top: 12px; text-align:center;">⏱️ الجلسة صالحة لمدة ساعة</p>
     <button onclick="window.location.reload()" class="btn btn-outline" style="margin-top:12px; width:100%;">🔄 إرسال رسالة جديدة</button>
 `;
         if (sendBtn) { sendBtn.textContent = '📨 إرسال الرسالة'; sendBtn.disabled = false; }
         } catch (netErr) {
-            errEl.textContent = '❌ خطأ في الاتصال. تحقق من الإنترنت وأعد المحاولة.';
+            errEl.textContent = '❌ ' + t('network_error');
             if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
         }
     }
@@ -381,7 +381,7 @@ document.getElementById('sessionArea').innerHTML = `
             const replyBox = document.getElementById('ownerReplyBox');
             if (replyBox) {
                 lastOwnerResponse = data.owner_response;
-                replyBox.outerHTML = `<div class="message-bubble owner-bubble" style="background:#dcfce7; padding:14px; border-radius:16px; margin:10px 0;">🚗 المالك: ${escapeHtml(data.owner_response)}<br><button onclick="translateOwnerMsg()" style="background:none;border:none;color:green;cursor:pointer;font-size:12px;margin-top:6px;">🌐 ترجمة</button></div>`;
+                replyBox.outerHTML = `<div class="message-bubble owner-bubble">🚗 المالك: ${escapeHtml(data.owner_response)}<br><button onclick="translateOwnerMsg()" style="background:none;border:none;color:var(--color-success);cursor:pointer;font-size:12px;margin-top:6px;">🌐 ترجمة</button></div>`;
             }
         }
     })
