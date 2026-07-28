@@ -18,8 +18,9 @@ exports.handler = async (event) => {
 
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);
 
-    const { data: sticker } = await supabase.from('stickers').select('vehicle_id').eq('id', sticker_id).maybeSingle();
+    const { data: sticker } = await supabase.from('stickers').select('vehicle_id, status').eq('id', sticker_id).maybeSingle();
     if (!sticker) { console.log('sticker not found:', sticker_id); return { statusCode: 200, headers, body: JSON.stringify({ error: 'no_sticker' }) }; }
+    if (sticker.status !== 'active') { return { statusCode: 200, headers, body: JSON.stringify({ error: 'owner_inactive' }) }; }
 
     const { data: vehicle } = await supabase.from('vehicles').select('user_id, is_active').eq('id', sticker.vehicle_id).maybeSingle();
     if (!vehicle) { console.log('vehicle not found'); return { statusCode: 200, headers, body: JSON.stringify({ error: 'no_vehicle' }) }; }
@@ -41,6 +42,17 @@ exports.handler = async (event) => {
       try { blocked = JSON.parse(profile?.blocked_ips || '[]'); } catch (e) {}
       if (blocked.includes(fingerprint)) {
         return { statusCode: 200, headers, body: JSON.stringify({ error: 'blocked' }) };
+      }
+
+      // C9: server-side rate limit — max 3 messages per fingerprint per sticker per hour
+      const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+      const { count } = await supabase.from('scan_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('sticker_id', sticker_id)
+        .eq('visitor_fingerprint', fingerprint)
+        .gte('created_at', oneHourAgo);
+      if (count >= 3) {
+        return { statusCode: 200, headers, body: JSON.stringify({ error: 'rate_limited' }) };
       }
     }
 
