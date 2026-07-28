@@ -187,7 +187,10 @@
         if (authError) { errorEl.textContent = '❌ خطأ في إنشاء الحساب: ' + authError.message; return; }
 
         const userId = authData.user.id;
-        await supabaseClient.from('profiles').update({ phone: phone }).eq('id', userId);
+        // Wait for the auth trigger to create the profiles row before updating
+        await new Promise(r => setTimeout(r, 600));
+        await supabaseClient.from('profiles')
+            .upsert({ id: userId, phone: phone }, { onConflict: 'id' });
 
         let imageUrl = null;
 const imageFile = document.getElementById('vehicleImage').files[0];

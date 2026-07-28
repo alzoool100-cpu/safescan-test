@@ -358,15 +358,17 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إ�
         if (!currentVehicle) return;
         supabaseClient.from('stickers').select('id').eq('vehicle_id', currentVehicle.id).then(({data:stickers})=>{
             if(!stickers?.length) return;
-            const ids = stickers.map(s=>s.id);
-            supabaseClient.channel('scan_logs_live')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'scan_logs', filter: `sticker_id=in.(${ids.join(',')})` }, (payload) => {
-                    allMessages.unshift(payload.new);
-                    updateCounters();
-                    playNotificationSound(); showToast('📩 رسالة جديدة');
-                    renderMessages(); loadHomeStats();
-                })
-                .subscribe();
+            // One channel per sticker — Supabase Realtime does not support IN filter
+            stickers.forEach(s => {
+                supabaseClient.channel(`scan_log_${s.id}`)
+                    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'scan_logs', filter: `sticker_id=eq.${s.id}` }, (payload) => {
+                        allMessages.unshift(payload.new);
+                        updateCounters();
+                        playNotificationSound(); showToast('📩 رسالة جديدة');
+                        renderMessages(); loadHomeStats();
+                    })
+                    .subscribe();
+            });
         });
     }
 
