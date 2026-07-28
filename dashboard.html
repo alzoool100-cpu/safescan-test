@@ -319,8 +319,8 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? 'إظهار' : 'إ�
             const { count: stickerCount } = await supabaseClient.from('stickers').select('*', { count: 'exact', head: true }).eq('vehicle_id', currentVehicle.id);
             document.getElementById('stickerCount').innerText = stickerCount || 0;
         } else {
-            const {data:newVehicle}=await supabaseClient.from('vehicles').insert([{user_id:user.id}]).select().single();
-            currentVehicle=newVehicle;
+            window.location.href = '/register.html';
+            return;
         }
         updateToggleUI();
         await loadMessages();
