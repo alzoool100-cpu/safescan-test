@@ -177,9 +177,6 @@ const name = [carIdentity, vehicleData.plate_number].filter(Boolean).join(' · �
 
     // ========== أزرار الرسائل الجاهزة ==========
     function setMessage(text) { document.getElementById('messageInput').value = text; }
-    document.querySelectorAll('[data-key^="quick_"]').forEach(btn => {
-        btn.addEventListener('click', function() { setMessage(this.textContent); });
-    });
     function showMethodStep() {
     document.getElementById('stepMethod').style.display = 'block';
     document.getElementById('stepMessage').style.display = 'none';

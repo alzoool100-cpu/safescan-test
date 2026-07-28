@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const { randomInt } = require('crypto');
 
 exports.handler = async (event) => {
   const headers = {
@@ -25,7 +26,7 @@ exports.handler = async (event) => {
     // Return ok even if phone not found to prevent enumeration attacks
     if (!profile) return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
 
-    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    const otp = String(randomInt(100000, 1000000));
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
 
     const { error: upsertError } = await supabase
@@ -65,7 +66,7 @@ exports.handler = async (event) => {
       console.warn('OTP push 0 recipients for user:', profile.id);
     }
 
-    return { statusCode: 200, headers, body: JSON.stringify({ ok: true, otp }) };
+    return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
 
   } catch (err) {
     console.error('reset-otp error:', err.message);
