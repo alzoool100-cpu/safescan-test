@@ -321,6 +321,11 @@ if (method === 'sms' && vehicleData?.phone) {
             if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
             return;
         }
+        if (pushData.error === 'rate_limited') {
+            errEl.textContent = '❌ لقد أرسلت عدة رسائل. يمكنك المحاولة بعد ساعة.';
+            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
+            return;
+        }
         if (pushData.error === 'owner_inactive') {
             errEl.textContent = '❌ ' + (t('owner_unavailable') || 'المالك غير متاح');
             if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
@@ -382,7 +387,12 @@ document.getElementById('sessionArea').innerHTML = `
     })
     .catch(e => console.log('[Reply Error]', e.message));
 }
-    const replyCheckInterval = setInterval(checkReplyStatus, 5000);
+    let replyCheckInterval = setInterval(checkReplyStatus, 5000);
+    window.addEventListener('beforeunload', () => clearInterval(replyCheckInterval));
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) { clearInterval(replyCheckInterval); }
+        else if (waitingForReply) { clearInterval(replyCheckInterval); replyCheckInterval = setInterval(checkReplyStatus, 5000); }
+    });
 
     function showToast(msg) {
         const old = document.querySelector('.toast');
