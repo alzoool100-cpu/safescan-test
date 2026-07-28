@@ -307,6 +307,7 @@ if (method === 'sms' && vehicleData?.phone) {
     window.location.href = `sms:${vehicleData.phone}?body=${encodeURIComponent(msg)}`;
     return;
 }
+        try {
         const pushRes = await fetch('/.netlify/functions/send-push', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -349,6 +350,10 @@ document.getElementById('sessionArea').innerHTML = `
     <button onclick="window.location.reload()" class="btn btn-outline" style="margin-top:12px; width:100%;">🔄 إرسال رسالة جديدة</button>
 `;
         if (sendBtn) { sendBtn.textContent = '📨 إرسال الرسالة'; sendBtn.disabled = false; }
+        } catch (netErr) {
+            errEl.textContent = '❌ خطأ في الاتصال. تحقق من الإنترنت وأعد المحاولة.';
+            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
+        }
     }
 
     function translateOwnerMsg(){ window.open('https://translate.google.com/m?sl=auto&tl=' + (currentLang||'ar') + '&q=' + encodeURIComponent(lastOwnerResponse), '_blank'); }
