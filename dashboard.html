@@ -281,6 +281,19 @@
     async function initDashboard() {
         const {data:{user},error}=await supabaseClient.auth.getUser();
         if(error||!user){alert(safeT('login_required'));window.location.href='/login.html';return;}
+
+        // X3: 30-day session guard — force re-login after 30 days of inactivity
+        const SESSION_MAX_MS = 30 * 24 * 60 * 60 * 1000;
+        const loginTs = localStorage.getItem('safescan_login_ts');
+        if (!loginTs) {
+            localStorage.setItem('safescan_login_ts', Date.now().toString());
+        } else if (Date.now() - parseInt(loginTs) > SESSION_MAX_MS) {
+            await supabaseClient.auth.signOut();
+            localStorage.removeItem('safescan_login_ts');
+            window.location.href = '/login.html';
+            return;
+        }
+
         currentUser=user;
         window._safescanUserId = user.id;
         loginToOneSignal(user.id);
@@ -604,7 +617,7 @@ if (imageFile) {
     async function blockVisitor(fingerprint) { if (!blockedFingerprints.includes(fingerprint)) { blockedFingerprints.push(fingerprint); await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id); showToast('✅ تم حظر الزائر'); loadMessages(); } }
     async function unblockVisitor(fingerprint) { blockedFingerprints = blockedFingerprints.filter(f => f !== fingerprint); await supabaseClient.from('profiles').update({ blocked_ips: JSON.stringify(blockedFingerprints) }).eq('id', currentUser.id); showToast('✅ تم إلغاء الحظر'); loadMessages(); }
     function showToast(msg){const old=document.querySelector('.toast');if(old)old.remove();const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),3500);}
-    async function logout(){await supabaseClient.auth.signOut();window.location.href='/index.html';}
+    async function logout(){localStorage.removeItem('safescan_login_ts');await supabaseClient.auth.signOut();window.location.href='/login.html';}
     const langSelectEl = document.getElementById('langSelect');
     if(langSelectEl && typeof setLanguage === 'function'){ langSelectEl.value = currentLang || 'ar'; langSelectEl.addEventListener('change', function(){ setLanguage(this.value); }); }
     function previewEditImage(event) {
