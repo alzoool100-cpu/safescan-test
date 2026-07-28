@@ -25,6 +25,10 @@
   --shadow-card: 0 4px 15px rgba(0, 0, 0, 0.04);
   --shadow-btn: 0 6px 15px rgba(26, 58, 92, 0.2);
   --font-family: 'Tajawal', system-ui, sans-serif;
+  --bubble-visitor-bg: #e0f2fe; --bubble-visitor-color: #0c4a6e;
+  --bubble-owner-bg: #dcfce7;   --bubble-owner-color: #14532d;
+  --badge-pending-bg: #fef9c3;  --badge-pending-color: #854d0e;
+  --badge-replied-bg: #dcfce7;  --badge-replied-color: #166534;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -105,6 +109,10 @@ body::before {
   --border-color: #333333; --border-input: #444444;
   --shadow-card: 0 4px 15px rgba(0,0,0,0.4);
   --color-primary: #4a90e2; --color-primary-hover: #357abd;
+  --bubble-visitor-bg: #0c2d3e; --bubble-visitor-color: #7dd3fc;
+  --bubble-owner-bg: #0f2d1a;   --bubble-owner-color: #86efac;
+  --badge-pending-bg: #2d2a0a;  --badge-pending-color: #fde047;
+  --badge-replied-bg: #0f2d1a;  --badge-replied-color: #86efac;
 }
 
 /* مكونات إضافية */
@@ -114,11 +122,11 @@ body::before {
 .toggle-switch.off::after { right: 29px; }
 .session-area { background: var(--bg-tag); border-radius: var(--radius-md); padding: 16px; margin-top: 16px; }
 .message-bubble { background: var(--bg-card); padding: 14px; border-radius: 16px; margin: 10px 0; max-width: 80%; border: 1px solid var(--border-color); }
-.visitor-bubble { background: #e0f2fe; margin-left: auto; text-align: right; }
-.owner-bubble { background: #dcfce7; margin-right: auto; text-align: left; }
+.visitor-bubble { background: var(--bubble-visitor-bg); color: var(--bubble-visitor-color); margin-left: auto; text-align: right; }
+.owner-bubble { background: var(--bubble-owner-bg); color: var(--bubble-owner-color); margin-right: auto; text-align: left; }
 .status-badge { display: inline-block; padding: 4px 12px; border-radius: 30px; font-size: 13px; font-weight: 500; margin-bottom: 10px; }
-.status-pending { background: #fef9c3; color: #854d0e; }
-.status-replied { background: #dcfce7; color: #166534; }
+.status-pending { background: var(--badge-pending-bg); color: var(--badge-pending-color); }
+.status-replied { background: var(--badge-replied-bg); color: var(--badge-replied-color); }
 .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--color-primary); color: white; padding: 16px 24px; border-radius: 40px; font-weight: 600; z-index: 9999; animation: slideDown 0.4s ease, fadeOut 0.4s ease 3s forwards; max-width: 90%; text-align: center; }
 @keyframes slideDown { from { top: -80px; opacity: 0; } to { top: 20px; opacity: 1; } }
 @keyframes fadeOut { to { opacity: 0; top: -80px; } }
