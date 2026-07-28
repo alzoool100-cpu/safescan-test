@@ -65,6 +65,13 @@
     <script>
         const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         if (!supabaseClient) alert('خطأ في تحميل المكتبات.');
+
+        // C30: redirect already-authenticated users straight to dashboard
+        (async () => {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) window.location.replace('/dashboard.html');
+        })();
+
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const phone = document.getElementById('phone').value.trim();
