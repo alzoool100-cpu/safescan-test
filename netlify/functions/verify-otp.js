@@ -20,21 +20,52 @@ exports.handler = async (event) => {
 
     const { data: record } = await supabase
       .from('otp_resets')
-      .select('otp, expires_at, used')
+      .select('otp, expires_at, used, attempts, locked_until')
       .eq('phone', phone)
       .maybeSingle();
 
     if (!record) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'no_otp' }) };
     }
+
+    // C1: Reject if account is locked after too many failed attempts
+    if (record.locked_until && new Date() < new Date(record.locked_until)) {
+      return { statusCode: 429, headers, body: JSON.stringify({ error: 'otp_locked' }) };
+    }
+
     if (record.used) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'otp_used' }) };
     }
     if (new Date() > new Date(record.expires_at)) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'otp_expired' }) };
     }
+
+    // C1: Wrong OTP — increment attempts, lock after 5 failures (15 min)
     if (record.otp !== otp) {
+      const newAttempts = (record.attempts || 0) + 1;
+      const lockUpdate = { attempts: newAttempts };
+      if (newAttempts >= 5) {
+        lockUpdate.locked_until = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+      }
+      await supabase.from('otp_resets').update(lockUpdate).eq('phone', phone);
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'otp_invalid' }) };
+    }
+
+    // C2: Atomic claim — only one concurrent request can win this UPDATE.
+    // If two requests race with the correct OTP, only the first gets a row back
+    // because the second sees used=true and no rows match.
+    const { data: claimed } = await supabase
+      .from('otp_resets')
+      .update({ used: true, attempts: 0, locked_until: null })
+      .eq('phone', phone)
+      .eq('otp', otp)
+      .eq('used', false)
+      .gt('expires_at', new Date().toISOString())
+      .select('phone')
+      .maybeSingle();
+
+    if (!claimed) {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'otp_used' }) };
     }
 
     const { data: profile } = await supabase
@@ -56,12 +87,10 @@ exports.handler = async (event) => {
       return { statusCode: 500, headers, body: JSON.stringify({ error: 'update_failed' }) };
     }
 
-    await supabase.from('otp_resets').update({ used: true }).eq('phone', phone);
-
     return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
 
   } catch (err) {
     console.error('verify-otp error:', err.message);
-    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'internal_error' }) };
   }
 };
