@@ -149,7 +149,7 @@ async function loadVehicleData() {
             }).catch(() => {});
         }
         const { data: vehicle } = await supabaseClient
-            .from('vehicles').select('user_id, custom_name, model, plate_number, image_url, show_image, is_active')
+            .from('vehicles').select('user_id, custom_name, model, plate_number, image_url, show_image, is_active, show_details')
             .eq('id', sticker.vehicle_id).maybeSingle();
         if (!vehicle) return;
         const { data: profile } = await supabaseClient
@@ -164,8 +164,9 @@ async function loadVehicleData() {
 
 function showVehicleInfo() {
     if (!vehicleData) return;
-    const carIdentity = vehicleData.custom_name || vehicleData.model || '';
-const name = [carIdentity, vehicleData.plate_number].filter(Boolean).join(' · لوحة ');
+    const carIdentity = vehicleData.show_details ? (vehicleData.custom_name || vehicleData.model || '') : '';
+    const platePart = vehicleData.show_details ? vehicleData.plate_number : '';
+    const name = [carIdentity, platePart].filter(Boolean).join(' · لوحة ');
     document.getElementById('vehicleInfoName').textContent = name || 'صاحب المركبة';
     if (vehicleData.show_image && vehicleData.image_url) {
         document.getElementById('vehicleInfoImg').src = vehicleData.image_url;
@@ -266,10 +267,11 @@ if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || ms
 }
         errEl.textContent = '';
         if (!msg) { errEl.textContent = '❌ ' + t('msg_empty'); if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; } return; }
-        if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); return; }
+        if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; } return; }
 
         if (waitingForReply) {
             errEl.textContent = '❌ ' + t('wait_reply_first');
+            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
             return;
         }
 
@@ -279,6 +281,7 @@ if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || ms
         if (now > quota.resetAt) { quota = { count: 0, resetAt: now + 3600000 }; }
         if (quota.count >= 3) {
             errEl.textContent = '❌ ' + t('rate_limit_client');
+            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
             return;
         }
 
