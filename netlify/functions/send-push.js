@@ -37,23 +37,28 @@ exports.handler = async (event) => {
       return { statusCode: 200, headers, body: JSON.stringify({ error: 'blocked' }) };
     }
 
+    // C3: use IP as fallback identifier so rate limits apply even without a fingerprint
+    const ip = (event.headers['x-forwarded-for'] || '').split(',')[0].trim();
+    const identifier = fingerprint || ip || 'unknown';
+
+    // Block check: fingerprint-based only (owner blocks specific visitors)
     if (fingerprint) {
       let blocked = [];
       try { blocked = JSON.parse(profile?.blocked_ips || '[]'); } catch (e) {}
       if (blocked.includes(fingerprint)) {
         return { statusCode: 200, headers, body: JSON.stringify({ error: 'blocked' }) };
       }
+    }
 
-      // C9: server-side rate limit — max 3 messages per fingerprint per sticker per hour
-      const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
-      const { count } = await supabase.from('scan_logs')
-        .select('*', { count: 'exact', head: true })
-        .eq('sticker_id', sticker_id)
-        .eq('visitor_fingerprint', fingerprint)
-        .gte('created_at', oneHourAgo);
-      if (count >= 3) {
-        return { statusCode: 200, headers, body: JSON.stringify({ error: 'rate_limited' }) };
-      }
+    // Rate limit: always enforced — max 3 messages per identifier per sticker per hour
+    const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
+    const { count } = await supabase.from('scan_logs')
+      .select('*', { count: 'exact', head: true })
+      .eq('sticker_id', sticker_id)
+      .eq('visitor_fingerprint', identifier)
+      .gte('created_at', oneHourAgo);
+    if (count >= 3) {
+      return { statusCode: 200, headers, body: JSON.stringify({ error: 'rate_limited' }) };
     }
 
     const sessionToken = randomUUID();
@@ -63,7 +68,7 @@ exports.handler = async (event) => {
       visitor_message: (message || '').substring(0, 500),
       session_token: sessionToken,
       status: 'pending',
-      visitor_fingerprint: fingerprint || '',
+      visitor_fingerprint: identifier,
     }]);
 
     if (logError) {
