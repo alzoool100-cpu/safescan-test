@@ -14,19 +14,24 @@ exports.handler = async (event) => {
   try {
     const { sticker_id, scan_type } = JSON.parse(event.body || '{}');
 
-    const ip = ((event.headers['x-forwarded-for'] || '').split(',')[0].trim())
-             || event.headers['client-ip']
-             || 'unknown';
+    // H2: validate IP format before using in URL — reject spoofed or path-traversal values
+    const rawIp = ((event.headers['x-forwarded-for'] || '').split(',')[0].trim())
+                || event.headers['client-ip']
+                || '';
+    const ipv4Re = /^(\d{1,3}\.){3}\d{1,3}$/;
+    const ipv6Re = /^[0-9a-fA-F:]{2,39}$/;
+    const ip = (ipv4Re.test(rawIp) || ipv6Re.test(rawIp)) ? rawIp : 'unknown';
     const ua = event.headers['user-agent'] || '';
 
     // IP geolocation (ipinfo.io — free, 50k/month, HTTPS)
     let geoInfo = null;
-    const isPrivateIp = /^(::1|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(ip);
+    // H2: added 169.254. (link-local) and 100.64. (CGNAT) to private ranges
+    const isPrivateIp = /^(::1|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.|169\.254\.|100\.64\.)/.test(ip);
     if (ip && ip !== 'unknown' && !isPrivateIp) {
       try {
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), 3000);
-        const geoRes = await fetch(`https://ipinfo.io/${ip}/json`, { signal: controller.signal });
+        const geoRes = await fetch(`https://ipinfo.io/${encodeURIComponent(ip)}/json`, { signal: controller.signal });
         clearTimeout(timer);
         if (geoRes.ok) {
           const geo = await geoRes.json();

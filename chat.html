@@ -43,8 +43,9 @@
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     }
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionToken = urlParams.get('session');
+    // H10: read token from sessionStorage (no token in URL); keep URL param as fallback for old links
+    const sessionToken = sessionStorage.getItem('safescan_session')
+                      || new URLSearchParams(window.location.search).get('session');
     let autoRefreshInterval;
     let isReplied = false;
 
