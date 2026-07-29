@@ -26,12 +26,30 @@ exports.handler = async (event) => {
     // Return ok even if phone not found to prevent enumeration attacks
     if (!profile) return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
 
+    // H1: 60-second cooldown — prevent OTP flooding / SMS bombing
+    const { data: existing } = await supabase
+      .from('otp_resets')
+      .select('expires_at, used')
+      .eq('phone', phone)
+      .maybeSingle();
+
+    if (existing && !existing.used) {
+      // expires_at = created_at + 30min, so created_at ≈ expires_at - 30min
+      const approxCreatedAt = new Date(existing.expires_at).getTime() - 30 * 60 * 1000;
+      if (Date.now() - approxCreatedAt < 60 * 1000) {
+        return { statusCode: 429, headers, body: JSON.stringify({ error: 'otp_cooldown' }) };
+      }
+    }
+
     const otp = String(randomInt(100000, 1000000));
     const expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
 
     const { error: upsertError } = await supabase
       .from('otp_resets')
-      .upsert({ phone, otp, expires_at: expiresAt, used: false }, { onConflict: 'phone' });
+      .upsert(
+        { phone, otp, expires_at: expiresAt, used: false, attempts: 0, locked_until: null },
+        { onConflict: 'phone' }
+      );
 
     if (upsertError) {
       console.error('otp upsert error:', upsertError);
@@ -70,6 +88,6 @@ exports.handler = async (event) => {
 
   } catch (err) {
     console.error('reset-otp error:', err.message);
-    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: 'internal_error' }) };
   }
 };
