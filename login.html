@@ -84,12 +84,7 @@
             const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
             if (error) { errorEl.textContent = '❌ بيانات خاطئة'; return; }
             localStorage.setItem('safescan_login_ts', Date.now().toString());
-           const params = new URLSearchParams(window.location.search);
-if (params.get('admin') === 'true') {
-    window.location.href = '/ss-ctrl-9m7x.html';
-} else {
-    window.location.href = '/dashboard.html';
-}
+            window.location.href = '/dashboard.html';
         });
     </script>
 </body>

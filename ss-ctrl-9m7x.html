@@ -140,6 +140,12 @@ function toggleDark() {
     document.getElementById('dmBtn').textContent = is ? '☀️' : '🌙';
 }
 
+// C5: HTML escape helper — apply to every value sourced from the database before innerHTML
+function esc(str) {
+    if (str == null) return '—';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 // ── Auth helpers ─────────────────────────────────────────────────────────────
 async function getToken() {
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -502,8 +508,8 @@ async function renderMessages(el) {
         const fp     = m.visitor_fingerprint ? `<span dir="ltr" style="font-size:10px;font-family:monospace;color:var(--text-muted)">${m.visitor_fingerprint.substring(0, 10)}…</span>` : '—';
         html += `<tr>
             <td>${i+1}</td>
-            <td>${(m.visitor_message || '—').substring(0, 45)}</td>
-            <td>${(m.owner_response  || '—').substring(0, 45)}</td>
+            <td>${esc(m.visitor_message).substring(0, 45)}</td>
+            <td>${esc(m.owner_response).substring(0, 45)}</td>
             <td>${phone}</td>
             <td>${fp}</td>
             <td>${badge}</td>
@@ -591,7 +597,7 @@ async function renderAudit(el) {
             ${cityData.map((c, i) => `
                 <div style="margin-bottom:10px">
                     <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-                        <span style="font-weight:600">${i+1}. ${c.city}</span>
+                        <span style="font-weight:600">${i+1}. ${esc(c.city)}</span>
                         <span style="color:var(--color-primary);font-weight:700">${c.count}</span>
                     </div>
                     <div style="background:var(--border-color);border-radius:4px;height:7px">
@@ -627,9 +633,9 @@ async function renderAudit(el) {
                         return `<tr>
                             <td>${i+1}</td>
                             <td>${scanBadge}</td>
-                            <td dir="ltr" style="font-size:11px">${l.visitor_ip || '—'}</td>
-                            <td style="font-size:12px">${l.owner_phone || '—'}</td>
-                            <td>${l.geo_info || '—'}</td>
+                            <td dir="ltr" style="font-size:11px">${esc(l.visitor_ip)}</td>
+                            <td style="font-size:12px">${esc(l.owner_phone)}</td>
+                            <td>${esc(l.geo_info)}</td>
                             <td style="font-size:11px">${dt}</td>
                         </tr>`;
                     }).join('')}

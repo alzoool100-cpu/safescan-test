@@ -378,7 +378,10 @@ document.getElementById('sessionArea').innerHTML = `
 
     function translateOwnerMsg(){ window.open('https://translate.google.com/m?sl=auto&tl=' + (currentLang||'ar') + '&q=' + encodeURIComponent(lastOwnerResponse), '_blank'); }
     function openChat() {
-        if (currentSessionToken) window.open('/chat.html?session=' + currentSessionToken, '_blank');
+        if (currentSessionToken) {
+            sessionStorage.setItem('safescan_session', currentSessionToken);
+            window.open('/chat.html', '_blank');
+        }
     }
 
    function checkReplyStatus() {
