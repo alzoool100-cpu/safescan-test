@@ -3,7 +3,7 @@ const { createClient } = require('@supabase/supabase-js');
 exports.handler = async (event) => {
   const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': process.env.APP_ORIGIN || 'https://calm-chebakia-9ddff4.netlify.app',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 
@@ -14,6 +14,15 @@ exports.handler = async (event) => {
     const { phone, otp, new_password } = JSON.parse(event.body || '{}');
     if (!phone || !otp || !new_password) {
       return { statusCode: 400, headers, body: JSON.stringify({ error: 'missing_fields' }) };
+    }
+
+    // H8: Server-side password strength — 8+ chars, uppercase, digit, special character
+    const pwStrong = new_password.length >= 8 &&
+      /[A-Z]/.test(new_password) &&
+      /[0-9]/.test(new_password) &&
+      /[^A-Za-z0-9]/.test(new_password);
+    if (!pwStrong) {
+      return { statusCode: 400, headers, body: JSON.stringify({ error: 'password_too_weak' }) };
     }
 
     const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_KEY);

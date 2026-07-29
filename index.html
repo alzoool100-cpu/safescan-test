@@ -153,9 +153,9 @@ async function loadVehicleData() {
             .eq('id', sticker.vehicle_id).maybeSingle();
         if (!vehicle) return;
         const { data: profile } = await supabaseClient
-            .from('profiles').select('phone, show_phone, contact_method')
+            .from('profiles').select('show_phone, contact_method')
             .eq('id', vehicle.user_id).maybeSingle();
-        vehicleData = { ...vehicle, phone: profile?.phone, show_phone: profile?.show_phone, contact_method: profile?.contact_method || 'all' };
+        vehicleData = { ...vehicle, show_phone: profile?.show_phone, contact_method: profile?.contact_method || 'all' };
         contactMethod = vehicleData.contact_method;
         showVehicleInfo();
         showMethodStep();
@@ -196,8 +196,12 @@ function showMessageStep() {
 }
 
 function selectMethod(method) {
-    if (method === 'call' && vehicleData?.phone) {
-        window.location.href = 'tel:' + vehicleData.phone;
+    if (method === 'call') {
+        fetch('/.netlify/functions/get-contact-link', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ qr_token: stickerToken, method: 'call' })
+        }).then(r => r.json()).then(d => { if (d.url) window.location.href = d.url; }).catch(() => {});
         return;
     }
     if (method === 'whatsapp' || method === 'sms') {
@@ -298,18 +302,26 @@ if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || ms
         }
 
         const method = document.getElementById('messageInput').dataset.method || 'message';
-if (method === 'whatsapp' && vehicleData?.phone) {
-    const waMsg = encodeURIComponent(msg);
-    let waPhone = vehicleData.phone.replace(/[^0-9]/g, '');
-    if (waPhone.startsWith('0')) waPhone = '966' + waPhone.slice(1);
-    else if (!waPhone.startsWith('966') && waPhone.length <= 9) waPhone = '966' + waPhone;
-    window.open(`https://wa.me/${waPhone}?text=${waMsg}`, '_blank');
-    return;
-}
-if (method === 'sms' && vehicleData?.phone) {
-    window.location.href = `sms:${vehicleData.phone}?body=${encodeURIComponent(msg)}`;
-    return;
-}
+        if (method === 'whatsapp' || method === 'sms') {
+            try {
+                const clRes = await fetch('/.netlify/functions/get-contact-link', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ qr_token: stickerToken, method, message: msg })
+                });
+                const clData = await clRes.json();
+                if (clData.url) {
+                    if (method === 'whatsapp') window.open(clData.url, '_blank');
+                    else window.location.href = clData.url;
+                } else {
+                    errEl.textContent = '❌ ' + (t('phone_hidden') || 'الرقم محجوب من المالك');
+                }
+            } catch (e) {
+                errEl.textContent = '❌ ' + t('network_error');
+            }
+            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
+            return;
+        }
         try {
         const pushRes = await fetch('/.netlify/functions/send-push', {
           method: 'POST',
