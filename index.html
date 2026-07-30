@@ -184,6 +184,7 @@ function showVehicleInfo() {
     document.getElementById('stepAccident').style.display = 'none';
     const showContact = vehicleData?.show_phone !== false;
     const m = showContact ? contactMethod : '';
+    document.getElementById('btnMessage').style.display = (m==='all'||m==='') ? 'block' : 'none';
     document.getElementById('btnWhatsapp').style.display = (m==='all'||m==='whatsapp') ? 'block' : 'none';
     document.getElementById('btnSms').style.display = (m==='all'||m==='sms') ? 'block' : 'none';
     document.getElementById('btnCall').style.display = (m==='all'||m==='phone') ? 'block' : 'none';
@@ -264,7 +265,7 @@ if (sendBtn) { sendBtn.textContent = '⏳ جار الإرسال...'; sendBtn.dis
         const msg = document.getElementById('messageInput').value.trim(); 
        const errEl = document.getElementById('errorMsg');
        const msgType = document.getElementById('messageInput').dataset.msgType;
-if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || msgType === 'platesale')) {
+if (!skipAccidentCheck && msgType === 'accident') {
     showAccidentStep(msg);
     if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
     return;
@@ -297,7 +298,7 @@ if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || ms
             .maybeSingle();
         if (se || !sticker) { errEl.textContent = '❌ ' + (t('sticker_invalid') || 'استيكر غير صالح'); return; }
         if (sticker.status !== 'active') {
-            errEl.textContent = '❌ ' + (sticker.status === 'inactive' ? 'المالك أوقف الاستقبال مؤقتاً' : t('sticker_invalid') || 'استيكر غير مفعّل');
+            errEl.textContent = '❌ ' + (sticker.status === 'inactive' ? (t('owner_stopped') || 'المالك أوقف الاستقبال مؤقتاً') : t('sticker_invalid') || 'استيكر غير مفعّل');
             return;
         }
 
@@ -367,7 +368,8 @@ document.getElementById('sessionArea').innerHTML = `
     <div class="message-bubble visitor-bubble">🧑 أنت: ${escapeHtml(msg)}</div>
     <div id="ownerReplyBox" style="text-align:center; color: var(--text-muted); padding:10px;">⏳ في انتظار رد المالك...</div>
     <p class="info-text" style="margin-top: 12px; text-align:center;">⏱️ الجلسة صالحة لمدة ساعة</p>
-    <button onclick="window.location.reload()" class="btn btn-outline" style="margin-top:12px; width:100%;">🔄 إرسال رسالة جديدة</button>
+    <button onclick="openChat()" class="btn btn-success" style="margin-top:12px; width:100%; font-size:14px;" data-key="chat_open">💬 فتح في نافذة جديدة</button>
+    <button onclick="window.location.reload()" class="btn btn-outline" style="margin-top:8px; width:100%;">🔄 إرسال رسالة جديدة</button>
 `;
         if (sendBtn) { sendBtn.textContent = '📨 إرسال الرسالة'; sendBtn.disabled = false; }
         } catch (netErr) {
