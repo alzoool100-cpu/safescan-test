@@ -176,7 +176,7 @@
         }
 
         const { data: existing } = await supabaseClient.from('profiles').select('id').eq('phone', phone).maybeSingle();
-        if (existing) { errorEl.textContent = '❌ هذا الرقم مسجل مسبقاً — سجّل دخولك بدلاً من ذلك'; return; }
+        if (existing) { errorEl.textContent = '❌ تحقق من البيانات أو سجّل دخولك إن كنت مسجلاً مسبقاً'; return; }
 
         // H4: validate activation code server-side with rate limiting (prevents brute-force)
         let stickerDbId;
@@ -205,6 +205,7 @@
 
         let imageUrl = null;
 const imageFile = document.getElementById('vehicleImage').files[0];
+if (imageFile && imageFile.size > 5 * 1024 * 1024) { errorEl.textContent = '❌ حجم الصورة يتجاوز 5MB. يرجى اختيار صورة أصغر.'; return; }
 if (imageFile) {
     const ext = imageFile.name.split('.').pop();
     const filePath = `vehicles/${userId}/${Date.now()}.${ext}`;

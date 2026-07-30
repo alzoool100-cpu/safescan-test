@@ -4,7 +4,7 @@ const { randomUUID } = require('crypto');
 exports.handler = async (event) => {
   const headers = {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': process.env.APP_ORIGIN || 'https://calm-chebakia-9ddff4.netlify.app',
     'Access-Control-Allow-Headers': 'Content-Type',
   };
 
