@@ -20,6 +20,7 @@
     </style>
 </head>
 <body>
+<button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
 <div class="container">
     <h2 data-key="chat_title">💬 محادثة مؤقتة مع مالك السيارة</h2>
     <div id="status"></div>
@@ -130,7 +131,7 @@
                 if (sticker) {
                     const { data: vehicle } = await supabaseClient.from('vehicles').select('custom_name, plate_number, model, show_details').eq('id', sticker.vehicle_id).maybeSingle();
                     if (vehicle && vehicle.show_details) {
-                        html += `<div class="message-bubble owner-bubble">🚗 المركبة: ${vehicle.custom_name || ''} ${vehicle.model || ''}<br>لوحة: ${vehicle.plate_number || ''}</div>`;
+                        html += `<div class="message-bubble owner-bubble">🚗 ${t('vehicle_info') || 'المركبة'}: ${vehicle.custom_name || ''} ${vehicle.model || ''}<br>${t('plate_number_label') || 'رقم اللوحة'}: ${vehicle.plate_number || ''}</div>`;
                     }
                 }
             } catch (err) {
@@ -154,6 +155,10 @@
     async function init() { await loadMessages(); startAutoRefresh(); }
     window.addEventListener('beforeunload', () => clearInterval(autoRefreshInterval));
     init();
+
+    const dt = document.getElementById('darkModeToggle');
+    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
+    dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
 </script>
 </body>
 </html>
