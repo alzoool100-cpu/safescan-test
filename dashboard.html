@@ -587,6 +587,7 @@ function linkifyPhone(text){ const escaped = escapeHtml(text); return escaped.re
     async function sendReplyFromConv(){const reply=document.getElementById('convReplyText').value.trim();if(!reply||!selectedMessageId)return;const {error}=await supabaseClient.from('scan_logs').update({owner_response:reply,status:'closed'}).eq('id',selectedMessageId);if(error){showToast('❌ فشل');return;}showToast('✅ '+safeT('reply_sent'));document.getElementById('convReplyText').value='';closeConversation();loadMessages();}
     async function saveProfile(){
         const imageFile = document.getElementById('editVehicleImage').files[0];
+if (imageFile && imageFile.size > 5 * 1024 * 1024) { showToast('❌ حجم الصورة يتجاوز 5MB'); return; }
 if (imageFile) {
     const ext = imageFile.name.split('.').pop();
     const filePath = `vehicles/${currentUser.id}/${Date.now()}.${ext}`;

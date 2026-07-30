@@ -80,11 +80,21 @@
             const errorEl = document.getElementById('errorMsg');
             errorEl.textContent = '';
             if (!phone || !password) { errorEl.textContent = '❌ الرجاء إدخال البيانات'; return; }
-            const email = `${phone}@safescan.local`;
-            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-            if (error) { errorEl.textContent = '❌ بيانات خاطئة'; return; }
-            localStorage.setItem('safescan_login_ts', Date.now().toString());
-            window.location.href = '/dashboard.html';
+            try {
+                const res = await fetch('/.netlify/functions/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, password }),
+                });
+                const data = await res.json();
+                if (data.error === 'rate_limited') { errorEl.textContent = '❌ محاولات كثيرة. حاول بعد ساعة.'; return; }
+                if (data.error || !data.ok) { errorEl.textContent = '❌ بيانات خاطئة'; return; }
+                await supabaseClient.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
+                localStorage.setItem('safescan_login_ts', Date.now().toString());
+                window.location.href = '/dashboard.html';
+            } catch (err) {
+                errorEl.textContent = '❌ خطأ في الاتصال. حاول مجدداً.';
+            }
         });
     </script>
 </body>
