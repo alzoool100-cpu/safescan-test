@@ -36,8 +36,10 @@ exports.handler = async (event) => {
 
     await supabaseAdmin.from('login_attempts').insert([{ ip }]);
 
-    // Attempt login via anon key (same as client-side, but rate-limited here)
-    const supabaseAnon = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+    // Attempt login via anon key — public key already exposed in config.js
+    const ANON_KEY = process.env.SUPABASE_ANON_KEY ||
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh5dm14eXh6d2JhbmVpcWJhY2NzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0OTE5NDcsImV4cCI6MjA5MjA2Nzk0N30.quCagV87WuYVDN99FJuBb5jCymuwoKUQVqzlEpfDooM';
+    const supabaseAnon = createClient(process.env.SUPABASE_URL, ANON_KEY);
     const email = `${phone}@safescan.local`;
     const { data, error } = await supabaseAnon.auth.signInWithPassword({ email, password });
 
