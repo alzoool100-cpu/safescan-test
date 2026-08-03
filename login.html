@@ -43,7 +43,8 @@
             <div class="input-group">
                 <label data-key="password_label">كلمة المرور</label>
                 <span class="icon">🔒</span>
-                <input type="password" id="password" data-placeholder="password_label" placeholder="كلمة المرور">
+                <input type="password" id="password" data-placeholder="password_label" placeholder="كلمة المرور" style="padding-left:44px;">
+                <button type="button" id="eyeBtn" onclick="togglePassVis()" style="position:absolute;left:10px;top:36px;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:18px;padding:4px;" aria-label="إظهار كلمة المرور">👁</button>
             </div>
             <button type="submit" class="btn btn-primary" data-key="login_btn">دخول</button>
             <div id="errorMsg" class="error-text"></div>
@@ -96,6 +97,13 @@
                 errorEl.textContent = '❌ خطأ في الاتصال. حاول مجدداً.';
             }
         });
+
+        function togglePassVis() {
+            const inp = document.getElementById('password');
+            const btn = document.getElementById('eyeBtn');
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+            btn.textContent = inp.type === 'password' ? '👁' : '🙈';
+        }
     </script>
 </body>
 </html>
