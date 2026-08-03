@@ -86,16 +86,69 @@
         .edit-input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 4px; background: var(--bg-input); color: var(--text-primary); }
         #pushSubscribeBtn.active { background: var(--color-success); color: white; }
         button, .toggle-switch { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        /* ── Profile card (home) ── */
+        .profile-card { text-align:center; padding:20px 16px 16px; }
+        .vehicle-avatar { width:84px; height:84px; border-radius:50%; border:3px solid var(--color-primary); margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:38px; background:var(--bg-tag); overflow:hidden; }
+        .vehicle-avatar img { width:100%; height:100%; object-fit:cover; }
+        .home-vehicle-name { font-size:18px; font-weight:700; margin-bottom:6px; }
+        .plate-badge { display:inline-block; background:var(--text-primary); color:var(--bg-card); font-size:12px; font-weight:700; padding:3px 14px; border-radius:6px; margin-bottom:14px; direction:ltr; letter-spacing:.08em; }
+        .status-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px; }
+        .status-cell { background:var(--bg-tag); border-radius:12px; padding:10px 6px; text-align:center; cursor:pointer; transition:background .2s; -webkit-tap-highlight-color:transparent; }
+        .status-cell:active { opacity:.8; }
+        .s-icon { font-size:20px; margin-bottom:3px; }
+        .s-lbl { font-size:10px; color:var(--text-muted); }
+        .s-val { font-size:12px; font-weight:700; margin-top:2px; }
+        .s-val.on { color:var(--color-success); }
+        .s-val.off { color:var(--text-muted); }
+        /* ── Settings SVG icons ── */
+        .row-icon { width:34px; height:34px; border-radius:9px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; background:var(--bg-tag); }
+        .row-icon svg { width:18px; height:18px; stroke:var(--color-primary); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+        /* ── Section headers in account ── */
+        .sec-hdr { font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase; color:var(--text-muted); padding-bottom:10px; border-bottom:1px solid var(--border-color); margin-bottom:12px; }
+        /* ── Inbox cards ── */
+        .inbox-msg-preview { font-weight:600; font-size:14px; margin-bottom:5px; color:var(--text-primary); }
+        .inbox-meta { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--text-muted); margin-bottom:8px; flex-wrap:wrap; }
+        .inbox-actions { display:flex; gap:8px; flex-wrap:wrap; }
+        .iaction { font-size:12px; font-weight:600; padding:5px 12px; border-radius:99px; border:1.5px solid var(--border-color); background:var(--bg-tag); cursor:pointer; color:var(--text-secondary); touch-action:manipulation; }
+        .iaction.red { border-color:#fecaca; color:#dc2626; background:#fef2f2; }
+        .iaction.orange { border-color:#fed7aa; color:#c2410c; background:#fff7ed; }
     </style>
 </head>
 <body>
 
 <div id="homePage" class="page active">
-    <div class="header"><div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div><div class="car-badge" id="vehicleName">🚗 <span data-key="vehicle_default">سيارتي</span></div></div>
-    <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-weight:600;font-size:18px" id="statusLabel" data-key="status_active">🟢 حالة الاستقبال</span><div class="toggle-switch" id="statusToggle" onclick="toggleStatus()"></div></div>
-        <div class="stats"><div class="stat-item"><div class="stat-number" id="newCount">0</div><div data-key="new_msgs">جديدة</div></div><div class="stat-item"><div class="stat-number" id="totalCount">0</div><div data-key="replied_msgs">تم الرد</div></div></div>
-        <div id="lastMessage" style="margin-top:12px;color:var(--text-secondary)" data-key="last_message_none">لا توجد رسائل حالياً</div>
+    <div class="header" style="margin-bottom:12px;"><div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div><div class="car-badge" id="vehicleName">🚗 <span data-key="vehicle_default">سيارتي</span></div></div>
+    <div class="card" style="padding:0;overflow:hidden;">
+        <div class="profile-card">
+            <div class="vehicle-avatar" id="homeAvatar"><span id="homeAvatarEmoji">🚗</span><img id="homeAvatarImg" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
+            <div class="home-vehicle-name" id="homeVehicleName" data-key="vehicle_default">سيارتي</div>
+            <div id="homePlateBadge" class="plate-badge" style="display:none;">---</div>
+            <div class="status-grid">
+                <div class="status-cell" onclick="toggleStatus()">
+                    <div class="s-icon" id="homeStatusIcon">🟢</div>
+                    <div class="s-lbl" data-key="reception">الاستقبال</div>
+                    <div class="s-val on" id="homeStatusVal" data-key="status_on">مفعّل</div>
+                </div>
+                <div class="status-cell" onclick="switchPage('settings')">
+                    <div class="s-icon">📱</div>
+                    <div class="s-lbl" data-key="phone_lbl">الرقم</div>
+                    <div class="s-val" id="homePhoneVal" data-key="hidden_lbl">مخفي</div>
+                </div>
+                <div class="status-cell" onclick="switchPage('settings')">
+                    <div class="s-icon">📸</div>
+                    <div class="s-lbl" data-key="image_lbl">الصورة</div>
+                    <div class="s-val" id="homeImageVal" data-key="hidden_lbl">مخفي</div>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-item" onclick="switchPage('inbox')"><div class="stat-number" id="newCount">0</div><div data-key="new_msgs">جديدة</div></div>
+                <div class="stat-item" onclick="switchPage('inbox')"><div class="stat-number" id="totalCount">0</div><div data-key="replied_msgs">تم الرد</div></div>
+                <div class="stat-item"><div class="stat-number" id="todayScanCount">—</div><div data-key="today_scans">مسحات اليوم</div></div>
+            </div>
+        </div>
+        <div style="border-top:1px solid var(--border-color);padding:12px 16px;">
+            <div id="lastMessage" style="color:var(--text-secondary);font-size:13px;" data-key="last_message_none">لا توجد رسائل حالياً</div>
+        </div>
     </div>
 </div>
 
@@ -108,84 +161,175 @@
 <div id="settingsPage" class="page">
     <div class="header"><h3 data-key="settings_tab">⚙️ الإعدادات</h3></div>
     <div class="card">
-        <div class="settings-row"><span data-key="settings_show_phone">📱 إظهار رقمي للزوار</span><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showPhoneToggle" onchange="toggleShowPhone()"><span id="showPhoneLabel" data-key="show_label_off">إخفاء</span></label></div>
-        <div class="settings-row"><span>📸 إظهار صورة سيارتي للزوار</span><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showImageToggle" onchange="toggleShowImage()"><span id="showImageLabel">إخفاء</span></label></div>
-        <div class="settings-row"><span>🚗 إظهار بيانات المركبة للزوار</span><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="showDetailsToggle" onchange="toggleShowDetails()"><span id="showDetailsLabel">إخفاء</span></label></div>
-        <div class="settings-row" id="contactOptionsRow" style="display:none"><span data-key="contact_options">خيارات التواصل</span>
-            <select id="contactMethod" onchange="updateContactMethod()" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px;font-size:14px;color:var(--text-primary)">
-                <option value="all" data-key="show_all_contact">🌐 إظهار الكل</option>
-                <option value="phone" data-key="phone_only">📞 رقم فقط</option>
-                <option value="whatsapp" data-key="whatsapp_only">💬 واتساب فقط</option>
-                <option value="sms" data-key="sms_only">📨 رسائل نصية فقط</option>
+        <!-- 1. Show phone -->
+        <div class="settings-row">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span class="row-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 10a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 7.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+                <span data-key="settings_show_phone">إظهار رقمي للزوار</span>
+            </div>
+            <label class="sett-toggle"><input type="checkbox" id="showPhoneToggle" onchange="toggleShowPhone()"><span class="slider"></span></label>
+        </div>
+        <!-- 2. Contact method (shown if phone visible) -->
+        <div class="settings-row" id="contactOptionsRow" style="display:none">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span class="row-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+                <span data-key="contact_options">خيارات التواصل</span>
+            </div>
+            <select id="contactMethod" onchange="updateContactMethod()" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px;font-size:13px;color:var(--text-primary)">
+                <option value="all" data-key="show_all_contact">الكل</option>
+                <option value="phone" data-key="phone_only">رقم فقط</option>
+                <option value="whatsapp" data-key="whatsapp_only">واتساب فقط</option>
+                <option value="sms" data-key="sms_only">SMS فقط</option>
             </select>
         </div>
+        <!-- 3. Show image -->
         <div class="settings-row">
-            <span>🔔 إشعارات الجوال (Push)</span>
-            <button class="btn-tag" id="pushSubscribeBtn" onclick="togglePushSubscription()">🔕 غير مُفعّل</button>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span class="row-icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+                <span>إظهار صورة سيارتي</span>
+            </div>
+            <label class="sett-toggle"><input type="checkbox" id="showImageToggle" onchange="toggleShowImage()"><span class="slider"></span></label>
         </div>
+        <!-- 4. Show details -->
         <div class="settings-row">
-            <span>🔔 نغمة الإشعارات</span>
-            <div style="display:flex;align-items:center;gap:8px">
-                <select id="soundSelect" onchange="changeSoundSetting(this.value)" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px;font-size:13px;color:var(--text-primary)">
-                    <option value="off">🔇 بدون صوت</option>
-                    <option value="ding">🔔 دينغ</option>
-                    <option value="double">🔔 مزدوج</option>
-                    <option value="alert">🚨 تنبيه قوي</option>
-                    <option value="custom">📱 من جوالي</option>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span class="row-icon"><svg viewBox="0 0 24 24"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 17H3v-4l2-5h14l2 5v4h-2m-8 0h4"/><path d="M5 13h14"/></svg></span>
+                <span>إظهار بيانات المركبة</span>
+            </div>
+            <label class="sett-toggle"><input type="checkbox" id="showDetailsToggle" onchange="toggleShowDetails()"><span class="slider"></span></label>
+        </div>
+        <!-- 5. Push notifications -->
+        <div class="settings-row">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span class="row-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+                <span>إشعارات الجوال</span>
+            </div>
+            <button class="btn-tag" id="pushSubscribeBtn" onclick="togglePushSubscription()" style="font-size:12px;">🔕 غير مُفعّل</button>
+        </div>
+        <!-- 6. Sound -->
+        <div class="settings-row">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span class="row-icon"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></span>
+                <span>نغمة الإشعارات</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+                <select id="soundSelect" onchange="changeSoundSetting(this.value)" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:7px 10px;font-size:12px;color:var(--text-primary)">
+                    <option value="off">بدون صوت</option>
+                    <option value="ding">دينغ</option>
+                    <option value="double">مزدوج</option>
+                    <option value="alert">تنبيه قوي</option>
+                    <option value="custom">من جوالي</option>
                 </select>
                 <button class="btn-tag" onclick="previewSound()" style="padding:6px 10px;font-size:12px">▶</button>
             </div>
         </div>
         <div id="customSoundRow" style="display:none" class="settings-row">
-            <span style="font-size:13px">🎵 <span id="customSoundName">لم يُختَر بعد</span></span>
+            <span style="font-size:13px;color:var(--text-secondary);">🎵 <span id="customSoundName">لم يُختَر بعد</span></span>
             <div>
                 <input type="file" id="ringtoneFile" accept="audio/*" onchange="handleRingtoneFile(this)" style="display:none">
-                <button class="btn-tag" onclick="document.getElementById('ringtoneFile').click()" style="font-size:12px">📂 اختيار نغمة</button>
+                <button class="btn-tag" onclick="document.getElementById('ringtoneFile').click()" style="font-size:12px">📂 اختيار</button>
             </div>
         </div>
-        <div class="settings-row" style="font-size:12px;color:var(--text-muted);border:none;padding-top:0">
-            <span>💡 لاستقبال الإشعارات في الخلفية: إعدادات الجوال ← التطبيقات ← Chrome ← البطارية ← بلا قيود</span>
+        <div class="settings-row" style="font-size:11px;color:var(--text-muted);border:none;padding-top:0;padding-right:44px;">
+            <span>💡 لإشعارات الخلفية: إعدادات الجوال ← Chrome ← البطارية ← بلا قيود</span>
         </div>
-        <div class="settings-row"><span data-key="language_label">🌐 اللغة</span>
-            <select id="langSelect" onchange="setLanguage(this.value)" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px 16px;font-size:14px;color:var(--text-primary)">
+        <!-- 7. Language -->
+        <div class="settings-row">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span class="row-icon"><svg viewBox="0 0 24 24"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg></span>
+                <span data-key="language_label">اللغة</span>
+            </div>
+            <select id="langSelect" onchange="setLanguage(this.value)" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px;font-size:13px;color:var(--text-primary)">
                 <option value="ar">العربية</option><option value="en">English</option><option value="hi">हिन्दी</option><option value="ur">اردو</option>
             </select>
         </div>
-        <div class="settings-row"><span data-key="dark_mode_label">🌙 الوضع الليلي</span><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()"><span id="darkModeLabel" data-key="dark_mode_off">معطَّل</span></label></div>
-        <div class="settings-row"><a href="/privacy.html" style="color:var(--text-primary);text-decoration:none" data-key="privacy_policy_link">📄 سياسة الخصوصية</a></div>
-        <div class="settings-row"><a href="/terms.html" style="color:var(--text-primary);text-decoration:none" data-key="terms_of_service_link">📄 شروط الاستخدام</a></div>
-        <div class="settings-row"><a href="/support.html" style="color:var(--text-primary);text-decoration:none" data-key="support_link">📞 الدعم</a></div>
+        <!-- 8. Dark mode -->
+        <div class="settings-row">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span class="row-icon"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+                <span data-key="dark_mode_label">الوضع الليلي</span>
+            </div>
+            <label class="sett-toggle"><input type="checkbox" id="darkModeToggle" onchange="toggleDarkMode()"><span class="slider"></span></label>
+        </div>
+        <!-- 9. Links -->
+        <div class="settings-row">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span class="row-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+                <a href="/privacy.html" style="color:var(--text-primary);text-decoration:none" data-key="privacy_policy_link">سياسة الخصوصية</a>
+            </div>
+        </div>
+        <div class="settings-row">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span class="row-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+                <a href="/terms.html" style="color:var(--text-primary);text-decoration:none" data-key="terms_of_service_link">شروط الاستخدام</a>
+            </div>
+        </div>
+        <div class="settings-row" style="border:none;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span class="row-icon"><svg viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/><path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg></span>
+                <a href="/support.html" style="color:var(--text-primary);text-decoration:none" data-key="support_link">الدعم الفني</a>
+            </div>
+        </div>
     </div>
 </div>
 
 <div id="accountPage" class="page">
     <div class="header"><h3 data-key="account_tab">👤 حسابي</h3></div>
-    <div class="card">
-        <div class="settings-row"><span data-key="phone_registered">📱 رقم الجوال المسجل</span><span id="phoneDisplay">---</span></div>
-        <div class="settings-row"><span data-key="vehicle_info">🚗 المركبة</span><span id="vehicleDisplay">---</span></div>
-        <div class="settings-row"><span>🏷️ عدد الاستيكرات</span><span id="stickerCount">---</span></div>
-        <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px">
-            <h4>🏷️ استيكراتي</h4>
-            <div id="myStickersList" style="max-height: 200px; overflow-y: auto; margin: 12px 0;">
-                <div class="loading" data-key="loading">جار التحميل...</div>
+
+    <!-- Section 1: Account info -->
+    <div class="card" style="margin-bottom:12px;">
+        <div class="sec-hdr" data-key="account_info_section">معلومات الحساب</div>
+        <div class="settings-row" style="border:none;padding-bottom:4px;">
+            <span style="display:flex;align-items:center;gap:8px;"><span class="row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 10a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 7.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><span data-key="phone_registered">رقم الجوال</span></span>
+            <span id="phoneDisplay" style="font-weight:700;direction:ltr;">---</span>
+        </div>
+    </div>
+
+    <!-- Section 2: Vehicle & stickers -->
+    <div class="card" style="margin-bottom:12px;">
+        <div class="sec-hdr" data-key="vehicle_section">المركبة والاستيكرات</div>
+        <div class="settings-row">
+            <span style="display:flex;align-items:center;gap:8px;"><span class="row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 17H3v-4l2-5h14l2 5v4h-2"/><path d="M5 13h14"/></svg></span><span data-key="vehicle_info">المركبة</span></span>
+            <span id="vehicleDisplay" style="font-weight:600;">---</span>
+        </div>
+        <div class="settings-row" style="border:none;">
+            <span style="display:flex;align-items:center;gap:8px;"><span class="row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span><span>الاستيكرات</span></span>
+            <span id="stickerCount" style="font-weight:600;">---</span>
+        </div>
+        <div id="myStickersList" style="max-height:200px;overflow-y:auto;margin-top:8px;padding-top:8px;border-top:1px solid var(--border-color);">
+            <div class="loading" data-key="loading">جار التحميل...</div>
+        </div>
+    </div>
+
+    <!-- Section 3: Edit vehicle -->
+    <div class="card" style="margin-bottom:12px;">
+        <div class="sec-hdr" style="cursor:pointer;user-select:none;" onclick="toggleEditSection()">
+            <span data-key="edit_profile">تعديل بيانات المركبة</span>
+            <span id="editSectionArrow" style="float:left;transition:.2s;">▾</span>
+        </div>
+        <div id="editSection">
+            <label style="font-size:13px;color:var(--text-secondary);">📸 صورة المركبة</label>
+            <input type="file" id="editVehicleImage" accept="image/*" onchange="previewEditImage(event)" style="margin-bottom:8px;margin-top:4px;">
+            <img id="editImagePreview" style="width:100%;max-height:180px;object-fit:cover;border-radius:12px;margin-bottom:12px;display:none;">
+            <label style="font-size:13px;color:var(--text-secondary);" data-key="vehicle_name_label">اسم المركبة</label>
+            <input type="text" id="editCarName" class="edit-input" placeholder="اسم المركبة">
+            <label style="font-size:13px;color:var(--text-secondary);margin-top:8px;display:block;" data-key="plate_number_label">رقم اللوحة</label>
+            <div style="display:flex;gap:8px;direction:ltr;align-items:center;margin-top:4px;margin-bottom:8px;">
+                <input type="text" id="editPlateNumbers" placeholder="1234" maxlength="4" inputmode="numeric" class="edit-input" style="flex:4;text-align:center;font-weight:700;font-size:17px;letter-spacing:.06em;">
+                <span style="color:var(--text-muted);font-weight:700;font-size:18px;">–</span>
+                <input type="text" id="editPlateLetters" placeholder="أبج" maxlength="3" class="edit-input" style="flex:3;text-align:center;font-weight:700;font-size:17px;letter-spacing:.1em;">
             </div>
+            <label style="font-size:13px;color:var(--text-secondary);" data-key="model_label">الموديل</label>
+            <input type="text" id="editModel" class="edit-input" placeholder="الموديل">
+            <label style="font-size:13px;color:var(--text-secondary);margin-top:8px;display:block;" data-key="driver_name_label">اسم السائق</label>
+            <input type="text" id="editDriver" class="edit-input" placeholder="اسم السائق">
+            <button class="btn btn-primary" style="margin-top:14px" onclick="saveProfile()" data-key="save_changes">حفظ التعديلات</button>
         </div>
-        <div style="border-top:1px solid var(--border-color);margin-top:16px;padding-top:16px">
-            <h4 data-key="edit_profile">تعديل بيانات المركبة</h4>
-            <label>📸 صورة المركبة</label>
-<input type="file" id="editVehicleImage" accept="image/*" onchange="previewEditImage(event)" style="margin-bottom:8px">
-<img id="editImagePreview" style="width:100%;max-height:200px;object-fit:cover;border-radius:12px;margin-bottom:12px;display:none;">
-            <label data-key="vehicle_name_label">اسم المركبة</label>
-            <input type="text" id="editCarName" class="edit-input" data-placeholder="vehicle_name_label" placeholder="اسم المركبة">
-            <label data-key="plate_number_label">رقم اللوحة</label>
-            <input type="text" id="editPlate" class="edit-input" data-placeholder="plate_number_label" placeholder="رقم اللوحة">
-            <label data-key="model_label">الموديل</label>
-            <input type="text" id="editModel" class="edit-input" data-placeholder="model_label" placeholder="الموديل">
-            <label data-key="driver_name_label">اسم السائق</label>
-            <input type="text" id="editDriver" class="edit-input" data-placeholder="driver_name_label" placeholder="اسم السائق">
-            <button class="btn btn-primary" style="margin-top:12px" onclick="saveProfile()" data-key="save_changes">حفظ التعديلات</button>
-        </div>
-        <button class="btn btn-outline" style="margin-top:20px" onclick="logout()" data-key="logout_btn">تسجيل الخروج</button>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="card" style="margin-bottom:12px;">
+        <button class="btn btn-outline" onclick="logout()" data-key="logout_btn">تسجيل الخروج</button>
     </div>
 </div>
 
@@ -215,33 +359,25 @@
 
     // ========== استعادة جميع الإعدادات ==========
     function restoreAllSettings() {
-    restoreAudioSetting();
+        restoreAudioSetting();
 
-    // استعادة الوضع الليلي
-    var savedDark = localStorage.getItem('darkMode') === 'true';
-    var darkToggle = document.getElementById('darkModeToggle');
-    var darkLabel = document.getElementById('darkModeLabel');
-    if (darkToggle) darkToggle.checked = savedDark;
-    if (darkLabel) darkLabel.textContent = savedDark ? safeT('dark_mode_on') : safeT('dark_mode_off');
-    if (savedDark) document.documentElement.classList.add('dark-mode');
+        var savedDark = localStorage.getItem('darkMode') === 'true';
+        var darkToggle = document.getElementById('darkModeToggle');
+        if (darkToggle) darkToggle.checked = savedDark;
+        if (savedDark) document.documentElement.classList.add('dark-mode');
 
-    // استعادة إظهار رقم الهاتف
-    var savedShowPhone = localStorage.getItem('safescan_show_phone') === 'true';
-    var showPhoneToggle = document.getElementById('showPhoneToggle');
-    var showPhoneLabel = document.getElementById('showPhoneLabel');
-    var contactRow = document.getElementById('contactOptionsRow');
-    if (showPhoneToggle) showPhoneToggle.checked = savedShowPhone;
-    if (showPhoneLabel) showPhoneLabel.textContent = savedShowPhone ? safeT('show_label_on') : safeT('show_label_off');
-    if (contactRow) contactRow.style.display = savedShowPhone ? 'block' : 'none';
+        var savedShowPhone = localStorage.getItem('safescan_show_phone') === 'true';
+        var showPhoneToggle = document.getElementById('showPhoneToggle');
+        var contactRow = document.getElementById('contactOptionsRow');
+        if (showPhoneToggle) showPhoneToggle.checked = savedShowPhone;
+        if (contactRow) contactRow.style.display = savedShowPhone ? 'block' : 'none';
 
-    // استعادة طريقة التواصل
-    var savedMethod = localStorage.getItem('safescan_contact_method') || 'all';
-    var methodSelect = document.getElementById('contactMethod');
-    if (methodSelect) methodSelect.value = savedMethod;
+        var savedMethod = localStorage.getItem('safescan_contact_method') || 'all';
+        var methodSelect = document.getElementById('contactMethod');
+        if (methodSelect) methodSelect.value = savedMethod;
 
-    // استعادة زر إشعارات الجوال
-    restorePushButtonState();
-}
+        restorePushButtonState();
+    }
     restoreAllSettings();
 
     function switchPage(page) {
@@ -304,8 +440,8 @@
             document.getElementById('phoneDisplay').innerText = profile.phone || '---';
             const isShow = profile.show_phone ?? (localStorage.getItem('safescan_show_phone') === 'true');
             document.getElementById('showPhoneToggle').checked = isShow;
-            document.getElementById('showPhoneLabel').innerText = isShow ? safeT('show_label_on') : safeT('show_label_off');
             document.getElementById('contactOptionsRow').style.display = isShow ? 'block' : 'none';
+            updateHomePhoneCell(isShow);
             localStorage.setItem('safescan_show_phone', isShow);
             const method = profile.contact_method || localStorage.getItem('safescan_contact_method') || 'all';
             document.getElementById('contactMethod').value = method;
@@ -319,22 +455,30 @@
         if(vehicles?.length){
             currentVehicle=vehicles[0]; active=currentVehicle.is_active;
             const isShowImage = currentVehicle?.show_image ?? true;
-const showImageToggle = document.getElementById('showImageToggle');
-const showImageLabel = document.getElementById('showImageLabel');
-if (showImageToggle) showImageToggle.checked = isShowImage;
-if (showImageLabel) showImageLabel.innerText = isShowImage ? safeT('show_label_on') : safeT('show_label_off');
+            if (document.getElementById('showImageToggle')) document.getElementById('showImageToggle').checked = isShowImage;
+            updateHomeImageCell(isShowImage);
             const isShowDetails = currentVehicle?.show_details ?? false;
-            const showDetailsToggle = document.getElementById('showDetailsToggle');
-            const showDetailsLabel = document.getElementById('showDetailsLabel');
-            if (showDetailsToggle) showDetailsToggle.checked = isShowDetails;
-            if (showDetailsLabel) showDetailsLabel.innerText = isShowDetails ? safeT('show_label_on') : safeT('show_label_off');
-            document.getElementById('vehicleDisplay').innerText = currentVehicle.custom_name || safeT('vehicle_default');
-            document.getElementById('vehicleName').innerHTML = '🚗 <span data-key="vehicle_default">' + (currentVehicle.custom_name || safeT('vehicle_default')) + '</span>';
+            if (document.getElementById('showDetailsToggle')) document.getElementById('showDetailsToggle').checked = isShowDetails;
+            const vName = currentVehicle.custom_name || safeT('vehicle_default');
+            document.getElementById('vehicleDisplay').innerText = vName;
+            document.getElementById('vehicleName').innerHTML = '🚗 <span>' + vName + '</span>';
+            // Home profile card
+            document.getElementById('homeVehicleName').textContent = vName;
+            if(currentVehicle.image_url){
+                document.getElementById('homeAvatarEmoji').style.display='none';
+                const img=document.getElementById('homeAvatarImg'); img.src=currentVehicle.image_url; img.style.display='block';
+            }
+            if(currentVehicle.plate_number){
+                const pb=document.getElementById('homePlateBadge'); pb.textContent=currentVehicle.plate_number; pb.style.display='inline-block';
+            }
             document.getElementById('editCarName').value = currentVehicle.custom_name || '';
-            document.getElementById('editPlate').value = currentVehicle.plate_number || '';
+            // Split plate for edit fields
+            const plateParts = (currentVehicle.plate_number||'').split(' ');
+            if(plateParts.length===2){ document.getElementById('editPlateLetters').value=plateParts[0]||''; document.getElementById('editPlateNumbers').value=plateParts[1]||''; }
+            else { document.getElementById('editPlateLetters').value=''; document.getElementById('editPlateNumbers').value=currentVehicle.plate_number||''; }
             document.getElementById('editModel').value = currentVehicle.model || '';
             document.getElementById('editDriver').value = currentVehicle.driver_name || '';
-           if (currentVehicle.image_url) { document.getElementById('editImagePreview').src = currentVehicle.image_url; document.getElementById('editImagePreview').style.display = 'block'; }
+            if (currentVehicle.image_url) { document.getElementById('editImagePreview').src = currentVehicle.image_url; document.getElementById('editImagePreview').style.display = 'block'; }
             const { count: stickerCount } = await supabaseClient.from('stickers').select('*', { count: 'exact', head: true }).eq('vehicle_id', currentVehicle.id);
             document.getElementById('stickerCount').innerText = stickerCount || 0;
         } else {
@@ -392,39 +536,46 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? safeT('show_label_o
     }
 
     function updateCounters() {
-        const pending = allMessages.filter(l => l.status === 'pending').length;
-        const closed = allMessages.filter(l => l.status === 'closed').length;
+        const active = allMessages.filter(m => !m.deleted_by_owner);
+        const pending = active.filter(l => l.status === 'pending').length;
+        const closed = active.filter(l => l.status === 'closed').length;
         document.getElementById('newCount').innerText = pending;
         document.getElementById('totalCount').innerText = closed;
         document.getElementById('inboxNew').innerText = pending;
         document.getElementById('inboxTotal').innerText = closed;
     }
 
-    function updateToggleUI(){const t=document.getElementById('statusToggle'),l=document.getElementById('statusLabel');if(active){t.classList.remove('off');l.innerHTML=safeT('status_active');}else{t.classList.add('off');l.innerHTML=safeT('status_off');}}
+    function updateToggleUI(){
+        const homeIcon=document.getElementById('homeStatusIcon'),homeVal=document.getElementById('homeStatusVal');
+        if(homeIcon){homeIcon.textContent=active?'🟢':'🔴';}
+        if(homeVal){homeVal.textContent=active?safeT('status_on')||'مفعّل':safeT('status_off')||'موقف';homeVal.className='s-val '+(active?'on':'off');}
+    }
     async function toggleStatus(){if(!currentVehicle)return;active=!active;updateToggleUI();await supabaseClient.from('vehicles').update({is_active:active}).eq('id',currentVehicle.id);const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);if(stickers)for(const s of stickers)await supabaseClient.from('stickers').update({status:active?'active':'inactive'}).eq('id',s.id);loadMessages();}
     async function toggleShowPhone(){
         const newValue = document.getElementById('showPhoneToggle').checked;
         if(newValue && !confirm(safeT('show_phone_warning')||'⚠️ سيظهر رقمك للعامة. متأكد؟')) { document.getElementById('showPhoneToggle').checked = false; return; }
         localStorage.setItem('safescan_show_phone', newValue);
-        document.getElementById('showPhoneLabel').innerText = newValue ? safeT('show_label_on') : safeT('show_label_off');
         document.getElementById('contactOptionsRow').style.display = newValue ? 'block' : 'none';
+        updateHomePhoneCell(newValue);
         if(currentUser) await supabaseClient.from('profiles').update({show_phone: newValue}).eq('id', currentUser.id);
     }
     async function toggleShowImage() {
-    const newValue = document.getElementById('showImageToggle').checked;
-    document.getElementById('showImageLabel').innerText = newValue ? safeT('show_label_on') : safeT('show_label_off');
-    if (currentVehicle) {
-        await supabaseClient.from('vehicles').update({ show_image: newValue }).eq('id', currentVehicle.id);
+        const newValue = document.getElementById('showImageToggle').checked;
+        updateHomeImageCell(newValue);
+        if (currentVehicle) await supabaseClient.from('vehicles').update({ show_image: newValue }).eq('id', currentVehicle.id);
     }
-}
     async function toggleShowDetails() {
-    const newValue = document.getElementById('showDetailsToggle').checked;
-    document.getElementById('showDetailsLabel').innerText = newValue ? safeT('show_label_on') : safeT('show_label_off');
-    if (currentVehicle) {
-        await supabaseClient.from('vehicles').update({ show_details: newValue }).eq('id', currentVehicle.id);
-        showToast(newValue ? safeT('show_details_on_toast') : safeT('show_details_off_toast'));
+        const newValue = document.getElementById('showDetailsToggle').checked;
+        if (currentVehicle) { await supabaseClient.from('vehicles').update({ show_details: newValue }).eq('id', currentVehicle.id); showToast(newValue ? safeT('show_details_on_toast') : safeT('show_details_off_toast')); }
     }
-}
+    function updateHomePhoneCell(isOn) {
+        const el = document.getElementById('homePhoneVal');
+        if(el){ el.textContent = isOn ? (safeT('visible_lbl')||'ظاهر') : (safeT('hidden_lbl')||'مخفي'); el.className = 's-val '+(isOn?'on':'off'); }
+    }
+    function updateHomeImageCell(isOn) {
+        const el = document.getElementById('homeImageVal');
+        if(el){ el.textContent = isOn ? (safeT('visible_lbl')||'ظاهر') : (safeT('hidden_lbl')||'مخفي'); el.className = 's-val '+(isOn?'on':'off'); }
+    }
     async function updateContactMethod(){
         const method = document.getElementById('contactMethod').value;
         localStorage.setItem('safescan_contact_method', method);
@@ -537,22 +688,53 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? safeT('show_label_o
         else { btn.textContent = '🔕 غير مُفعّل'; btn.classList.remove('active'); }
     }
 
-    function toggleDarkMode(){ document.documentElement.classList.toggle('dark-mode'); const is=document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode',is); document.getElementById('darkModeLabel').textContent = is ? safeT('dark_mode_on') : safeT('dark_mode_off'); }
+    function toggleDarkMode(){ document.documentElement.classList.toggle('dark-mode'); const is=document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode',is); const t=document.getElementById('darkModeToggle'); if(t) t.checked=is; }
+    function toggleEditSection(){
+        const section=document.getElementById('editSection');
+        const arrow=document.getElementById('editSectionArrow');
+        const visible=section.style.display!=='none';
+        section.style.display=visible?'none':'block';
+        if(arrow) arrow.textContent=visible?'▸':'▾';
+    }
 
+    function smartDate(dateStr) {
+        const now = new Date(), d = new Date(dateStr);
+        const diffDays = Math.floor((now - d) / 86400000);
+        const timeStr = d.toLocaleTimeString('ar-SA', {hour:'2-digit', minute:'2-digit'});
+        if (diffDays === 0) return 'اليوم · ' + timeStr;
+        if (diffDays === 1) return 'أمس · ' + timeStr;
+        if (diffDays < 7) return d.toLocaleDateString('ar-SA', {weekday:'long'}) + ' · ' + timeStr;
+        return d.toLocaleDateString('ar-SA', {day:'numeric', month:'long'}) + ' · ' + timeStr;
+    }
     function setFilter(filter){currentFilter=filter;document.getElementById('tabPending').classList.toggle('active',filter==='pending');document.getElementById('tabClosed').classList.toggle('active',filter==='closed');renderMessages();}
     function renderMessages(){
-        let filtered=allMessages.filter(m=>{if(currentFilter==='pending'&&m.status!=='pending')return false;if(currentFilter==='closed'&&m.status!=='closed')return false;return true;});
+        let filtered=allMessages.filter(m=>{
+            if(m.deleted_by_owner) return false;
+            if(currentFilter==='pending'&&m.status!=='pending')return false;
+            if(currentFilter==='closed'&&m.status!=='closed')return false;
+            return true;
+        });
         if(!filtered.length){document.getElementById('inboxContainer').innerHTML='<div class="loading">'+safeT('no_messages_inbox')+'</div>';return;}
         let html='';
         filtered.forEach(log=>{
-            const date=new Date(log.created_at);
-            const timeStr=date.toLocaleString('ar-SA',{hour:'2-digit',minute:'2-digit',day:'numeric',month:'numeric'});
-            let blockBtn = '';
-            if (log.visitor_fingerprint) {
-                const isBlocked = blockedFingerprints.includes(log.visitor_fingerprint);
-                blockBtn = `<button onclick="event.stopPropagation(); ${isBlocked ? 'unblockVisitor' : 'blockVisitor'}('${log.visitor_fingerprint}')" style="background:none; border:none; color:var(--color-primary); cursor:pointer; font-size:12px; margin-top:4px;">${isBlocked ? '🔓 إلغاء الحظر' : '🚫 حظر'}</button>`;
-            } 
-            html += `<div class="inbox-item" onclick="openConversation('${log.id}')"><div class="msg-preview">"${escapeHtml(log.visitor_message?.substring(0,50)||'')}"</div><div class="msg-time">${timeStr} · ${log.status==='pending'?'🆕 '+safeT('new_msgs'):'✅ '+safeT('replied_msgs')}</div><button onclick="event.stopPropagation(); showPhoneToVisitor('${log.id}')" style="background:none; border:none; color:var(--color-primary); cursor:pointer; font-size:12px; margin-top:4px;" data-key="show_phone_to_visitor_btn">📞 إظهار رقمي</button>${blockBtn}</div>`;
+            const isBlocked = log.visitor_fingerprint && blockedFingerprints.includes(log.visitor_fingerprint);
+            const statusPill = log.status==='pending'
+                ? `<span style="background:#fef9c3;color:#854d0e;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;">🆕 ${safeT('new_msgs')}</span>`
+                : `<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;">✅ ${safeT('replied_msgs')}</span>`;
+            const blockLabel = isBlocked ? '🔓 إلغاء الحظر' : '🚫 حظر';
+            const blockFn = isBlocked ? 'unblockVisitor' : 'blockVisitor';
+            const blockBtn = log.visitor_fingerprint
+                ? `<button class="iaction red" onclick="event.stopPropagation();${blockFn}('${log.visitor_fingerprint}')">${blockLabel}</button>`
+                : '';
+            html += `<div class="inbox-item" onclick="openConversation('${log.id}')">
+                <div class="inbox-msg-preview">"${escapeHtml(log.visitor_message?.substring(0,60)||'')}"</div>
+                <div class="inbox-meta">${smartDate(log.created_at)} ${statusPill}</div>
+                <div class="inbox-actions">
+                    <button class="iaction" onclick="event.stopPropagation();showPhoneToVisitor('${log.id}')">📞 إظهار رقمي</button>
+                    ${blockBtn}
+                    <button class="iaction orange" onclick="event.stopPropagation();deleteMessage('${log.id}')">🗑 حذف</button>
+                </div>
+            </div>`;
         });
         document.getElementById('inboxContainer').innerHTML=html;
     }
@@ -567,6 +749,21 @@ if (showImageLabel) showImageLabel.innerText = isShowImage ? safeT('show_label_o
         allMessages=logs||[];
         updateCounters();
         renderMessages();
+        loadTodayScanCount(stickerIds);
+    }
+    async function loadTodayScanCount(stickerIds) {
+        if(!stickerIds?.length) return;
+        const today = new Date(); today.setHours(0,0,0,0);
+        const {count} = await supabaseClient.from('scan_logs').select('*',{count:'exact',head:true})
+            .in('sticker_id', stickerIds).gte('created_at', today.toISOString());
+        const el = document.getElementById('todayScanCount');
+        if(el) el.innerText = count || 0;
+    }
+    async function deleteMessage(messageId) {
+        if(!confirm('⚠️ سيختفي هذا السجل من صندوقك. متأكد؟')) return;
+        await supabaseClient.from('scan_logs').update({deleted_by_owner: true}).eq('id', messageId);
+        allMessages = allMessages.map(m => m.id == messageId ? {...m, deleted_by_owner: true} : m);
+        updateCounters(); renderMessages(); showToast('🗑 تم حذف الرسالة');
     }
     function loadHomeStats(){
         const last=allMessages[0];
@@ -606,14 +803,19 @@ if (imageFile) {
     }
 }
         const carName = document.getElementById('editCarName').value.trim();
-        const plate = document.getElementById('editPlate').value.trim();
+        const pLetters = document.getElementById('editPlateLetters').value.trim();
+        const pNumbers = document.getElementById('editPlateNumbers').value.trim();
+        const plate = (pLetters && pNumbers) ? pLetters + ' ' + pNumbers : (pLetters || pNumbers || null);
         const model = document.getElementById('editModel').value.trim();
         const driver = document.getElementById('editDriver').value.trim();
-        const { error } = await supabaseClient.from('vehicles').update({ custom_name: carName || safeT('vehicle_default'), plate_number: plate, model: model, driver_name: driver }).eq('id', currentVehicle.id);
+        const { error } = await supabaseClient.from('vehicles').update({ custom_name: carName || null, plate_number: plate, model: model, driver_name: driver }).eq('id', currentVehicle.id);
         if(error){ showToast(safeT('changes_failed')); return; }
         showToast(safeT('changes_saved'));
-        document.getElementById('vehicleDisplay').innerText = carName || safeT('vehicle_default');
-        document.getElementById('vehicleName').innerHTML = '🚗 <span data-key="vehicle_default">' + (carName || safeT('vehicle_default')) + '</span>';
+        const displayName = carName || safeT('vehicle_default');
+        document.getElementById('vehicleDisplay').innerText = displayName;
+        document.getElementById('vehicleName').innerHTML = '🚗 <span>' + displayName + '</span>';
+        document.getElementById('homeVehicleName').textContent = displayName;
+        if(plate){ const pb=document.getElementById('homePlateBadge'); pb.textContent=plate; pb.style.display='inline-block'; }
     }
     async function loadMyStickers() {
         if (!currentVehicle) return;
