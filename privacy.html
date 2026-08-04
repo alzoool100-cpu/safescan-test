@@ -12,7 +12,8 @@
         .page-meta { text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 4px; }
         .sec { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 14px; box-shadow: var(--shadow-card); }
         .sec-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-        .sec-icon { font-size: 20px; line-height: 1; }
+        .sec-icon { font-size: 20px; line-height: 1; display:flex; align-items:center; justify-content:center; width:32px; height:32px; background:var(--bg-tag); border-radius:8px; flex-shrink:0; }
+        .sec-icon svg { width:18px; height:18px; stroke:var(--color-primary); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
         .sec-title { font-size: 0.95rem; font-weight: 700; color: var(--color-primary); margin: 0; }
         .sec-list { list-style: none; padding: 0; margin: 0; }
         .sec-list li { font-size: 0.88rem; color: var(--text-secondary); padding: 6px 0; border-bottom: 1px solid var(--border-color); display: flex; gap: 8px; line-height: 1.5; }
@@ -26,7 +27,6 @@
     </style>
 </head>
 <body>
-<button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
 
 <div class="lang-dropdown">
   <select id="langSelect" onchange="setLanguage(this.value)">
@@ -45,7 +45,7 @@
     </div>
 
     <div class="sec">
-        <div class="sec-head"><span class="sec-icon">📥</span><h2 class="sec-title" data-key="privacy_s1_title">1. ما نجمعه</h2></div>
+        <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span><h2 class="sec-title" data-key="privacy_s1_title">1. ما نجمعه</h2></div>
         <ul class="sec-list">
             <li><span data-key="privacy_s1_b1">رقم جوالك للتحقق وإرسال الإشعارات</span></li>
             <li><span data-key="privacy_s1_b2">بيانات مركبتك الاختيارية: الاسم، اللوحة، الموديل</span></li>
@@ -54,7 +54,7 @@
     </div>
 
     <div class="sec">
-        <div class="sec-head"><span class="sec-icon">🎯</span><h2 class="sec-title" data-key="privacy_s2_title">2. لماذا نجمعها</h2></div>
+        <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span><h2 class="sec-title" data-key="privacy_s2_title">2. لماذا نجمعها</h2></div>
         <ul class="sec-list">
             <li><span data-key="privacy_s2_b1">إرسال إشعار عند وصول رسائل جديدة</span></li>
             <li><span data-key="privacy_s2_b2">إظهار رقمك للزوار فقط إذا فعّلت هذا الخيار بنفسك</span></li>
@@ -63,7 +63,7 @@
     </div>
 
     <div class="sec">
-        <div class="sec-head"><span class="sec-icon">👁️</span><h2 class="sec-title" data-key="privacy_s3_title">3. من يرى بياناتك</h2></div>
+        <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span><h2 class="sec-title" data-key="privacy_s3_title">3. من يرى بياناتك</h2></div>
         <ul class="sec-list">
             <li><span data-key="privacy_s3_b1">لا يرى رقمك أحد إلا بإذنك الصريح</span></li>
             <li><span data-key="privacy_s3_b2">الزوار يرون فقط ما تختار أنت إظهاره</span></li>
@@ -72,7 +72,7 @@
     </div>
 
     <div class="sec">
-        <div class="sec-head"><span class="sec-icon">🔒</span><h2 class="sec-title" data-key="privacy_s4_title">4. كيف نحميها</h2></div>
+        <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span><h2 class="sec-title" data-key="privacy_s4_title">4. كيف نحميها</h2></div>
         <ul class="sec-list">
             <li><span data-key="privacy_s4_b1">قاعدة بيانات سحابية مشفرة بمعايير عالية</span></li>
             <li><span data-key="privacy_s4_b2">تشفير كامل للبيانات أثناء النقل عبر الشبكة</span></li>
@@ -81,7 +81,7 @@
     </div>
 
     <div class="sec">
-        <div class="sec-head"><span class="sec-icon">🍪</span><h2 class="sec-title" data-key="privacy_s5_title">5. ملفات الارتباط (Cookies)</h2></div>
+        <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 2a4 4 0 0 1 4 4 4 4 0 0 0 4 4"/><circle cx="9" cy="11" r="1" style="fill:var(--color-primary);stroke:none"/><circle cx="14" cy="15" r="1" style="fill:var(--color-primary);stroke:none"/><circle cx="10" cy="16" r="1" style="fill:var(--color-primary);stroke:none"/></svg></span><h2 class="sec-title" data-key="privacy_s5_title">5. ملفات الارتباط (Cookies)</h2></div>
         <ul class="sec-list">
             <li><span data-key="privacy_s5_b1">نستخدم فقط الكوكيز الضرورية لعمل التطبيق</span></li>
             <li><span data-key="privacy_s5_b2">حفظ جلسة الدخول وتفضيلات اللغة والوضع الليلي</span></li>
@@ -90,7 +90,7 @@
     </div>
 
     <div class="sec">
-        <div class="sec-head"><span class="sec-icon">⚖️</span><h2 class="sec-title" data-key="privacy_s6_title">6. حقوقك</h2></div>
+        <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="3" x2="12" y2="20"/><path d="M5 20h14"/><polyline points="4 6 12 6 20 6"/><path d="M4 6l-2 5a2 2 0 0 0 4 0z"/><path d="M20 6l-2 5a2 2 0 0 0 4 0z"/></svg></span><h2 class="sec-title" data-key="privacy_s6_title">6. حقوقك</h2></div>
         <ul class="sec-list">
             <li><span data-key="privacy_s6_b1">الاطلاع على بياناتك وتعديلها في أي وقت</span></li>
             <li><span data-key="privacy_s6_b2">إخفاء رقمك عن جميع الزوار بضغطة واحدة</span></li>
@@ -99,7 +99,7 @@
     </div>
 
     <div class="sec">
-        <div class="sec-head"><span class="sec-icon">📅</span><h2 class="sec-title" data-key="privacy_s7_title">7. الاحتفاظ بالبيانات</h2></div>
+        <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><h2 class="sec-title" data-key="privacy_s7_title">7. الاحتفاظ بالبيانات</h2></div>
         <ul class="sec-list">
             <li><span data-key="privacy_s7_b1">نحتفظ ببياناتك طالما حسابك نشط</span></li>
             <li><span data-key="privacy_s7_b2">عند حذف حسابك، تُمسح جميع البيانات خلال 30 يوماً</span></li>
@@ -107,7 +107,7 @@
     </div>
 
     <div class="sec">
-        <div class="sec-head"><span class="sec-icon">🔄</span><h2 class="sec-title" data-key="privacy_s8_title">8. تعديلات السياسة</h2></div>
+        <div class="sec-head"><span class="sec-icon"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span><h2 class="sec-title" data-key="privacy_s8_title">8. تعديلات السياسة</h2></div>
         <ul class="sec-list">
             <li><span data-key="privacy_s8_b1">قد نحدّث هذه السياسة من وقت لآخر</span></li>
             <li><span data-key="privacy_s8_b2">سيصلك إشعار داخل التطبيق عند أي تغيير جوهري</span></li>
@@ -115,7 +115,7 @@
     </div>
 
     <div class="contact-sec">
-        <div style="font-size:24px;margin-bottom:8px;">💬</div>
+        <div style="margin-bottom:8px;"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
         <h2 data-key="privacy_s9_title">9. تواصل معنا</h2>
         <p data-key="privacy_s9_contact">للاستفسارات حول خصوصيتك، تواصل معنا عبر واتساب</p>
         <a href="https://wa.me/966541054516" dir="ltr">+966 54 105 4516</a>
@@ -129,9 +129,7 @@
     document.getElementById('langSelect').value = currentLang;
     applyTranslations();
     document.getElementById('langSelect').addEventListener('change', function() { setLanguage(this.value); });
-    const dt = document.getElementById('darkModeToggle');
-    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
-    dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
+    if (localStorage.getItem('darkMode') === 'true') document.documentElement.classList.add('dark-mode');
 </script>
 </body>
 </html>
