@@ -112,6 +112,21 @@
         .iaction { font-size:12px; font-weight:600; padding:5px 12px; border-radius:99px; border:1.5px solid var(--border-color); background:var(--bg-tag); cursor:pointer; color:var(--text-secondary); touch-action:manipulation; }
         .iaction.red { border-color:#fecaca; color:#dc2626; background:#fef2f2; }
         .iaction.orange { border-color:#fed7aa; color:#c2410c; background:#fff7ed; }
+        /* ── Saudi licence plate ── */
+        .sa-plate { display:inline-flex; align-items:center; direction:ltr; background:#fff; border:2px solid #1e5c3a; border-radius:7px; padding:3px 10px 5px; gap:8px; position:relative; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.15); margin-top:6px; margin-bottom:14px; }
+        .sa-plate::before { content:""; position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(to right,#1e5c3a 60%,#fff 60%,#fff 73%,#c8102e 73%); }
+        .sa-plate-letters { font-size:18px; font-weight:800; color:#111; letter-spacing:.14em; direction:rtl; margin-top:3px; font-family:'Tajawal',sans-serif; }
+        .sa-plate-div { width:1px; height:26px; background:#ccc; flex-shrink:0; }
+        .sa-plate-numbers { font-size:18px; font-weight:800; color:#111; letter-spacing:.08em; margin-top:3px; }
+        /* ── Home hero: side-by-side ── */
+        .vehicle-hero { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+        .vehicle-hero-info { flex:1; text-align:right; }
+        /* ── Contact checkboxes ── */
+        .contact-checks { display:flex; flex-direction:column; gap:8px; align-items:flex-start; }
+        .contact-check-row { display:flex; align-items:center; gap:8px; font-size:14px; cursor:pointer; }
+        .contact-check-row input[type="checkbox"] { width:18px; height:18px; accent-color:var(--color-primary); cursor:pointer; }
+        /* ── Nav SVG icons ── */
+        .nav-svg { width:24px; height:24px; stroke:currentColor; fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; margin-bottom:2px; }
     </style>
 </head>
 <body>
@@ -120,26 +135,41 @@
     <div class="header" style="margin-bottom:12px;"><div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div><div class="car-badge" id="vehicleName">🚗 <span data-key="vehicle_default">سيارتي</span></div></div>
     <div class="card" style="padding:0;overflow:hidden;">
         <div class="profile-card">
-            <div class="vehicle-avatar" id="homeAvatar"><span id="homeAvatarEmoji">🚗</span><img id="homeAvatarImg" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>
-            <div class="home-vehicle-name" id="homeVehicleName" data-key="vehicle_default">سيارتي</div>
-            <div id="homePlateBadge" class="plate-badge" style="display:none;">---</div>
+            <!-- Hero: avatar right + info left (RTL) -->
+            <div class="vehicle-hero">
+                <div class="vehicle-hero-info">
+                    <div class="home-vehicle-name" id="homeVehicleName" data-key="vehicle_default">سيارتي</div>
+                    <!-- Saudi plate visual -->
+                    <div class="sa-plate" id="homePlateBadge" style="display:none">
+                        <span class="sa-plate-letters" id="homePlateLetters">أبج</span>
+                        <div class="sa-plate-div"></div>
+                        <span class="sa-plate-numbers" id="homePlateNumbers">1234</span>
+                    </div>
+                </div>
+                <div class="vehicle-avatar" id="homeAvatar" style="flex-shrink:0;margin:0;">
+                    <span id="homeAvatarEmoji">🚗</span>
+                    <img id="homeAvatarImg" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                </div>
+            </div>
+            <!-- Status grid: display only -->
             <div class="status-grid">
-                <div class="status-cell" onclick="toggleStatus()">
+                <div class="status-cell">
                     <div class="s-icon" id="homeStatusIcon">🟢</div>
                     <div class="s-lbl" data-key="reception">الاستقبال</div>
                     <div class="s-val on" id="homeStatusVal" data-key="status_on">مفعّل</div>
                 </div>
-                <div class="status-cell" onclick="switchPage('settings')">
-                    <div class="s-icon">📱</div>
+                <div class="status-cell">
+                    <div class="s-icon" id="homePhoneIcon">📵</div>
                     <div class="s-lbl" data-key="phone_lbl">الرقم</div>
-                    <div class="s-val" id="homePhoneVal" data-key="hidden_lbl">مخفي</div>
+                    <div class="s-val off" id="homePhoneVal" data-key="hidden_lbl">مخفي</div>
                 </div>
-                <div class="status-cell" onclick="switchPage('settings')">
-                    <div class="s-icon">📸</div>
+                <div class="status-cell">
+                    <div class="s-icon" id="homeImageIcon">🖼️</div>
                     <div class="s-lbl" data-key="image_lbl">الصورة</div>
-                    <div class="s-val" id="homeImageVal" data-key="hidden_lbl">مخفي</div>
+                    <div class="s-val off" id="homeImageVal" data-key="hidden_lbl">مخفي</div>
                 </div>
             </div>
+            <!-- Stats -->
             <div class="stats">
                 <div class="stat-item" onclick="switchPage('inbox')"><div class="stat-number" id="newCount">0</div><div data-key="new_msgs">جديدة</div></div>
                 <div class="stat-item" onclick="switchPage('inbox')"><div class="stat-number" id="totalCount">0</div><div data-key="replied_msgs">تم الرد</div></div>
@@ -153,7 +183,7 @@
 </div>
 
 <div id="inboxPage" class="page">
-    <div class="header"><h3 data-key="inbox_tab">📥 الرسائل</h3><button onclick="loadMessages()" style="background:none;border:none;color:var(--color-primary);cursor:pointer" data-key="refresh">🔄 تحديث</button></div>
+    <div class="header"><h3 data-key="inbox_tab">📥 الرسائل</h3></div>
     <div class="stats"><div class="stat-item active" id="tabPending" onclick="setFilter('pending')"><div class="stat-number" id="inboxNew">0</div><div data-key="new_msgs">جديدة</div></div><div class="stat-item" id="tabClosed" onclick="setFilter('closed')"><div class="stat-number" id="inboxTotal">0</div><div data-key="replied_msgs">تم الرد</div></div></div>
     <div id="inboxContainer"><div class="loading" data-key="no_messages_inbox">لا توجد رسائل بعد</div></div>
 </div>
@@ -172,15 +202,23 @@
         <!-- 2. Contact method (shown if phone visible) -->
         <div class="settings-row" id="contactOptionsRow" style="display:none">
             <div style="display:flex;align-items:center;gap:10px;">
-                <span class="row-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></span>
+                <span class="row-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 10a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 7.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
                 <span data-key="contact_options">خيارات التواصل</span>
             </div>
-            <select id="contactMethod" onchange="updateContactMethod()" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:8px;font-size:13px;color:var(--text-primary)">
-                <option value="all" data-key="show_all_contact">الكل</option>
-                <option value="phone" data-key="phone_only">رقم فقط</option>
-                <option value="whatsapp" data-key="whatsapp_only">واتساب فقط</option>
-                <option value="sms" data-key="sms_only">SMS فقط</option>
-            </select>
+            <div class="contact-checks">
+                <label class="contact-check-row">
+                    <input type="checkbox" id="contactCall" onchange="updateContactMethod()">
+                    <span data-key="contact_via_call">الاتصال</span>
+                </label>
+                <label class="contact-check-row">
+                    <input type="checkbox" id="contactWhatsapp" onchange="updateContactMethod()">
+                    <span data-key="contact_via_whatsapp">واتساب</span>
+                </label>
+                <label class="contact-check-row">
+                    <input type="checkbox" id="contactSms" onchange="updateContactMethod()">
+                    <span data-key="contact_via_sms">رسائل نصية</span>
+                </label>
+            </div>
         </div>
         <!-- 3. Show image -->
         <div class="settings-row">
@@ -334,10 +372,22 @@
 </div>
 
 <div class="bottom-nav">
-    <div class="nav-item active" onclick="switchPage('home')"><span class="icon">🏠</span><span data-key="home_tab">الرئيسية</span></div>
-    <div class="nav-item" onclick="switchPage('inbox')"><span class="icon">💬</span><span data-key="inbox_tab">الرسائل</span></div>
-    <div class="nav-item" onclick="switchPage('settings')"><span class="icon">⚙️</span><span data-key="settings_tab">الإعدادات</span></div>
-    <div class="nav-item" onclick="switchPage('account')"><span class="icon">👤</span><span data-key="account_tab">حسابي</span></div>
+    <div class="nav-item active" onclick="switchPage('home')">
+        <svg class="nav-svg" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
+        <span data-key="home_tab">الرئيسية</span>
+    </div>
+    <div class="nav-item" onclick="switchPage('inbox')">
+        <svg class="nav-svg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span data-key="inbox_tab">الرسائل</span>
+    </div>
+    <div class="nav-item" onclick="switchPage('settings')">
+        <svg class="nav-svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-key="settings_tab">الإعدادات</span>
+    </div>
+    <div class="nav-item" onclick="switchPage('account')">
+        <svg class="nav-svg" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span data-key="account_tab">حسابي</span>
+    </div>
 </div>
 
 <div id="conversationPage">
@@ -373,8 +423,7 @@
         if (contactRow) contactRow.style.display = savedShowPhone ? 'block' : 'none';
 
         var savedMethod = localStorage.getItem('safescan_contact_method') || 'all';
-        var methodSelect = document.getElementById('contactMethod');
-        if (methodSelect) methodSelect.value = savedMethod;
+        restoreContactCheckboxes(savedMethod);
 
         restorePushButtonState();
     }
@@ -444,7 +493,7 @@
             updateHomePhoneCell(isShow);
             localStorage.setItem('safescan_show_phone', isShow);
             const method = profile.contact_method || localStorage.getItem('safescan_contact_method') || 'all';
-            document.getElementById('contactMethod').value = method;
+            restoreContactCheckboxes(method);
             localStorage.setItem('safescan_contact_method', method);
             if (profile.blocked_ips) {
                 try { blockedFingerprints = JSON.parse(profile.blocked_ips); } catch(e) { blockedFingerprints = []; }
@@ -469,7 +518,15 @@
                 const img=document.getElementById('homeAvatarImg'); img.src=currentVehicle.image_url; img.style.display='block';
             }
             if(currentVehicle.plate_number){
-                const pb=document.getElementById('homePlateBadge'); pb.textContent=currentVehicle.plate_number; pb.style.display='inline-block';
+                const parts = currentVehicle.plate_number.split(' ');
+                const pb = document.getElementById('homePlateBadge');
+                const ltrs = document.getElementById('homePlateLetters');
+                const nums = document.getElementById('homePlateNumbers');
+                if(pb && ltrs && nums){
+                    if(parts.length === 2){ ltrs.textContent = parts[0]; nums.textContent = parts[1]; }
+                    else { ltrs.textContent = currentVehicle.plate_number; nums.textContent = ''; document.querySelector('.sa-plate-div').style.display='none'; }
+                    pb.style.display = 'inline-flex';
+                }
             }
             document.getElementById('editCarName').value = currentVehicle.custom_name || '';
             // Split plate for edit fields
@@ -570,14 +627,35 @@
     }
     function updateHomePhoneCell(isOn) {
         const el = document.getElementById('homePhoneVal');
+        const ic = document.getElementById('homePhoneIcon');
         if(el){ el.textContent = isOn ? (safeT('visible_lbl')||'ظاهر') : (safeT('hidden_lbl')||'مخفي'); el.className = 's-val '+(isOn?'on':'off'); }
+        if(ic){ ic.textContent = isOn ? '📱' : '📵'; }
     }
     function updateHomeImageCell(isOn) {
         const el = document.getElementById('homeImageVal');
+        const ic = document.getElementById('homeImageIcon');
         if(el){ el.textContent = isOn ? (safeT('visible_lbl')||'ظاهر') : (safeT('hidden_lbl')||'مخفي'); el.className = 's-val '+(isOn?'on':'off'); }
+        if(ic){ ic.textContent = isOn ? '🖼️' : '🚫'; }
+    }
+    function restoreContactCheckboxes(method) {
+        const all = !method || method === 'all';
+        const methods = all ? ['phone','whatsapp','sms'] : method.split(',');
+        const callEl = document.getElementById('contactCall');
+        const waEl = document.getElementById('contactWhatsapp');
+        const smsEl = document.getElementById('contactSms');
+        if(callEl) callEl.checked = methods.includes('phone');
+        if(waEl) waEl.checked = methods.includes('whatsapp');
+        if(smsEl) smsEl.checked = methods.includes('sms');
     }
     async function updateContactMethod(){
-        const method = document.getElementById('contactMethod').value;
+        const call = document.getElementById('contactCall')?.checked;
+        const wa = document.getElementById('contactWhatsapp')?.checked;
+        const sms = document.getElementById('contactSms')?.checked;
+        const methods = [];
+        if(call) methods.push('phone');
+        if(wa) methods.push('whatsapp');
+        if(sms) methods.push('sms');
+        const method = (methods.length === 0 || methods.length === 3) ? 'all' : methods.join(',');
         localStorage.setItem('safescan_contact_method', method);
         if(currentUser) { await supabaseClient.from('profiles').update({contact_method: method}).eq('id', currentUser.id); showToast('✅ ' + safeT('changes_saved')); }
     }
@@ -815,7 +893,17 @@ if (imageFile) {
         document.getElementById('vehicleDisplay').innerText = displayName;
         document.getElementById('vehicleName').innerHTML = '🚗 <span>' + displayName + '</span>';
         document.getElementById('homeVehicleName').textContent = displayName;
-        if(plate){ const pb=document.getElementById('homePlateBadge'); pb.textContent=plate; pb.style.display='inline-block'; }
+        if(plate){
+            const parts = plate.split(' ');
+            const pb = document.getElementById('homePlateBadge');
+            const ltrs = document.getElementById('homePlateLetters');
+            const nums = document.getElementById('homePlateNumbers');
+            if(pb && ltrs && nums){
+                if(parts.length === 2){ ltrs.textContent = parts[0]; nums.textContent = parts[1]; }
+                else { ltrs.textContent = plate; nums.textContent = ''; }
+                pb.style.display = 'inline-flex';
+            }
+        }
     }
     async function loadMyStickers() {
         if (!currentVehicle) return;

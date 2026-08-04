@@ -18,12 +18,12 @@
         .strength-label { font-size: 13px; margin-top: 4px; }
         .requirements { list-style: none; padding: 0; margin: 8px 0 0; font-size: 13px; text-align: right; }
         .requirements li { color: var(--color-danger); margin-bottom: 4px; }
-        .requirements li.met { color: var(--color-success); text-decoration: line-through; }
+        .requirements li.met { color: var(--color-success); text-decoration: none; }
+        .plate-box { width:42px; height:48px; text-align:center; font-size:18px; font-weight:700; padding:6px 4px; border-radius:8px; border:1px solid var(--border-input); background:var(--bg-input); color:var(--text-primary); }
+        .plate-box:focus { outline:none; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(26,58,92,.1); }
     </style>
 </head>
 <body>
-
-<button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
 
 <div class="lang-dropdown">
   <select id="langSelect" onchange="setLanguage(this.value)">
@@ -81,10 +81,16 @@
         <div class="input-group"><label data-key="car_name_label">🏷️ اسم المركبة</label><input type="text" id="carName" data-placeholder="car_name_placeholder" placeholder="مثال: سيارة العمل"></div>
         <div class="input-group">
             <label data-key="plate_label">🚘 رقم اللوحة</label>
-            <div style="display:flex;gap:8px;direction:ltr;align-items:center;">
-                <input type="text" id="plateNumbers" placeholder="1234" maxlength="4" inputmode="numeric" style="flex:4;text-align:center;font-weight:700;font-size:18px;letter-spacing:.08em;">
-                <span style="color:var(--text-muted);font-weight:700;font-size:20px;">–</span>
-                <input type="text" id="plateLetters" placeholder="أبج" maxlength="3" style="flex:3;text-align:center;font-weight:700;font-size:18px;letter-spacing:.12em;">
+            <!-- صناديق فردية: أحرف (يمين) + أرقام (يسار) — عرض اللوحة السعودية -->
+            <div style="display:flex;gap:6px;direction:ltr;justify-content:center;align-items:center;margin-top:6px;flex-wrap:wrap;">
+                <input type="text" class="plate-box" id="pn1" inputmode="numeric" maxlength="1" placeholder="4" oninput="regNumInput(this,0)" onkeydown="regNumKey(event,0)">
+                <input type="text" class="plate-box" id="pn2" inputmode="numeric" maxlength="1" placeholder="5" oninput="regNumInput(this,1)" onkeydown="regNumKey(event,1)">
+                <input type="text" class="plate-box" id="pn3" inputmode="numeric" maxlength="1" placeholder="7" oninput="regNumInput(this,2)" onkeydown="regNumKey(event,2)">
+                <input type="text" class="plate-box" id="pn4" inputmode="numeric" maxlength="1" placeholder="" oninput="regNumInput(this,3)" onkeydown="regNumKey(event,3)" style="opacity:.55">
+                <span style="color:var(--text-muted);font-weight:700;font-size:22px;margin:0 4px;">|</span>
+                <input type="text" class="plate-box" id="pl1" maxlength="1" placeholder="ن" oninput="regLetterInput(this,0)" onkeydown="regLetterKey(event,0)" style="direction:rtl">
+                <input type="text" class="plate-box" id="pl2" maxlength="1" placeholder="و" oninput="regLetterInput(this,1)" onkeydown="regLetterKey(event,1)" style="direction:rtl">
+                <input type="text" class="plate-box" id="pl3" maxlength="1" placeholder="ه" oninput="regLetterInput(this,2)" onkeydown="regLetterKey(event,2)" style="direction:rtl">
             </div>
             <span class="hint" data-key="plate_hint">الأحرف دائماً 3 · الأرقام من 1 إلى 4</span>
         </div>
@@ -162,11 +168,39 @@
         const el = document.getElementById(id);
         if (condition) {
             el.classList.add('met');
-            el.innerHTML = '✅ ' + text;
+            el.innerHTML = '<span style="color:var(--color-success)">✅</span> ' + text;
         } else {
             el.classList.remove('met');
-            el.innerHTML = '❌ ' + text;
+            el.innerHTML = '<span style="color:var(--color-danger)">❌</span> ' + text;
         }
+    }
+
+    // ── صناديق اللوحة الفردية ──
+    const _pNums = ['pn1','pn2','pn3','pn4'];
+    const _pLtrs = ['pl1','pl2','pl3'];
+    function regNumInput(el, idx) {
+        el.value = el.value.replace(/[^0-9٠-٩]/g,'').slice(0,1);
+        if(el.value.length === 1 && idx < 3) document.getElementById(_pNums[idx+1])?.focus();
+        else if(el.value.length === 1 && idx === 3) document.getElementById(_pLtrs[0])?.focus();
+    }
+    function regNumKey(e, idx) {
+        if(e.key === 'Backspace' && !e.target.value && idx > 0) document.getElementById(_pNums[idx-1])?.focus();
+    }
+    function regLetterInput(el, idx) {
+        el.value = el.value.slice(0,1);
+        if(el.value.length === 1 && idx < 2) document.getElementById(_pLtrs[idx+1])?.focus();
+    }
+    function regLetterKey(e, idx) {
+        if(e.key === 'Backspace' && !e.target.value) {
+            if(idx > 0) document.getElementById(_pLtrs[idx-1])?.focus();
+            else document.getElementById(_pNums[3])?.focus();
+        }
+    }
+    function getRegPlateValue() {
+        const letters = _pLtrs.map(id=>document.getElementById(id)?.value||'').join('').trim();
+        const numbers = _pNums.map(id=>document.getElementById(id)?.value||'').filter(v=>v).join('').trim();
+        if(letters && numbers) return letters + ' ' + numbers;
+        return letters || numbers || null;
     }
 
     document.getElementById('activateForm').addEventListener('submit', async (e) => {
@@ -228,9 +262,7 @@ if (imageFile) {
     }
 }
         const carName = document.getElementById('carName').value;
-        const pLetters = document.getElementById('plateLetters').value.trim();
-        const pNumbers = document.getElementById('plateNumbers').value.trim();
-        const plateNumber = (pLetters && pNumbers) ? pLetters + ' ' + pNumbers : (pLetters || pNumbers || null);
+        const plateNumber = getRegPlateValue();
         const model = document.getElementById('model').value;
         const driverName = document.getElementById('driverName').value;
 
@@ -250,9 +282,7 @@ if (imageFile) {
         window.location.href = '/dashboard.html';
     });
 
-    const dt = document.getElementById('darkModeToggle');
-    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
-    dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
+    if (localStorage.getItem('darkMode') === 'true') document.documentElement.classList.add('dark-mode');
 
     const langSelect = document.getElementById('langSelect');
     if (langSelect) { langSelect.value = currentLang || 'ar'; langSelect.addEventListener('change', function() { setLanguage(this.value); }); }
