@@ -132,7 +132,7 @@
 <body>
 
 <div id="homePage" class="page active">
-    <div class="header" style="margin-bottom:12px;"><div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div><div class="car-badge" id="vehicleName">🚗 <span data-key="vehicle_default">سيارتي</span></div></div>
+    <div class="header" style="margin-bottom:12px;"><div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div><div class="car-badge" id="vehicleName"><span data-key="vehicle_default">سيارتي</span></div></div>
     <div class="card" style="padding:0;overflow:hidden;">
         <div class="profile-card">
             <!-- Hero: avatar right + info left (RTL) -->
@@ -147,24 +147,24 @@
                     </div>
                 </div>
                 <div class="vehicle-avatar" id="homeAvatar" style="flex-shrink:0;margin:0;">
-                    <span id="homeAvatarEmoji">🚗</span>
+                    <span id="homeAvatarEmoji"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 17H3v-4l2-5h14l2 5v4h-2"/><path d="M5 13h14"/></svg></span>
                     <img id="homeAvatarImg" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
                 </div>
             </div>
             <!-- Status grid: display only -->
             <div class="status-grid">
                 <div class="status-cell">
-                    <div class="s-icon" id="homeStatusIcon">🟢</div>
+                    <div class="s-icon" id="homeStatusIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                     <div class="s-lbl" data-key="reception">الاستقبال</div>
                     <div class="s-val on" id="homeStatusVal" data-key="status_on">مفعّل</div>
                 </div>
                 <div class="status-cell">
-                    <div class="s-icon" id="homePhoneIcon">📵</div>
+                    <div class="s-icon" id="homePhoneIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 10a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 7.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
                     <div class="s-lbl" data-key="phone_lbl">الرقم</div>
                     <div class="s-val off" id="homePhoneVal" data-key="hidden_lbl">مخفي</div>
                 </div>
                 <div class="status-cell">
-                    <div class="s-icon" id="homeImageIcon">🖼️</div>
+                    <div class="s-icon" id="homeImageIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
                     <div class="s-lbl" data-key="image_lbl">الصورة</div>
                     <div class="s-val off" id="homeImageVal" data-key="hidden_lbl">مخفي</div>
                 </div>
@@ -183,13 +183,13 @@
 </div>
 
 <div id="inboxPage" class="page">
-    <div class="header"><h3 data-key="inbox_tab">📥 الرسائل</h3></div>
+    <div class="header"><h3 data-key="inbox_tab">الرسائل</h3></div>
     <div class="stats"><div class="stat-item active" id="tabPending" onclick="setFilter('pending')"><div class="stat-number" id="inboxNew">0</div><div data-key="new_msgs">جديدة</div></div><div class="stat-item" id="tabClosed" onclick="setFilter('closed')"><div class="stat-number" id="inboxTotal">0</div><div data-key="replied_msgs">تم الرد</div></div></div>
     <div id="inboxContainer"><div class="loading" data-key="no_messages_inbox">لا توجد رسائل بعد</div></div>
 </div>
 
 <div id="settingsPage" class="page">
-    <div class="header"><h3 data-key="settings_tab">⚙️ الإعدادات</h3></div>
+    <div class="header"><h3 data-key="settings_tab">الإعدادات</h3></div>
     <div class="card">
         <!-- 1. Show phone -->
         <div class="settings-row">
@@ -242,7 +242,7 @@
                 <span class="row-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
                 <span>إشعارات الجوال</span>
             </div>
-            <button class="btn-tag" id="pushSubscribeBtn" onclick="togglePushSubscription()" style="font-size:12px;">🔕 غير مُفعّل</button>
+            <button class="btn-tag" id="pushSubscribeBtn" onclick="togglePushSubscription()" style="font-size:12px;">غير مُفعّل</button>
         </div>
         <!-- 6. Sound -->
         <div class="settings-row">
@@ -262,14 +262,14 @@
             </div>
         </div>
         <div id="customSoundRow" style="display:none" class="settings-row">
-            <span style="font-size:13px;color:var(--text-secondary);">🎵 <span id="customSoundName">لم يُختَر بعد</span></span>
+            <span style="font-size:13px;color:var(--text-secondary);"><span id="customSoundName">لم يُختَر بعد</span></span>
             <div>
                 <input type="file" id="ringtoneFile" accept="audio/*" onchange="handleRingtoneFile(this)" style="display:none">
-                <button class="btn-tag" onclick="document.getElementById('ringtoneFile').click()" style="font-size:12px">📂 اختيار</button>
+                <button class="btn-tag" onclick="document.getElementById('ringtoneFile').click()" style="font-size:12px">اختيار</button>
             </div>
         </div>
         <div class="settings-row" style="font-size:11px;color:var(--text-muted);border:none;padding-top:0;padding-right:44px;">
-            <span>💡 لإشعارات الخلفية: إعدادات الجوال ← Chrome ← البطارية ← بلا قيود</span>
+            <span>لإشعارات الخلفية: إعدادات الجوال ← Chrome ← البطارية ← بلا قيود</span>
         </div>
         <!-- 7. Language -->
         <div class="settings-row">
@@ -312,7 +312,7 @@
 </div>
 
 <div id="accountPage" class="page">
-    <div class="header"><h3 data-key="account_tab">👤 حسابي</h3></div>
+    <div class="header"><h3 data-key="account_tab">حسابي</h3></div>
 
     <!-- Section 1: Account info -->
     <div class="card" style="margin-bottom:12px;">
@@ -346,7 +346,7 @@
             <span id="editSectionArrow" style="float:left;transition:.2s;">▾</span>
         </div>
         <div id="editSection">
-            <label style="font-size:13px;color:var(--text-secondary);">📸 صورة المركبة</label>
+            <label style="font-size:13px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg> صورة المركبة</label>
             <input type="file" id="editVehicleImage" accept="image/*" onchange="previewEditImage(event)" style="margin-bottom:8px;margin-top:4px;">
             <img id="editImagePreview" style="width:100%;max-height:180px;object-fit:cover;border-radius:12px;margin-bottom:12px;display:none;">
             <label style="font-size:13px;color:var(--text-secondary);" data-key="vehicle_name_label">اسم المركبة</label>
@@ -391,7 +391,7 @@
 </div>
 
 <div id="conversationPage">
-    <div class="conv-header"><button onclick="closeConversation()" style="background:none;border:none;font-size:20px;cursor:pointer">← رجوع</button><strong data-key="reply_title">💬 الرد على الرسالة</strong></div>
+    <div class="conv-header"><button onclick="closeConversation()" style="background:none;border:none;font-size:20px;cursor:pointer">← رجوع</button><strong data-key="reply_title">الرد على الرسالة</strong></div>
     <div class="conv-messages" id="convMessages"></div>
     <div class="conv-reply-area"><textarea id="convReplyText" data-placeholder="reply_placeholder" placeholder="اكتب ردك..." style="flex:1"></textarea><button class="btn btn-primary" onclick="sendReplyFromConv()" style="width:auto" data-key="send_reply">إرسال</button></div>
 </div>
@@ -510,7 +510,7 @@
             if (document.getElementById('showDetailsToggle')) document.getElementById('showDetailsToggle').checked = isShowDetails;
             const vName = currentVehicle.custom_name || safeT('vehicle_default');
             document.getElementById('vehicleDisplay').innerText = vName;
-            document.getElementById('vehicleName').innerHTML = '🚗 <span>' + vName + '</span>';
+            document.getElementById('vehicleName').innerHTML = '<span>' + vName + '</span>';
             // Home profile card
             document.getElementById('homeVehicleName').textContent = vName;
             if(currentVehicle.image_url){
@@ -559,12 +559,12 @@
         const isAndroid = /Android/i.test(navigator.userAgent);
         if (!isIOS && !isAndroid) return;
         const instructions = isIOS
-            ? '📋 افتح قائمة المشاركة (□↑) في Safari ثم اضغط "إضافة إلى الشاشة الرئيسية"'
-            : '📋 افتح قائمة المتصفح (⋮) ثم اضغط "إضافة إلى الشاشة الرئيسية"';
+            ? 'افتح قائمة المشاركة (□↑) في Safari ثم اضغط "إضافة إلى الشاشة الرئيسية"'
+            : 'افتح قائمة المتصفح (⋮) ثم اضغط "إضافة إلى الشاشة الرئيسية"';
         const banner = document.createElement('div');
         banner.id = 'installBanner';
         banner.style.cssText = 'position:fixed;bottom:74px;left:12px;right:12px;background:var(--color-primary);color:white;border-radius:16px;padding:14px 16px;z-index:9998;box-shadow:0 4px 20px rgba(0,0,0,0.3);display:flex;align-items:flex-start;gap:12px;animation:slideDown 0.4s ease;';
-        banner.innerHTML = `<div style="flex:1;"><div style="font-weight:700;font-size:14px;margin-bottom:5px;">📲 أضف SafeScan لشاشتك الرئيسية</div><div style="font-size:12px;opacity:0.9;line-height:1.5;">${instructions}</div><div style="font-size:11px;opacity:0.75;margin-top:6px;">⚡ إشعارات فورية وأداء أفضل بكثير</div></div><button onclick="dismissInstallPrompt()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:18px;flex-shrink:0;line-height:1;">✕</button>`;
+        banner.innerHTML = `<div style="flex:1;"><div style="font-weight:700;font-size:14px;margin-bottom:5px;">أضف SafeScan لشاشتك الرئيسية</div><div style="font-size:12px;opacity:0.9;line-height:1.5;">${instructions}</div><div style="font-size:11px;opacity:0.75;margin-top:6px;">إشعارات فورية وأداء أفضل بكثير</div></div><button onclick="dismissInstallPrompt()" style="background:rgba(255,255,255,0.2);border:none;color:white;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:18px;flex-shrink:0;line-height:1;">✕</button>`;
         document.body.appendChild(banner);
     }
 
@@ -604,7 +604,9 @@
 
     function updateToggleUI(){
         const homeIcon=document.getElementById('homeStatusIcon'),homeVal=document.getElementById('homeStatusVal');
-        if(homeIcon){homeIcon.textContent=active?'🟢':'🔴';}
+        if(homeIcon){homeIcon.innerHTML=active
+            ?'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+            :'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';}
         if(homeVal){homeVal.textContent=active?safeT('status_on')||'مفعّل':safeT('status_off')||'موقف';homeVal.className='s-val '+(active?'on':'off');}
     }
     async function toggleStatus(){if(!currentVehicle)return;active=!active;updateToggleUI();await supabaseClient.from('vehicles').update({is_active:active}).eq('id',currentVehicle.id);const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);if(stickers)for(const s of stickers)await supabaseClient.from('stickers').update({status:active?'active':'inactive'}).eq('id',s.id);loadMessages();}
@@ -629,13 +631,13 @@
         const el = document.getElementById('homePhoneVal');
         const ic = document.getElementById('homePhoneIcon');
         if(el){ el.textContent = isOn ? (safeT('visible_lbl')||'ظاهر') : (safeT('hidden_lbl')||'مخفي'); el.className = 's-val '+(isOn?'on':'off'); }
-        if(ic){ ic.textContent = isOn ? '📱' : '📵'; }
+        if(ic){ ic.innerHTML = isOn ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 10a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 7.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 10a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 7.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>'; }
     }
     function updateHomeImageCell(isOn) {
         const el = document.getElementById('homeImageVal');
         const ic = document.getElementById('homeImageIcon');
         if(el){ el.textContent = isOn ? (safeT('visible_lbl')||'ظاهر') : (safeT('hidden_lbl')||'مخفي'); el.className = 's-val '+(isOn?'on':'off'); }
-        if(ic){ ic.textContent = isOn ? '🖼️' : '🚫'; }
+        if(ic){ ic.innerHTML = isOn ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'; }
     }
     function restoreContactCheckboxes(method) {
         const all = !method || method === 'all';
@@ -744,13 +746,13 @@
             const isOptedIn = OneSignal.User.PushSubscription.optedIn;
             if (isOptedIn) {
                 await OneSignal.User.PushSubscription.optOut();
-                btn.textContent = '🔕 غير مُفعّل'; btn.classList.remove('active');
-                showToast('🔕 تم إيقاف الإشعارات');
+                btn.textContent = 'غير مُفعّل'; btn.classList.remove('active');
+                showToast('تم إيقاف الإشعارات');
             } else {
                 const granted = await OneSignal.Notifications.requestPermission();
                 if (granted) {
                     await OneSignal.User.PushSubscription.optIn();
-                    btn.textContent = '🔔 مُفعّلة ✅'; btn.classList.add('active');
+                    btn.textContent = 'مُفعّلة'; btn.classList.add('active');
                     showToast('✅ تم تفعيل الإشعارات!');
                 } else {
                     alert('❌ يرجى السماح بالإشعارات من إعدادات المتصفح');
@@ -762,8 +764,8 @@
         const btn = document.getElementById('pushSubscribeBtn');
         if (!btn || !window.OneSignal) return;
         const isOptedIn = OneSignal.User?.PushSubscription?.optedIn;
-        if (isOptedIn) { btn.textContent = '🔔 مُفعّلة ✅'; btn.classList.add('active'); }
-        else { btn.textContent = '🔕 غير مُفعّل'; btn.classList.remove('active'); }
+        if (isOptedIn) { btn.textContent = 'مُفعّلة'; btn.classList.add('active'); }
+        else { btn.textContent = 'غير مُفعّل'; btn.classList.remove('active'); }
     }
 
     function toggleDarkMode(){ document.documentElement.classList.toggle('dark-mode'); const is=document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode',is); const t=document.getElementById('darkModeToggle'); if(t) t.checked=is; }
@@ -797,9 +799,9 @@
         filtered.forEach(log=>{
             const isBlocked = log.visitor_fingerprint && blockedFingerprints.includes(log.visitor_fingerprint);
             const statusPill = log.status==='pending'
-                ? `<span style="background:#fef9c3;color:#854d0e;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;">🆕 ${safeT('new_msgs')}</span>`
-                : `<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;">✅ ${safeT('replied_msgs')}</span>`;
-            const blockLabel = isBlocked ? '🔓 إلغاء الحظر' : '🚫 حظر';
+                ? `<span style="background:#fef9c3;color:#854d0e;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;">${safeT('new_msgs')}</span>`
+                : `<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;">${safeT('replied_msgs')}</span>`;
+            const blockLabel = isBlocked ? 'إلغاء الحظر' : 'حظر';
             const blockFn = isBlocked ? 'unblockVisitor' : 'blockVisitor';
             const blockBtn = log.visitor_fingerprint
                 ? `<button class="iaction red" onclick="event.stopPropagation();${blockFn}('${log.visitor_fingerprint}')">${blockLabel}</button>`
@@ -808,9 +810,9 @@
                 <div class="inbox-msg-preview">"${escapeHtml(log.visitor_message?.substring(0,60)||'')}"</div>
                 <div class="inbox-meta">${smartDate(log.created_at)} ${statusPill}</div>
                 <div class="inbox-actions">
-                    <button class="iaction" onclick="event.stopPropagation();showPhoneToVisitor('${log.id}')">📞 إظهار رقمي</button>
+                    <button class="iaction" onclick="event.stopPropagation();showPhoneToVisitor('${log.id}')">${safeT('show_phone_label')||'إظهار رقمي'}</button>
                     ${blockBtn}
-                    <button class="iaction orange" onclick="event.stopPropagation();deleteMessage('${log.id}')">🗑 حذف</button>
+                    <button class="iaction orange" onclick="event.stopPropagation();deleteMessage('${log.id}')">${safeT('delete_label')||'حذف'}</button>
                 </div>
             </div>`;
         });
@@ -841,11 +843,11 @@
         if(!confirm('⚠️ سيختفي هذا السجل من صندوقك. متأكد؟')) return;
         await supabaseClient.from('scan_logs').update({deleted_by_owner: true}).eq('id', messageId);
         allMessages = allMessages.map(m => m.id == messageId ? {...m, deleted_by_owner: true} : m);
-        updateCounters(); renderMessages(); showToast('🗑 تم حذف الرسالة');
+        updateCounters(); renderMessages(); showToast(safeT('delete_success')||'تم حذف الرسالة');
     }
     function loadHomeStats(){
         const last=allMessages[0];
-        if(last) document.getElementById('lastMessage').innerHTML='📩 '+safeT('last_message')+': "'+escapeHtml(last.visitor_message?.substring(0,40)||'')+'" · '+(last.status==='pending'?safeT('new_msgs'):safeT('replied_msgs'));
+        if(last) document.getElementById('lastMessage').innerHTML=safeT('last_message')+': "'+escapeHtml(last.visitor_message?.substring(0,40)||'')+'" · '+(last.status==='pending'?safeT('new_msgs'):safeT('replied_msgs'));
         else document.getElementById('lastMessage').innerHTML=safeT('last_message_none');
     }
     async function showPhoneToVisitor(messageId) {
@@ -854,8 +856,8 @@
         await supabaseClient.from('scan_logs').update({ show_phone_to_visitor: true }).eq('id', messageId);
         alert('✅ '+(safeT('phone_revealed_success')||'سيظهر رقمك لهذا الزائر.'));
     }
-function linkifyPhone(text){ const escaped = escapeHtml(text); return escaped.replace(/[\d\+\s]{9,}/g, (m) => m.trim().replace(/\s/g,'').length >= 9 ? `<a href="tel:${m.trim().replace(/\s/g,'')}" style="color:green;font-weight:600;text-decoration:none;">📞 ${m.trim()}</a>` : m); }
-    function openConversation(messageId){selectedMessageId=messageId;const msg=allMessages.find(m=>m.id==messageId);if(!msg)return;let html=`<div class="message-bubble visitor-bubble">🧑 ${safeT('visitor_label')}: ${linkifyPhone(msg.visitor_message)}<br><button onclick="translateMsg(this)" data-text="${escapeHtml(msg.visitor_message)}" style="background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:12px;margin-top:6px;">🌐 ترجمة للعربية</button></div>`;if(msg.owner_response)html+=`<div class="message-bubble owner-bubble">🚗 ${safeT('owner_label')}: ${escapeHtml(msg.owner_response)}<br><button onclick="translateMsgEn(this)" data-text="${escapeHtml(msg.owner_response)}" style="background:none;border:none;color:#888;cursor:pointer;font-size:12px;margin-top:6px;">🌐 ترجمة ردّك للإنجليزية</button></div>`;document.getElementById('convMessages').innerHTML=html;document.getElementById('conversationPage').classList.add('active');}
+function linkifyPhone(text){ const escaped = escapeHtml(text); return escaped.replace(/[\d\+\s]{9,}/g, (m) => m.trim().replace(/\s/g,'').length >= 9 ? `<a href="tel:${m.trim().replace(/\s/g,'')}" style="color:green;font-weight:600;text-decoration:none;">${m.trim()}</a>` : m); }
+    function openConversation(messageId){selectedMessageId=messageId;const msg=allMessages.find(m=>m.id==messageId);if(!msg)return;let html=`<div class="message-bubble visitor-bubble">${safeT('visitor_label')}: ${linkifyPhone(msg.visitor_message)}<br><button onclick="translateMsg(this)" data-text="${escapeHtml(msg.visitor_message)}" style="background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:12px;margin-top:6px;">${safeT('translate_btn')||'ترجمة للعربية'}</button></div>`;if(msg.owner_response)html+=`<div class="message-bubble owner-bubble">${safeT('owner_label')}: ${escapeHtml(msg.owner_response)}<br><button onclick="translateMsgEn(this)" data-text="${escapeHtml(msg.owner_response)}" style="background:none;border:none;color:#888;cursor:pointer;font-size:12px;margin-top:6px;">${safeT('translate_btn_en')||'ترجمة ردّك للإنجليزية'}</button></div>`;document.getElementById('convMessages').innerHTML=html;document.getElementById('conversationPage').classList.add('active');}
     function translateMsg(el){ const text = el.dataset.text; window.open('https://translate.google.com/m?sl=auto&tl=ar&q=' + encodeURIComponent(text), '_blank'); }
     function translateMsgEn(el){ const text = el.dataset.text; window.open('https://translate.google.com/m?sl=ar&tl=en&q=' + encodeURIComponent(text), '_blank'); }
     function closeConversation(){document.getElementById('conversationPage').classList.remove('active');selectedMessageId=null;}
@@ -891,7 +893,7 @@ if (imageFile) {
         showToast(safeT('changes_saved'));
         const displayName = carName || safeT('vehicle_default');
         document.getElementById('vehicleDisplay').innerText = displayName;
-        document.getElementById('vehicleName').innerHTML = '🚗 <span>' + displayName + '</span>';
+        document.getElementById('vehicleName').innerHTML = '<span>' + displayName + '</span>';
         document.getElementById('homeVehicleName').textContent = displayName;
         if(plate){
             const parts = plate.split(' ');
@@ -914,7 +916,7 @@ if (imageFile) {
         stickers.forEach(s => {
             const qrLink = `${APP_BASE_URL}/?token=${s.qr_token}`;
             const statusColor = s.status === 'active' ? 'var(--color-success)' : (s.status === 'inactive' ? 'var(--color-danger)' : 'var(--color-warning)');
-            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid var(--border-color);"><span>${s.qr_token || '---'}</span><span style="color: ${statusColor}; font-weight: 600;">${s.status === 'active' ? '🟢 مفعل' : (s.status === 'inactive' ? '🔴 موقف' : '🟡 جديد')}</span><button onclick="copyToClipboard('${qrLink}')" style="background:none; border:none; color: var(--color-primary); cursor:pointer;" title="نسخ الرابط">📋</button></div>`;
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid var(--border-color);"><span>${s.qr_token || '---'}</span><span style="color: ${statusColor}; font-weight: 600;">${s.status === 'active' ? '🟢 مفعل' : (s.status === 'inactive' ? '🔴 موقف' : '🟡 جديد')}</span><button onclick="copyToClipboard('${qrLink}')" style="background:none; border:none; color: var(--color-primary); cursor:pointer;" title="نسخ الرابط"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>`;
         });
         container.innerHTML = html;
     }
