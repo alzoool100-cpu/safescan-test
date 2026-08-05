@@ -113,11 +113,13 @@
         .iaction.red { border-color:#fecaca; color:#dc2626; background:#fef2f2; }
         .iaction.orange { border-color:#fed7aa; color:#c2410c; background:#fff7ed; }
         /* ── Saudi licence plate ── */
-        .sa-plate { display:inline-flex; align-items:center; direction:ltr; background:#fff; border:2px solid #1e5c3a; border-radius:7px; padding:3px 10px 5px; gap:8px; position:relative; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.15); margin-top:6px; margin-bottom:14px; }
-        .sa-plate::before { content:""; position:absolute; top:0; left:0; right:0; height:5px; background:linear-gradient(to right,#1e5c3a 60%,#fff 60%,#fff 73%,#c8102e 73%); }
-        .sa-plate-letters { font-size:18px; font-weight:800; color:#111; letter-spacing:.14em; direction:rtl; margin-top:3px; font-family:'Tajawal',sans-serif; }
-        .sa-plate-div { width:1px; height:26px; background:#ccc; flex-shrink:0; }
-        .sa-plate-numbers { font-size:18px; font-weight:800; color:#111; letter-spacing:.08em; margin-top:3px; }
+        .sa-plate { display:inline-flex; align-items:center; direction:ltr; background:#fff; border:2.5px solid #222; border-radius:5px; padding:5px 12px 6px; gap:10px; position:relative; box-shadow:0 1px 5px rgba(0,0,0,.18); margin-top:6px; margin-bottom:14px; }
+        .sa-plate-letters { font-size:19px; font-weight:900; color:#111; letter-spacing:.12em; direction:rtl; font-family:'Tajawal',sans-serif; }
+        .sa-plate-div { width:1.5px; height:28px; background:#444; flex-shrink:0; }
+        .sa-plate-numbers { font-size:19px; font-weight:900; color:#111; letter-spacing:.1em; }
+        /* ── Plate input boxes (edit & register) ── */
+        .plate-box { width:42px; height:48px; text-align:center; font-size:18px; font-weight:700; padding:6px 2px; border-radius:8px; border:1.5px solid var(--border-color); background:var(--bg-input); color:var(--text-primary); }
+        .plate-box:focus { outline:none; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(26,58,92,.1); }
         /* ── Home hero: side-by-side ── */
         .vehicle-hero { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
         .vehicle-hero-info { flex:1; text-align:right; }
@@ -153,7 +155,7 @@
             </div>
             <!-- Status grid: display only -->
             <div class="status-grid">
-                <div class="status-cell">
+                <div class="status-cell" onclick="toggleStatus()" title="تبديل الاستقبال">
                     <div class="s-icon" id="homeStatusIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                     <div class="s-lbl" data-key="reception">الاستقبال</div>
                     <div class="s-val on" id="homeStatusVal" data-key="status_on">مفعّل</div>
@@ -191,6 +193,14 @@
 <div id="settingsPage" class="page">
     <div class="header"><h3 data-key="settings_tab">الإعدادات</h3></div>
     <div class="card">
+        <!-- 0. Reception toggle -->
+        <div class="settings-row">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <span class="row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+                <span data-key="reception_toggle_label">حالة الاستقبال</span>
+            </div>
+            <label class="sett-toggle"><input type="checkbox" id="receptionToggle" onchange="toggleStatus()"><span class="slider"></span></label>
+        </div>
         <!-- 1. Show phone -->
         <div class="settings-row">
             <div style="display:flex;align-items:center;gap:10px;">
@@ -352,11 +362,17 @@
             <label style="font-size:13px;color:var(--text-secondary);" data-key="vehicle_name_label">اسم المركبة</label>
             <input type="text" id="editCarName" class="edit-input" placeholder="اسم المركبة">
             <label style="font-size:13px;color:var(--text-secondary);margin-top:8px;display:block;" data-key="plate_number_label">رقم اللوحة</label>
-            <div style="display:flex;gap:8px;direction:ltr;align-items:center;margin-top:4px;margin-bottom:8px;">
-                <input type="text" id="editPlateNumbers" placeholder="1234" maxlength="4" inputmode="numeric" class="edit-input" style="flex:4;text-align:center;font-weight:700;font-size:17px;letter-spacing:.06em;">
-                <span style="color:var(--text-muted);font-weight:700;font-size:18px;">–</span>
-                <input type="text" id="editPlateLetters" placeholder="أبج" maxlength="3" class="edit-input" style="flex:3;text-align:center;font-weight:700;font-size:17px;letter-spacing:.1em;">
+            <div style="display:flex;gap:6px;direction:ltr;justify-content:center;align-items:center;margin-top:6px;margin-bottom:8px;flex-wrap:wrap;">
+                <input type="text" class="plate-box" id="en1" inputmode="numeric" maxlength="1" placeholder="4" oninput="editNumInput(this,0)" onkeydown="editNumKey(event,0)">
+                <input type="text" class="plate-box" id="en2" inputmode="numeric" maxlength="1" placeholder="5" oninput="editNumInput(this,1)" onkeydown="editNumKey(event,1)">
+                <input type="text" class="plate-box" id="en3" inputmode="numeric" maxlength="1" placeholder="7" oninput="editNumInput(this,2)" onkeydown="editNumKey(event,2)">
+                <input type="text" class="plate-box" id="en4" inputmode="numeric" maxlength="1" placeholder="" oninput="editNumInput(this,3)" onkeydown="editNumKey(event,3)" style="opacity:.55">
+                <span style="color:var(--text-muted);font-weight:700;font-size:22px;margin:0 4px;">|</span>
+                <input type="text" class="plate-box" id="el1" maxlength="1" placeholder="ن" oninput="editLetterInput(this,0)" onkeydown="editLetterKey(event,0)" style="direction:rtl">
+                <input type="text" class="plate-box" id="el2" maxlength="1" placeholder="و" oninput="editLetterInput(this,1)" onkeydown="editLetterKey(event,1)" style="direction:rtl">
+                <input type="text" class="plate-box" id="el3" maxlength="1" placeholder="ه" oninput="editLetterInput(this,2)" onkeydown="editLetterKey(event,2)" style="direction:rtl">
             </div>
+            <span style="font-size:11px;color:var(--text-muted);" data-key="plate_hint">الأحرف دائماً 3 · الأرقام من 1 إلى 4</span>
             <label style="font-size:13px;color:var(--text-secondary);" data-key="model_label">الموديل</label>
             <input type="text" id="editModel" class="edit-input" placeholder="الموديل">
             <label style="font-size:13px;color:var(--text-secondary);margin-top:8px;display:block;" data-key="driver_name_label">اسم السائق</label>
@@ -529,10 +545,12 @@
                 }
             }
             document.getElementById('editCarName').value = currentVehicle.custom_name || '';
-            // Split plate for edit fields
+            // Split plate into individual boxes
             const plateParts = (currentVehicle.plate_number||'').split(' ');
-            if(plateParts.length===2){ document.getElementById('editPlateLetters').value=plateParts[0]||''; document.getElementById('editPlateNumbers').value=plateParts[1]||''; }
-            else { document.getElementById('editPlateLetters').value=''; document.getElementById('editPlateNumbers').value=currentVehicle.plate_number||''; }
+            const existingLetters = plateParts.length===2 ? plateParts[0] : '';
+            const existingNumbers = plateParts.length===2 ? plateParts[1] : (currentVehicle.plate_number||'');
+            ['el1','el2','el3'].forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.value=existingLetters[i]||''; });
+            ['en1','en2','en3','en4'].forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.value=existingNumbers[i]||''; });
             document.getElementById('editModel').value = currentVehicle.model || '';
             document.getElementById('editDriver').value = currentVehicle.driver_name || '';
             if (currentVehicle.image_url) { document.getElementById('editImagePreview').src = currentVehicle.image_url; document.getElementById('editImagePreview').style.display = 'block'; }
@@ -604,12 +622,23 @@
 
     function updateToggleUI(){
         const homeIcon=document.getElementById('homeStatusIcon'),homeVal=document.getElementById('homeStatusVal');
+        const receptionToggle=document.getElementById('receptionToggle');
         if(homeIcon){homeIcon.innerHTML=active
             ?'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
             :'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';}
         if(homeVal){homeVal.textContent=active?safeT('status_on')||'مفعّل':safeT('status_off')||'موقف';homeVal.className='s-val '+(active?'on':'off');}
+        if(receptionToggle) receptionToggle.checked=active;
     }
-    async function toggleStatus(){if(!currentVehicle)return;active=!active;updateToggleUI();await supabaseClient.from('vehicles').update({is_active:active}).eq('id',currentVehicle.id);const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);if(stickers)for(const s of stickers)await supabaseClient.from('stickers').update({status:active?'active':'inactive'}).eq('id',s.id);loadMessages();}
+    async function toggleStatus(){
+        if(!currentVehicle)return;
+        const receptionToggle=document.getElementById('receptionToggle');
+        active = receptionToggle ? receptionToggle.checked : !active;
+        updateToggleUI();
+        await supabaseClient.from('vehicles').update({is_active:active}).eq('id',currentVehicle.id);
+        const {data:stickers}=await supabaseClient.from('stickers').select('id').eq('vehicle_id',currentVehicle.id);
+        if(stickers)for(const s of stickers)await supabaseClient.from('stickers').update({status:active?'active':'inactive'}).eq('id',s.id);
+        loadMessages();
+    }
     async function toggleShowPhone(){
         const newValue = document.getElementById('showPhoneToggle').checked;
         if(newValue && !confirm(safeT('show_phone_warning')||'⚠️ سيظهر رقمك للعامة. متأكد؟')) { document.getElementById('showPhoneToggle').checked = false; return; }
@@ -639,6 +668,14 @@
         if(el){ el.textContent = isOn ? (safeT('visible_lbl')||'ظاهر') : (safeT('hidden_lbl')||'مخفي'); el.className = 's-val '+(isOn?'on':'off'); }
         if(ic){ ic.innerHTML = isOn ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'; }
     }
+    // ── Edit-section plate box helpers ──
+    const editNums = ['en1','en2','en3','en4'];
+    const editLtrs = ['el1','el2','el3'];
+    function editNumInput(el, idx){ el.value=el.value.replace(/\D/g,''); if(el.value && idx<3){ const next=document.getElementById(editNums[idx+1]); if(next) next.focus(); } }
+    function editNumKey(e, idx){ if(e.key==='Backspace'&&!e.target.value&&idx>0){ document.getElementById(editNums[idx-1]).focus(); } }
+    function editLetterInput(el, idx){ if(el.value && idx<2){ const next=document.getElementById(editLtrs[idx+1]); if(next) next.focus(); } }
+    function editLetterKey(e, idx){ if(e.key==='Backspace'&&!e.target.value&&idx>0){ document.getElementById(editLtrs[idx-1]).focus(); } }
+
     function restoreContactCheckboxes(method) {
         const all = !method || method === 'all';
         const methods = all ? ['phone','whatsapp','sms'] : method.split(',');
@@ -801,7 +838,7 @@
             const statusPill = log.status==='pending'
                 ? `<span style="background:#fef9c3;color:#854d0e;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;">${safeT('new_msgs')}</span>`
                 : `<span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:700;">${safeT('replied_msgs')}</span>`;
-            const blockLabel = isBlocked ? 'إلغاء الحظر' : 'حظر';
+            const blockLabel = isBlocked ? safeT('unblock_visitor') : safeT('block_visitor');
             const blockFn = isBlocked ? 'unblockVisitor' : 'blockVisitor';
             const blockBtn = log.visitor_fingerprint
                 ? `<button class="iaction red" onclick="event.stopPropagation();${blockFn}('${log.visitor_fingerprint}')">${blockLabel}</button>`
@@ -857,7 +894,8 @@
         alert('✅ '+(safeT('phone_revealed_success')||'سيظهر رقمك لهذا الزائر.'));
     }
 function linkifyPhone(text){ const escaped = escapeHtml(text); return escaped.replace(/[\d\+\s]{9,}/g, (m) => m.trim().replace(/\s/g,'').length >= 9 ? `<a href="tel:${m.trim().replace(/\s/g,'')}" style="color:green;font-weight:600;text-decoration:none;">${m.trim()}</a>` : m); }
-    function openConversation(messageId){selectedMessageId=messageId;const msg=allMessages.find(m=>m.id==messageId);if(!msg)return;let html=`<div class="message-bubble visitor-bubble">${safeT('visitor_label')}: ${linkifyPhone(msg.visitor_message)}<br><button onclick="translateMsg(this)" data-text="${escapeHtml(msg.visitor_message)}" style="background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:12px;margin-top:6px;">${safeT('translate_btn')||'ترجمة للعربية'}</button></div>`;if(msg.owner_response)html+=`<div class="message-bubble owner-bubble">${safeT('owner_label')}: ${escapeHtml(msg.owner_response)}<br><button onclick="translateMsgEn(this)" data-text="${escapeHtml(msg.owner_response)}" style="background:none;border:none;color:#888;cursor:pointer;font-size:12px;margin-top:6px;">${safeT('translate_btn_en')||'ترجمة ردّك للإنجليزية'}</button></div>`;document.getElementById('convMessages').innerHTML=html;document.getElementById('conversationPage').classList.add('active');}
+    const _translateSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:4px;"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>';
+    function openConversation(messageId){selectedMessageId=messageId;const msg=allMessages.find(m=>m.id==messageId);if(!msg)return;let html=`<div class="message-bubble visitor-bubble">${safeT('visitor_label')}: ${linkifyPhone(msg.visitor_message)}<br><button onclick="translateMsg(this)" data-text="${escapeHtml(msg.visitor_message)}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:12px;margin-top:6px;">${_translateSvg} ${safeT('translate_btn')||'ترجمة'}</button></div>`;if(msg.owner_response)html+=`<div class="message-bubble owner-bubble">${safeT('owner_label')}: ${escapeHtml(msg.owner_response)}<br><button onclick="translateMsgEn(this)" data-text="${escapeHtml(msg.owner_response)}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:none;color:#888;cursor:pointer;font-size:12px;margin-top:6px;">${_translateSvg} ${safeT('translate_btn_en')||'ترجمة للإنجليزية'}</button></div>`;document.getElementById('convMessages').innerHTML=html;document.getElementById('conversationPage').classList.add('active');}
     function translateMsg(el){ const text = el.dataset.text; window.open('https://translate.google.com/m?sl=auto&tl=ar&q=' + encodeURIComponent(text), '_blank'); }
     function translateMsgEn(el){ const text = el.dataset.text; window.open('https://translate.google.com/m?sl=ar&tl=en&q=' + encodeURIComponent(text), '_blank'); }
     function closeConversation(){document.getElementById('conversationPage').classList.remove('active');selectedMessageId=null;}
@@ -883,8 +921,8 @@ if (imageFile) {
     }
 }
         const carName = document.getElementById('editCarName').value.trim();
-        const pLetters = document.getElementById('editPlateLetters').value.trim();
-        const pNumbers = document.getElementById('editPlateNumbers').value.trim();
+        const pLetters = ['el1','el2','el3'].map(id=>document.getElementById(id)?.value||'').join('').trim();
+        const pNumbers = ['en1','en2','en3','en4'].map(id=>document.getElementById(id)?.value||'').join('').trim();
         const plate = (pLetters && pNumbers) ? pLetters + ' ' + pNumbers : (pLetters || pNumbers || null);
         const model = document.getElementById('editModel').value.trim();
         const driver = document.getElementById('editDriver').value.trim();
@@ -916,7 +954,17 @@ if (imageFile) {
         stickers.forEach(s => {
             const qrLink = `${APP_BASE_URL}/?token=${s.qr_token}`;
             const statusColor = s.status === 'active' ? 'var(--color-success)' : (s.status === 'inactive' ? 'var(--color-danger)' : 'var(--color-warning)');
-            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid var(--border-color);"><span>${s.qr_token || '---'}</span><span style="color: ${statusColor}; font-weight: 600;">${s.status === 'active' ? '🟢 مفعل' : (s.status === 'inactive' ? '🔴 موقف' : '🟡 جديد')}</span><button onclick="copyToClipboard('${qrLink}')" style="background:none; border:none; color: var(--color-primary); cursor:pointer;" title="نسخ الرابط"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>`;
+            const statusText = s.status==='active' ? safeT('sticker_status_active') : (s.status==='inactive' ? safeT('sticker_status_inactive') : safeT('sticker_status_new'));
+            html += `<div style="display:flex; justify-content:space-between; align-items:center; padding: 8px 0; border-bottom: 1px solid var(--border-color); gap:8px;">
+              <div style="display:flex;flex-direction:column;gap:2px;">
+                <span style="font-size:12px;color:var(--text-muted);">${safeT('sticker_link_label')||'رابط المحادثة'}</span>
+                <span style="font-size:11px;color:var(--text-secondary);direction:ltr;">${s.qr_token || '---'}</span>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <span style="color: ${statusColor}; font-weight: 700; font-size:13px;">${statusText}</span>
+                <button onclick="copyToClipboard('${qrLink}')" style="background:var(--bg-tag); border:none; color: var(--color-primary); cursor:pointer; padding:6px; border-radius:8px;" title="${safeT('copy_link')||'نسخ الرابط'}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+              </div>
+            </div>`;
         });
         container.innerHTML = html;
     }
