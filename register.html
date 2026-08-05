@@ -54,10 +54,10 @@
             <span class="hint" data-key="token_hint">هذا الرمز السري المرفق مع الاستيكر، يستخدم لمرة واحدة للتفعيل</span>
         </div>
         <div class="input-group">
-            <label data-key="password_label">🔒 كلمة المرور</label>
+            <label data-key="password_label">كلمة المرور</label>
             <div class="password-wrapper">
-                <input type="password" id="password" placeholder="كلمة المرور" required minlength="8" oninput="checkRegStrength()">
-                <span class="toggle-password" onclick="togglePassword('password')">👁️</span>
+                <input type="password" id="password" data-placeholder="password_label" placeholder="كلمة المرور" required minlength="8" oninput="checkRegStrength()">
+                <span class="toggle-password" onclick="togglePassword('password')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
             </div>
             <div class="strength-bar" style="background:#e0e0e0; border-radius:4px; margin:8px 0;">
                 <div id="regStrengthFill" class="strength-fill"></div>
@@ -72,15 +72,15 @@
         </div>
 
         <div style="border-top: 1px solid var(--border-color); margin: 24px 0; padding-top: 16px;">
-            <strong data-key="additional_info">📝 معلومات إضافية عن المركبة</strong>
+            <strong data-key="additional_info">معلومات إضافية عن المركبة</strong>
             <span class="optional-badge" data-key="optional">اختياري</span>
             <p style="font-size:12px; color: var(--text-muted); margin-top: 4px;" data-key="optional_desc">يمكنك ملؤها الآن أو لاحقاً من الإعدادات</p>
         </div>
 
-        <div class="input-group"><label data-key="image_label">📸 صورة المركبة</label><input type="file" id="vehicleImage" accept="image/*" onchange="previewImage(event)"><img id="imagePreview" class="preview-image" /></div>
-        <div class="input-group"><label data-key="car_name_label">🏷️ اسم المركبة</label><input type="text" id="carName" data-placeholder="car_name_placeholder" placeholder="مثال: سيارة العمل"></div>
+        <div class="input-group"><label data-key="image_label">صورة المركبة</label><input type="file" id="vehicleImage" accept="image/*" onchange="previewImage(event)"><img id="imagePreview" class="preview-image" /></div>
+        <div class="input-group"><label data-key="car_name_label">اسم المركبة</label><input type="text" id="carName" data-placeholder="car_name_placeholder" placeholder="مثال: سيارة العمل"></div>
         <div class="input-group">
-            <label data-key="plate_label">🚘 رقم اللوحة</label>
+            <label data-key="plate_label">رقم اللوحة</label>
             <!-- صناديق فردية: أحرف (يمين) + أرقام (يسار) — عرض اللوحة السعودية -->
             <div style="display:flex;gap:6px;direction:ltr;justify-content:center;align-items:center;margin-top:6px;flex-wrap:wrap;">
                 <input type="text" class="plate-box" id="pn1" inputmode="numeric" maxlength="1" placeholder="4" oninput="regNumInput(this,0)" onkeydown="regNumKey(event,0)">
@@ -94,14 +94,14 @@
             </div>
             <span class="hint" data-key="plate_hint">الأحرف دائماً 3 · الأرقام من 1 إلى 4</span>
         </div>
-        <div class="input-group"><label data-key="model_label">📅 الموديل</label><input type="text" id="model" data-placeholder="model_placeholder" placeholder="مثال: كامري 2024"></div>
-        <div class="input-group"><label data-key="driver_label">👤 اسم السائق</label><input type="text" id="driverName" data-placeholder="driver_placeholder" placeholder="مثال: أحمد محمد"></div>
+        <div class="input-group"><label data-key="model_label">الموديل</label><input type="text" id="model" data-placeholder="model_placeholder" placeholder="مثال: كامري 2024"></div>
+        <div class="input-group"><label data-key="driver_label">اسم السائق</label><input type="text" id="driverName" data-placeholder="driver_placeholder" placeholder="مثال: أحمد محمد"></div>
 
         <button type="submit" class="btn btn-primary" data-key="activate_btn">تفعيل الاستيكر</button>
         <div id="errorMsg" class="error-text"></div>
     </form>
     <div class="footer-note">
-        <span data-key="encrypted_msg">📵 رقمك مشفر ولا يظهر للغير</span><br>
+        <span data-key="encrypted_msg">رقمك مشفر ولا يظهر للغير</span><br>
         <a href="/privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a> · 
         <a href="/terms.html" style="color: var(--text-muted);">شروط الاستخدام</a>
     </div>
