@@ -65,11 +65,12 @@
         .nav-item .icon { font-size: 22px; }
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .car-badge { background: var(--bg-tag); padding: 6px 14px; border-radius: 40px; font-size: 14px; }
-        .stats { display: flex; gap: 12px; margin: 18px 0; }
-        .stat-item { background: var(--bg-tag); padding: 14px 16px; border-radius: 20px; flex: 1; text-align: center; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        .stats { display: flex; gap: 10px; margin: 14px 0; }
+        .stat-item { background: var(--bg-tag); padding: 14px 8px 12px; border-radius: 18px; flex: 1; text-align: center; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; transition: background .15s, transform .1s; }
+        .stat-item:active { transform: scale(.97); }
         .stat-item.active { background: var(--color-primary); color: white; }
         .stat-item.active .stat-number { color: white; }
-        .stat-number { font-size: 28px; font-weight: 700; color: var(--color-primary); }
+        .stat-number { font-size: 30px; font-weight: 800; color: var(--color-primary); line-height: 1.1; }
         .inbox-item { padding: 16px 0; border-bottom: 1px solid var(--border-color); cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .msg-preview { font-weight: 500; margin-bottom: 6px; }
         .msg-time { font-size: 12px; color: var(--text-muted); }
@@ -94,13 +95,13 @@
         .home-vehicle-name { font-size:18px; font-weight:700; margin-bottom:6px; }
         .plate-badge { display:inline-block; background:var(--text-primary); color:var(--bg-card); font-size:12px; font-weight:700; padding:3px 14px; border-radius:6px; margin-bottom:14px; direction:ltr; letter-spacing:.08em; }
         .status-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px; }
-        .status-cell { background:var(--bg-tag); border-radius:12px; padding:10px 6px 8px; text-align:center; cursor:pointer; transition:background .15s,transform .1s; -webkit-tap-highlight-color:transparent; position:relative; }
+        .status-cell { background:var(--bg-tag); border-radius:14px; padding:13px 6px 11px; text-align:center; cursor:pointer; transition:background .15s,transform .1s; -webkit-tap-highlight-color:transparent; position:relative; border:1px solid var(--border-color); }
         .status-cell:hover { background:var(--border-color); }
-        .status-cell:active { transform:scale(.96); opacity:.85; }
-        .status-cell::after { content:"›"; position:absolute; top:5px; left:7px; font-size:13px; color:var(--text-muted); opacity:.5; line-height:1; }
-        .s-icon { font-size:20px; margin-bottom:3px; }
-        .s-lbl { font-size:10px; color:var(--text-muted); }
-        .s-val { font-size:12px; font-weight:700; margin-top:2px; }
+        .status-cell:active { transform:scale(.96); }
+        .status-cell::after { content:"›"; position:absolute; top:7px; left:8px; font-size:12px; color:var(--text-muted); opacity:.4; line-height:1; }
+        .s-icon { margin-bottom:5px; display:flex; justify-content:center; }
+        .s-lbl { font-size:10px; color:var(--text-muted); letter-spacing:.01em; }
+        .s-val { font-size:13px; font-weight:700; margin-top:3px; }
         .s-val.on { color:var(--color-success); }
         .s-val.off { color:var(--text-muted); }
         /* ── Settings SVG icons ── */
@@ -188,6 +189,13 @@
                             <div class="plate-en-text" id="homePlateLtrsEn">A B C</div>
                         </div>
                     </div>
+                    <!-- Vehicle details (model / driver) — visible when showDetailsToggle is on -->
+                    <div id="homeDetailsRow" style="display:none;margin-top:6px;">
+                        <div style="display:flex;gap:6px;justify-content:flex-start;flex-wrap:wrap;">
+                            <span id="homeModelChip" style="display:none;font-size:11px;background:var(--bg-tag);border:1px solid var(--border-color);border-radius:99px;padding:2px 10px;color:var(--text-secondary);"></span>
+                            <span id="homeDriverChip" style="display:none;font-size:11px;background:var(--bg-tag);border:1px solid var(--border-color);border-radius:99px;padding:2px 10px;color:var(--text-secondary);"></span>
+                        </div>
+                    </div>
                 </div>
                 <div class="vehicle-avatar" id="homeAvatar" onclick="switchPage('settings')" title="تغيير صورة السيارة" style="margin:0;">
                     <span id="homeAvatarEmoji"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 17H3v-4l2-5h14l2 5v4h-2"/><path d="M5 13h14"/></svg></span>
@@ -204,12 +212,12 @@
                 <div class="status-cell" onclick="switchPage('settings')" title="إعداد ظهور الرقم">
                     <div class="s-icon" id="homePhoneIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 10a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 7.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
                     <div class="s-lbl" data-key="phone_lbl">الرقم</div>
-                    <div class="s-val off" id="homePhoneVal" data-key="hidden_lbl">مخفي</div>
+                    <div class="s-val off" id="homePhoneVal">مخفي</div>
                 </div>
                 <div class="status-cell" onclick="switchPage('settings')" title="إعداد ظهور الصورة">
                     <div class="s-icon" id="homeImageIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
                     <div class="s-lbl" data-key="image_lbl">الصورة</div>
-                    <div class="s-val off" id="homeImageVal" data-key="hidden_lbl">مخفي</div>
+                    <div class="s-val off" id="homeImageVal">مخفي</div>
                 </div>
             </div>
             <!-- Stats -->
@@ -616,6 +624,7 @@
             updateHomeImageCell(isShowImage);
             const isShowDetails = currentVehicle?.show_details ?? false;
             if (document.getElementById('showDetailsToggle')) document.getElementById('showDetailsToggle').checked = isShowDetails;
+            updateHomeDetailsRow(isShowDetails, currentVehicle.model, currentVehicle.driver_name);
             const vName = currentVehicle.custom_name || safeT('vehicle_default');
             document.getElementById('vehicleDisplay').innerText = vName;
             document.getElementById('vehicleName').innerHTML = '<span>' + vName + '</span>';
@@ -744,7 +753,18 @@
     }
     async function toggleShowDetails() {
         const newValue = document.getElementById('showDetailsToggle').checked;
+        updateHomeDetailsRow(newValue, currentVehicle?.model, currentVehicle?.driver_name);
         if (currentVehicle) { await supabaseClient.from('vehicles').update({ show_details: newValue }).eq('id', currentVehicle.id); showToast(newValue ? safeT('show_details_on_toast') : safeT('show_details_off_toast')); }
+    }
+    function updateHomeDetailsRow(isOn, model, driver) {
+        const row = document.getElementById('homeDetailsRow');
+        if (!row) return;
+        const modelEl = document.getElementById('homeModelChip');
+        const driverEl = document.getElementById('homeDriverChip');
+        if (!isOn || (!model && !driver)) { row.style.display = 'none'; return; }
+        if (modelEl) { if (model) { modelEl.textContent = model; modelEl.style.display = ''; } else { modelEl.style.display = 'none'; } }
+        if (driverEl) { if (driver) { driverEl.textContent = driver; driverEl.style.display = ''; } else { driverEl.style.display = 'none'; } }
+        row.style.display = '';
     }
     function updateHomePhoneCell(isOn) {
         const el = document.getElementById('homePhoneVal');
@@ -1041,22 +1061,22 @@ if (imageFile) {
         const driver = document.getElementById('editDriver').value.trim();
         const { error } = await supabaseClient.from('vehicles').update({ custom_name: carName || null, plate_number: plate, model: model, driver_name: driver }).eq('id', currentVehicle.id);
         if(error){ showToast(safeT('changes_failed')); return; }
+        if (currentVehicle) { currentVehicle.model = model; currentVehicle.driver_name = driver; currentVehicle.custom_name = carName || null; currentVehicle.plate_number = plate; }
         showToast(safeT('changes_saved'));
         const displayName = carName || safeT('vehicle_default');
         document.getElementById('vehicleDisplay').innerText = displayName;
         document.getElementById('vehicleName').innerHTML = '<span>' + displayName + '</span>';
         document.getElementById('homeVehicleName').textContent = displayName;
-        if(plate){
-            const parts = plate.split(' ');
+        if (plate) {
+            const _pp = plate.split(' ');
+            const _lpipe = (_pp[0]||'').split('|');
+            _showPlate(_lpipe[0]||'', _lpipe[1]||'', _pp[1]||'');
+        } else {
             const pb = document.getElementById('homePlateBadge');
-            const ltrs = document.getElementById('homePlateLetters');
-            const nums = document.getElementById('homePlateNumbers');
-            if(pb && ltrs && nums){
-                if(parts.length === 2){ ltrs.textContent = parts[0]; nums.textContent = parts[1]; }
-                else { ltrs.textContent = plate; nums.textContent = ''; }
-                pb.style.display = 'inline-flex';
-            }
+            if (pb) pb.style.display = 'none';
         }
+        const showDet = document.getElementById('showDetailsToggle')?.checked ?? false;
+        updateHomeDetailsRow(showDet, model, driver);
     }
     async function loadMyStickers() {
         if (!currentVehicle) return;
