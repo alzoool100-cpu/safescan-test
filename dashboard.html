@@ -152,7 +152,7 @@
 <body>
 
 <div id="homePage" class="page active">
-    <div class="header" style="margin-bottom:12px;"><div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div><div class="car-badge" id="vehicleName"><span data-key="vehicle_default">سيارتي</span></div></div>
+    <div class="header" style="margin-bottom:12px;"><div class="logo"><span class="logo-icon">🛡️</span><span class="logo-text">SafeScan</span></div><div class="car-badge" id="vehicleName" style="display:none"><span data-key="vehicle_default">سيارتي</span></div></div>
     <div class="card" style="padding:0;overflow:hidden;">
         <div class="profile-card">
             <!-- Hero: avatar right + info left (RTL) -->
@@ -202,37 +202,37 @@
                     <img id="homeAvatarImg" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
                 </div>
             </div>
-            <!-- Status grid: all cards navigate to settings -->
-            <div class="status-grid">
-                <div class="status-cell" onclick="switchPage('settings')" title="إعدادات الاستقبال">
-                    <div class="s-icon" id="homeStatusIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-                    <div class="s-lbl" data-key="reception">الاستقبال</div>
-                    <div class="s-val on" id="homeStatusVal" data-key="status_on">مفعّل</div>
+            <!-- Status grid: order in HTML is reversed so RTL renders الاستقبال rightmost -->
+            <div class="status-grid" style="direction:ltr;">
+                <div class="status-cell" onclick="switchPage('settings')" title="إعداد ظهور الصورة">
+                    <div class="s-icon" id="homeImageIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
+                    <div class="s-lbl" data-key="image_lbl">الصورة</div>
+                    <div class="s-val off" id="homeImageVal">مخفي</div>
                 </div>
                 <div class="status-cell" onclick="switchPage('settings')" title="إعداد ظهور الرقم">
                     <div class="s-icon" id="homePhoneIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 10a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 7.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
                     <div class="s-lbl" data-key="phone_lbl">الرقم</div>
                     <div class="s-val off" id="homePhoneVal">مخفي</div>
                 </div>
-                <div class="status-cell" onclick="switchPage('settings')" title="إعداد ظهور الصورة">
-                    <div class="s-icon" id="homeImageIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
-                    <div class="s-lbl" data-key="image_lbl">الصورة</div>
-                    <div class="s-val off" id="homeImageVal">مخفي</div>
+                <div class="status-cell" onclick="switchPage('settings')" title="إعدادات الاستقبال">
+                    <div class="s-icon" id="homeStatusIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="s-lbl" data-key="reception">الاستقبال</div>
+                    <div class="s-val on" id="homeStatusVal" data-key="status_on">مفعّل</div>
                 </div>
             </div>
             <!-- Stats -->
             <div class="stats">
                 <div class="stat-item" onclick="switchPage('inbox')" title="الرسائل الجديدة — اضغط للعرض">
                     <div class="stat-number" id="newCount">0</div>
-                    <div style="font-size:11px;" data-key="new_msgs">رسائل جديدة</div>
+                    <div style="font-size:13px;" data-key="new_msgs">رسائل جديدة</div>
                 </div>
                 <div class="stat-item" onclick="switchPage('inbox')" title="الرسائل المردود عليها — اضغط للعرض">
                     <div class="stat-number" id="totalCount">0</div>
-                    <div style="font-size:11px;" data-key="replied_msgs">تم الرد</div>
+                    <div style="font-size:13px;" data-key="replied_msgs">تم الرد</div>
                 </div>
                 <div class="stat-item" title="عدد من مسح استيكرك اليوم">
                     <div class="stat-number" id="todayScanCount">—</div>
-                    <div style="font-size:11px;" data-key="today_scans">مسح اليوم</div>
+                    <div style="font-size:13px;" data-key="today_scans">مسح اليوم</div>
                 </div>
             </div>
         </div>
