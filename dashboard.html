@@ -88,13 +88,16 @@
         button, .toggle-switch { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         /* ── Profile card (home) ── */
         .profile-card { text-align:center; padding:20px 16px 16px; }
-        .vehicle-avatar { width:84px; height:84px; border-radius:50%; border:3px solid var(--color-primary); margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:38px; background:var(--bg-tag); overflow:hidden; }
+        .vehicle-avatar { width:112px; height:112px; border-radius:50%; border:3px solid var(--color-primary); margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:48px; background:var(--bg-tag); overflow:hidden; cursor:pointer; transition:opacity .2s,box-shadow .2s; flex-shrink:0; }
+        .vehicle-avatar:hover { opacity:.88; box-shadow:0 0 0 5px rgba(26,58,92,.12); }
         .vehicle-avatar img { width:100%; height:100%; object-fit:cover; }
         .home-vehicle-name { font-size:18px; font-weight:700; margin-bottom:6px; }
         .plate-badge { display:inline-block; background:var(--text-primary); color:var(--bg-card); font-size:12px; font-weight:700; padding:3px 14px; border-radius:6px; margin-bottom:14px; direction:ltr; letter-spacing:.08em; }
         .status-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px; }
-        .status-cell { background:var(--bg-tag); border-radius:12px; padding:10px 6px; text-align:center; cursor:pointer; transition:background .2s; -webkit-tap-highlight-color:transparent; }
-        .status-cell:active { opacity:.8; }
+        .status-cell { background:var(--bg-tag); border-radius:12px; padding:10px 6px 8px; text-align:center; cursor:pointer; transition:background .15s,transform .1s; -webkit-tap-highlight-color:transparent; position:relative; }
+        .status-cell:hover { background:var(--border-color); }
+        .status-cell:active { transform:scale(.96); opacity:.85; }
+        .status-cell::after { content:"›"; position:absolute; top:5px; left:7px; font-size:13px; color:var(--text-muted); opacity:.5; line-height:1; }
         .s-icon { font-size:20px; margin-bottom:3px; }
         .s-lbl { font-size:10px; color:var(--text-muted); }
         .s-val { font-size:12px; font-weight:700; margin-top:2px; }
@@ -186,24 +189,24 @@
                         </div>
                     </div>
                 </div>
-                <div class="vehicle-avatar" id="homeAvatar" style="flex-shrink:0;margin:0;">
-                    <span id="homeAvatarEmoji"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 17H3v-4l2-5h14l2 5v4h-2"/><path d="M5 13h14"/></svg></span>
+                <div class="vehicle-avatar" id="homeAvatar" onclick="switchPage('settings')" title="تغيير صورة السيارة" style="margin:0;">
+                    <span id="homeAvatarEmoji"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 17H3v-4l2-5h14l2 5v4h-2"/><path d="M5 13h14"/></svg></span>
                     <img id="homeAvatarImg" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
                 </div>
             </div>
-            <!-- Status grid: display only -->
+            <!-- Status grid: all cards navigate to settings -->
             <div class="status-grid">
-                <div class="status-cell" onclick="toggleStatus()" title="تبديل الاستقبال">
+                <div class="status-cell" onclick="switchPage('settings')" title="إعدادات الاستقبال">
                     <div class="s-icon" id="homeStatusIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                     <div class="s-lbl" data-key="reception">الاستقبال</div>
                     <div class="s-val on" id="homeStatusVal" data-key="status_on">مفعّل</div>
                 </div>
-                <div class="status-cell">
+                <div class="status-cell" onclick="switchPage('settings')" title="إعداد ظهور الرقم">
                     <div class="s-icon" id="homePhoneIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 10a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 7.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
                     <div class="s-lbl" data-key="phone_lbl">الرقم</div>
                     <div class="s-val off" id="homePhoneVal" data-key="hidden_lbl">مخفي</div>
                 </div>
-                <div class="status-cell">
+                <div class="status-cell" onclick="switchPage('settings')" title="إعداد ظهور الصورة">
                     <div class="s-icon" id="homeImageIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
                     <div class="s-lbl" data-key="image_lbl">الصورة</div>
                     <div class="s-val off" id="homeImageVal" data-key="hidden_lbl">مخفي</div>
@@ -211,9 +214,18 @@
             </div>
             <!-- Stats -->
             <div class="stats">
-                <div class="stat-item" onclick="switchPage('inbox')"><div class="stat-number" id="newCount">0</div><div data-key="new_msgs">جديدة</div></div>
-                <div class="stat-item" onclick="switchPage('inbox')"><div class="stat-number" id="totalCount">0</div><div data-key="replied_msgs">تم الرد</div></div>
-                <div class="stat-item"><div class="stat-number" id="todayScanCount">—</div><div data-key="today_scans">مسحات اليوم</div></div>
+                <div class="stat-item" onclick="switchPage('inbox')" title="الرسائل الجديدة — اضغط للعرض">
+                    <div class="stat-number" id="newCount">0</div>
+                    <div style="font-size:11px;" data-key="new_msgs">رسائل جديدة</div>
+                </div>
+                <div class="stat-item" onclick="switchPage('inbox')" title="الرسائل المردود عليها — اضغط للعرض">
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div style="font-size:11px;" data-key="replied_msgs">تم الرد</div>
+                </div>
+                <div class="stat-item" title="عدد من مسح استيكرك اليوم">
+                    <div class="stat-number" id="todayScanCount">—</div>
+                    <div style="font-size:11px;" data-key="today_scans">مسح اليوم</div>
+                </div>
             </div>
         </div>
         <div style="border-top:1px solid var(--border-color);padding:12px 16px;">
