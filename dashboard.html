@@ -65,11 +65,12 @@
         .nav-item .icon { font-size: 22px; }
         .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .car-badge { background: var(--bg-tag); padding: 6px 14px; border-radius: 40px; font-size: 14px; }
-        .stats { display: flex; gap: 12px; margin: 18px 0; }
-        .stat-item { background: var(--bg-tag); padding: 14px 16px; border-radius: 20px; flex: 1; text-align: center; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        .stats { display: flex; gap: 10px; margin: 14px 0; }
+        .stat-item { background: var(--bg-tag); padding: 14px 8px 12px; border-radius: 18px; flex: 1; text-align: center; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; transition: background .15s, transform .1s; }
+        .stat-item:active { transform: scale(.97); }
         .stat-item.active { background: var(--color-primary); color: white; }
         .stat-item.active .stat-number { color: white; }
-        .stat-number { font-size: 28px; font-weight: 700; color: var(--color-primary); }
+        .stat-number { font-size: 30px; font-weight: 800; color: var(--color-primary); line-height: 1.1; }
         .inbox-item { padding: 16px 0; border-bottom: 1px solid var(--border-color); cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .msg-preview { font-weight: 500; margin-bottom: 6px; }
         .msg-time { font-size: 12px; color: var(--text-muted); }
@@ -88,16 +89,19 @@
         button, .toggle-switch { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         /* ── Profile card (home) ── */
         .profile-card { text-align:center; padding:20px 16px 16px; }
-        .vehicle-avatar { width:84px; height:84px; border-radius:50%; border:3px solid var(--color-primary); margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:38px; background:var(--bg-tag); overflow:hidden; }
+        .vehicle-avatar { width:112px; height:112px; border-radius:50%; border:3px solid var(--color-primary); margin:0 auto 10px; display:flex; align-items:center; justify-content:center; font-size:48px; background:var(--bg-tag); overflow:hidden; cursor:pointer; transition:opacity .2s,box-shadow .2s; flex-shrink:0; }
+        .vehicle-avatar:hover { opacity:.88; box-shadow:0 0 0 5px rgba(26,58,92,.12); }
         .vehicle-avatar img { width:100%; height:100%; object-fit:cover; }
         .home-vehicle-name { font-size:18px; font-weight:700; margin-bottom:6px; }
         .plate-badge { display:inline-block; background:var(--text-primary); color:var(--bg-card); font-size:12px; font-weight:700; padding:3px 14px; border-radius:6px; margin-bottom:14px; direction:ltr; letter-spacing:.08em; }
         .status-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:14px; }
-        .status-cell { background:var(--bg-tag); border-radius:12px; padding:10px 6px; text-align:center; cursor:pointer; transition:background .2s; -webkit-tap-highlight-color:transparent; }
-        .status-cell:active { opacity:.8; }
-        .s-icon { font-size:20px; margin-bottom:3px; }
-        .s-lbl { font-size:10px; color:var(--text-muted); }
-        .s-val { font-size:12px; font-weight:700; margin-top:2px; }
+        .status-cell { background:var(--bg-tag); border-radius:14px; padding:13px 6px 11px; text-align:center; cursor:pointer; transition:background .15s,transform .1s; -webkit-tap-highlight-color:transparent; position:relative; border:1px solid var(--border-color); }
+        .status-cell:hover { background:var(--border-color); }
+        .status-cell:active { transform:scale(.96); }
+        .status-cell::after { content:"›"; position:absolute; top:7px; left:8px; font-size:12px; color:var(--text-muted); opacity:.4; line-height:1; }
+        .s-icon { margin-bottom:5px; display:flex; justify-content:center; }
+        .s-lbl { font-size:10px; color:var(--text-muted); letter-spacing:.01em; }
+        .s-val { font-size:13px; font-weight:700; margin-top:3px; }
         .s-val.on { color:var(--color-success); }
         .s-val.off { color:var(--text-muted); }
         /* ── Settings SVG icons ── */
@@ -112,14 +116,28 @@
         .iaction { font-size:12px; font-weight:600; padding:5px 12px; border-radius:99px; border:1.5px solid var(--border-color); background:var(--bg-tag); cursor:pointer; color:var(--text-secondary); touch-action:manipulation; }
         .iaction.red { border-color:#fecaca; color:#dc2626; background:#fef2f2; }
         .iaction.orange { border-color:#fed7aa; color:#c2410c; background:#fff7ed; }
-        /* ── Saudi licence plate ── */
-        .sa-plate { display:inline-flex; align-items:center; direction:ltr; background:#fff; border:2.5px solid #222; border-radius:5px; padding:5px 12px 6px; gap:10px; position:relative; box-shadow:0 1px 5px rgba(0,0,0,.18); margin-top:6px; margin-bottom:14px; }
-        .sa-plate-letters { font-size:19px; font-weight:900; color:#111; letter-spacing:.12em; direction:rtl; font-family:'Tajawal',sans-serif; }
-        .sa-plate-div { width:1.5px; height:28px; background:#444; flex-shrink:0; }
-        .sa-plate-numbers { font-size:19px; font-weight:900; color:#111; letter-spacing:.1em; }
-        /* ── Plate input boxes (edit & register) ── */
-        .plate-box { width:42px; height:48px; text-align:center; font-size:18px; font-weight:700; padding:6px 2px; border-radius:8px; border:1.5px solid var(--border-color); background:var(--bg-input); color:var(--text-primary); }
-        .plate-box:focus { outline:none; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(26,58,92,.1); }
+        /* ── Saudi licence plate display ── */
+        .sa-plate { display:inline-flex; direction:ltr; background:#fff; border:2.5px solid #1a1a1a; border-radius:4px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.22); margin-top:8px; margin-bottom:14px; font-family:'Arial',sans-serif; }
+        .plate-side { display:flex; flex-direction:column; align-items:center; padding:4px 8px; gap:2px; }
+        .plate-left { border-left:1px solid #bbb; }
+        .plate-right { border-right:1px solid #bbb; }
+        .plate-center { display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:3px 5px; min-width:46px; gap:1px; }
+        .plate-ar-text { font-size:16px; font-weight:900; color:#111; letter-spacing:.14em; font-family:'Tajawal',sans-serif; line-height:1.2; white-space:nowrap; }
+        .plate-en-text { font-size:11px; font-weight:700; color:#222; letter-spacing:.16em; line-height:1.2; white-space:nowrap; }
+        .plate-h-line { width:100%; height:1px; background:#bbb; }
+        .plate-country-ar { font-size:6px; font-weight:700; color:#111; letter-spacing:.04em; font-family:'Tajawal',sans-serif; white-space:nowrap; }
+        .plate-country-en { font-size:7.5px; font-weight:900; color:#111; letter-spacing:.14em; }
+        /* ── Plate input frame ── */
+        .plate-input-frame { display:inline-flex; direction:ltr; background:#fff; border:2.5px solid #1a1a1a; border-radius:4px; font-family:'Arial',sans-serif; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+        .pi-side { display:flex; flex-direction:column; align-items:center; padding:5px 5px; gap:4px; }
+        .pi-left { border-left:1px solid #bbb; }
+        .pi-right { border-right:1px solid #bbb; }
+        .pi-center { display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:5px 4px; min-width:44px; }
+        .pi-row { display:flex; gap:3px; }
+        .pi-box { width:32px; height:34px; text-align:center; font-size:15px; font-weight:700; border:1px solid #bbb; border-radius:4px; background:#f8f8f8; color:#111; font-family:'Tajawal',Arial,sans-serif; }
+        .pi-box:focus { outline:none; border-color:#1A3A5C; background:#fff; box-shadow:0 0 0 2px rgba(26,58,92,.15); }
+        .pi-box.pi-en { font-size:13px; font-family:Arial,sans-serif; }
+        .pi-sep { width:100%; height:1px; background:#ccc; }
         /* ── Home hero: side-by-side ── */
         .vehicle-hero { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
         .vehicle-hero-info { flex:1; text-align:right; }
@@ -143,39 +161,79 @@
                     <div class="home-vehicle-name" id="homeVehicleName" data-key="vehicle_default">سيارتي</div>
                     <!-- Saudi plate visual -->
                     <div class="sa-plate" id="homePlateBadge" style="display:none">
-                        <span class="sa-plate-letters" id="homePlateLetters">أبج</span>
-                        <div class="sa-plate-div"></div>
-                        <span class="sa-plate-numbers" id="homePlateNumbers">1234</span>
+                        <div class="plate-side plate-left">
+                            <div class="plate-ar-text" id="homePlateNumsAr">١٢٣٤</div>
+                            <div class="plate-h-line"></div>
+                            <div class="plate-en-text" id="homePlateNumsEn">1234</div>
+                        </div>
+                        <div class="plate-center">
+                            <div class="plate-country-ar">السعودية</div>
+                            <svg viewBox="0 0 30 22" width="26" height="20" style="flex-shrink:0;">
+                                <line x1="15" y1="7" x2="15" y2="13" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+                                <path d="M15,7 C11,5 7,3 4,1" stroke="#111" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+                                <path d="M15,7 C19,5 23,3 26,1" stroke="#111" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+                                <path d="M15,8 C12,6 9,5 7,4" stroke="#111" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                                <path d="M15,8 C18,6 21,5 23,4" stroke="#111" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                                <path d="M15,9 C14,7 13,6 13,4" stroke="#111" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                                <path d="M15,9 C16,7 17,6 17,4" stroke="#111" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                                <line x1="2" y1="21" x2="28" y2="14" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+                                <line x1="28" y1="21" x2="2" y2="14" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+                                <line x1="1" y1="19" x2="1" y2="22" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="29" y1="19" x2="29" y2="22" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+                            </svg>
+                            <div class="plate-country-en">KSA</div>
+                        </div>
+                        <div class="plate-side plate-right">
+                            <div class="plate-ar-text" id="homePlateLtrsAr">أ ب ج</div>
+                            <div class="plate-h-line"></div>
+                            <div class="plate-en-text" id="homePlateLtrsEn">A B C</div>
+                        </div>
+                    </div>
+                    <!-- Vehicle details (model / driver) — visible when showDetailsToggle is on -->
+                    <div id="homeDetailsRow" style="display:none;margin-top:6px;">
+                        <div style="display:flex;gap:6px;justify-content:flex-start;flex-wrap:wrap;">
+                            <span id="homeModelChip" style="display:none;font-size:11px;background:var(--bg-tag);border:1px solid var(--border-color);border-radius:99px;padding:2px 10px;color:var(--text-secondary);"></span>
+                            <span id="homeDriverChip" style="display:none;font-size:11px;background:var(--bg-tag);border:1px solid var(--border-color);border-radius:99px;padding:2px 10px;color:var(--text-secondary);"></span>
+                        </div>
                     </div>
                 </div>
-                <div class="vehicle-avatar" id="homeAvatar" style="flex-shrink:0;margin:0;">
-                    <span id="homeAvatarEmoji"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 17H3v-4l2-5h14l2 5v4h-2"/><path d="M5 13h14"/></svg></span>
+                <div class="vehicle-avatar" id="homeAvatar" onclick="switchPage('settings')" title="تغيير صورة السيارة" style="margin:0;">
+                    <span id="homeAvatarEmoji"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M5 17H3v-4l2-5h14l2 5v4h-2"/><path d="M5 13h14"/></svg></span>
                     <img id="homeAvatarImg" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:50%;">
                 </div>
             </div>
-            <!-- Status grid: display only -->
+            <!-- Status grid: all cards navigate to settings -->
             <div class="status-grid">
-                <div class="status-cell" onclick="toggleStatus()" title="تبديل الاستقبال">
+                <div class="status-cell" onclick="switchPage('settings')" title="إعدادات الاستقبال">
                     <div class="s-icon" id="homeStatusIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                     <div class="s-lbl" data-key="reception">الاستقبال</div>
                     <div class="s-val on" id="homeStatusVal" data-key="status_on">مفعّل</div>
                 </div>
-                <div class="status-cell">
+                <div class="status-cell" onclick="switchPage('settings')" title="إعداد ظهور الرقم">
                     <div class="s-icon" id="homePhoneIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 10a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 0h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 7.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
                     <div class="s-lbl" data-key="phone_lbl">الرقم</div>
-                    <div class="s-val off" id="homePhoneVal" data-key="hidden_lbl">مخفي</div>
+                    <div class="s-val off" id="homePhoneVal">مخفي</div>
                 </div>
-                <div class="status-cell">
+                <div class="status-cell" onclick="switchPage('settings')" title="إعداد ظهور الصورة">
                     <div class="s-icon" id="homeImageIcon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
                     <div class="s-lbl" data-key="image_lbl">الصورة</div>
-                    <div class="s-val off" id="homeImageVal" data-key="hidden_lbl">مخفي</div>
+                    <div class="s-val off" id="homeImageVal">مخفي</div>
                 </div>
             </div>
             <!-- Stats -->
             <div class="stats">
-                <div class="stat-item" onclick="switchPage('inbox')"><div class="stat-number" id="newCount">0</div><div data-key="new_msgs">جديدة</div></div>
-                <div class="stat-item" onclick="switchPage('inbox')"><div class="stat-number" id="totalCount">0</div><div data-key="replied_msgs">تم الرد</div></div>
-                <div class="stat-item"><div class="stat-number" id="todayScanCount">—</div><div data-key="today_scans">مسحات اليوم</div></div>
+                <div class="stat-item" onclick="switchPage('inbox')" title="الرسائل الجديدة — اضغط للعرض">
+                    <div class="stat-number" id="newCount">0</div>
+                    <div style="font-size:11px;" data-key="new_msgs">رسائل جديدة</div>
+                </div>
+                <div class="stat-item" onclick="switchPage('inbox')" title="الرسائل المردود عليها — اضغط للعرض">
+                    <div class="stat-number" id="totalCount">0</div>
+                    <div style="font-size:11px;" data-key="replied_msgs">تم الرد</div>
+                </div>
+                <div class="stat-item" title="عدد من مسح استيكرك اليوم">
+                    <div class="stat-number" id="todayScanCount">—</div>
+                    <div style="font-size:11px;" data-key="today_scans">مسح اليوم</div>
+                </div>
             </div>
         </div>
         <div style="border-top:1px solid var(--border-color);padding:12px 16px;">
@@ -362,15 +420,57 @@
             <label style="font-size:13px;color:var(--text-secondary);" data-key="vehicle_name_label">اسم المركبة</label>
             <input type="text" id="editCarName" class="edit-input" placeholder="اسم المركبة">
             <label style="font-size:13px;color:var(--text-secondary);margin-top:8px;display:block;" data-key="plate_number_label">رقم اللوحة</label>
-            <div style="display:flex;gap:6px;direction:ltr;justify-content:center;align-items:center;margin-top:6px;margin-bottom:8px;flex-wrap:wrap;">
-                <input type="text" class="plate-box" id="en1" inputmode="numeric" maxlength="1" placeholder="4" oninput="editNumInput(this,0)" onkeydown="editNumKey(event,0)">
-                <input type="text" class="plate-box" id="en2" inputmode="numeric" maxlength="1" placeholder="5" oninput="editNumInput(this,1)" onkeydown="editNumKey(event,1)">
-                <input type="text" class="plate-box" id="en3" inputmode="numeric" maxlength="1" placeholder="7" oninput="editNumInput(this,2)" onkeydown="editNumKey(event,2)">
-                <input type="text" class="plate-box" id="en4" inputmode="numeric" maxlength="1" placeholder="" oninput="editNumInput(this,3)" onkeydown="editNumKey(event,3)" style="opacity:.55">
-                <span style="color:var(--text-muted);font-weight:700;font-size:22px;margin:0 4px;">|</span>
-                <input type="text" class="plate-box" id="el1" maxlength="1" placeholder="ن" oninput="editLetterInput(this,0)" onkeydown="editLetterKey(event,0)" style="direction:rtl">
-                <input type="text" class="plate-box" id="el2" maxlength="1" placeholder="و" oninput="editLetterInput(this,1)" onkeydown="editLetterKey(event,1)" style="direction:rtl">
-                <input type="text" class="plate-box" id="el3" maxlength="1" placeholder="ه" oninput="editLetterInput(this,2)" onkeydown="editLetterKey(event,2)" style="direction:rtl">
+            <div style="display:flex;justify-content:center;margin:8px 0 6px;">
+                <div class="plate-input-frame">
+                    <!-- يسار: الأرقام -->
+                    <div class="pi-side pi-left">
+                        <div class="pi-row">
+                            <input class="pi-box" id="dan1" type="text" inputmode="decimal" maxlength="1" placeholder="٣" oninput="dashArNumIn(this,0)" onkeydown="dashArNumKey(event,0)">
+                            <input class="pi-box" id="dan2" type="text" inputmode="decimal" maxlength="1" placeholder="٧" oninput="dashArNumIn(this,1)" onkeydown="dashArNumKey(event,1)">
+                            <input class="pi-box" id="dan3" type="text" inputmode="decimal" maxlength="1" placeholder="٥" oninput="dashArNumIn(this,2)" onkeydown="dashArNumKey(event,2)">
+                            <input class="pi-box" id="dan4" type="text" inputmode="decimal" maxlength="1" placeholder="" oninput="dashArNumIn(this,3)" onkeydown="dashArNumKey(event,3)" style="opacity:.5">
+                        </div>
+                        <div class="pi-sep"></div>
+                        <div class="pi-row">
+                            <input class="pi-box pi-en" id="den1" type="text" inputmode="numeric" maxlength="1" placeholder="3" oninput="dashEnNumIn(this,0)" onkeydown="dashEnNumKey(event,0)">
+                            <input class="pi-box pi-en" id="den2" type="text" inputmode="numeric" maxlength="1" placeholder="7" oninput="dashEnNumIn(this,1)" onkeydown="dashEnNumKey(event,1)">
+                            <input class="pi-box pi-en" id="den3" type="text" inputmode="numeric" maxlength="1" placeholder="5" oninput="dashEnNumIn(this,2)" onkeydown="dashEnNumKey(event,2)">
+                            <input class="pi-box pi-en" id="den4" type="text" inputmode="numeric" maxlength="1" placeholder="" oninput="dashEnNumIn(this,3)" onkeydown="dashEnNumKey(event,3)" style="opacity:.5">
+                        </div>
+                    </div>
+                    <!-- وسط: الشعار -->
+                    <div class="pi-center">
+                        <div class="plate-country-ar">السعودية</div>
+                        <svg viewBox="0 0 30 22" width="24" height="18" style="flex-shrink:0;">
+                            <line x1="15" y1="7" x2="15" y2="13" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M15,7 C11,5 7,3 4,1" stroke="#111" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+                            <path d="M15,7 C19,5 23,3 26,1" stroke="#111" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+                            <path d="M15,8 C12,6 9,5 7,4" stroke="#111" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                            <path d="M15,8 C18,6 21,5 23,4" stroke="#111" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                            <path d="M15,9 C14,7 13,6 13,4" stroke="#111" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                            <path d="M15,9 C16,7 17,6 17,4" stroke="#111" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                            <line x1="2" y1="21" x2="28" y2="14" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="28" y1="21" x2="2" y2="14" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="1" y1="19" x2="1" y2="22" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+                            <line x1="29" y1="19" x2="29" y2="22" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                        <div class="plate-country-en">KSA</div>
+                    </div>
+                    <!-- يمين: الأحرف -->
+                    <div class="pi-side pi-right">
+                        <div class="pi-row" style="direction:rtl;">
+                            <input class="pi-box" id="dal1" type="text" maxlength="1" placeholder="خ" oninput="dashArLtrIn(this,0)" onkeydown="dashArLtrKey(event,0)" style="direction:rtl">
+                            <input class="pi-box" id="dal2" type="text" maxlength="1" placeholder="ل" oninput="dashArLtrIn(this,1)" onkeydown="dashArLtrKey(event,1)" style="direction:rtl">
+                            <input class="pi-box" id="dal3" type="text" maxlength="1" placeholder="ي" oninput="dashArLtrIn(this,2)" onkeydown="dashArLtrKey(event,2)" style="direction:rtl">
+                        </div>
+                        <div class="pi-sep"></div>
+                        <div class="pi-row">
+                            <input class="pi-box pi-en" id="del1" type="text" maxlength="1" placeholder="V" oninput="dashEnLtrIn(this,0)" onkeydown="dashEnLtrKey(event,0)">
+                            <input class="pi-box pi-en" id="del2" type="text" maxlength="1" placeholder="L" oninput="dashEnLtrIn(this,1)" onkeydown="dashEnLtrKey(event,1)">
+                            <input class="pi-box pi-en" id="del3" type="text" maxlength="1" placeholder="J" oninput="dashEnLtrIn(this,2)" onkeydown="dashEnLtrKey(event,2)">
+                        </div>
+                    </div>
+                </div>
             </div>
             <span style="font-size:11px;color:var(--text-muted);" data-key="plate_hint">الأحرف دائماً 3 · الأرقام من 1 إلى 4</span>
             <label style="font-size:13px;color:var(--text-secondary);" data-key="model_label">الموديل</label>
@@ -524,6 +624,7 @@
             updateHomeImageCell(isShowImage);
             const isShowDetails = currentVehicle?.show_details ?? false;
             if (document.getElementById('showDetailsToggle')) document.getElementById('showDetailsToggle').checked = isShowDetails;
+            updateHomeDetailsRow(isShowDetails, currentVehicle.model, currentVehicle.driver_name);
             const vName = currentVehicle.custom_name || safeT('vehicle_default');
             document.getElementById('vehicleDisplay').innerText = vName;
             document.getElementById('vehicleName').innerHTML = '<span>' + vName + '</span>';
@@ -533,24 +634,22 @@
                 document.getElementById('homeAvatarEmoji').style.display='none';
                 const img=document.getElementById('homeAvatarImg'); img.src=currentVehicle.image_url; img.style.display='block';
             }
-            if(currentVehicle.plate_number){
-                const parts = currentVehicle.plate_number.split(' ');
-                const pb = document.getElementById('homePlateBadge');
-                const ltrs = document.getElementById('homePlateLetters');
-                const nums = document.getElementById('homePlateNumbers');
-                if(pb && ltrs && nums){
-                    if(parts.length === 2){ ltrs.textContent = parts[0]; nums.textContent = parts[1]; }
-                    else { ltrs.textContent = currentVehicle.plate_number; nums.textContent = ''; document.querySelector('.sa-plate-div').style.display='none'; }
-                    pb.style.display = 'inline-flex';
-                }
-            }
+            // Parse plate: "arLetters|enLetters numbers" or legacy "arLetters numbers"
+            const _pRaw = currentVehicle.plate_number || '';
+            const _pSp = _pRaw.split(' ');
+            const _lPart = _pSp[0] || '';
+            const _nPart = _pSp[1] || '';
+            const _pipe = _lPart.split('|');
+            const _arL = _pipe[0] || '';
+            const _enL = _pipe[1] || '';
+            _showPlate(_arL, _enL, _nPart);
             document.getElementById('editCarName').value = currentVehicle.custom_name || '';
-            // Split plate into individual boxes
-            const plateParts = (currentVehicle.plate_number||'').split(' ');
-            const existingLetters = plateParts.length===2 ? plateParts[0] : '';
-            const existingNumbers = plateParts.length===2 ? plateParts[1] : (currentVehicle.plate_number||'');
-            ['el1','el2','el3'].forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.value=existingLetters[i]||''; });
-            ['en1','en2','en3','en4'].forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.value=existingNumbers[i]||''; });
+            _dAL.forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.value=_arL[i]||''; });
+            _dEL.forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.value=_enL[i]||''; });
+            const _arNFill = _numToAr(_numToEn(_nPart));
+            const _enNFill = _numToEn(_nPart);
+            _dAN.forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.value=_arNFill[i]||''; });
+            _dEN.forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.value=_enNFill[i]||''; });
             document.getElementById('editModel').value = currentVehicle.model || '';
             document.getElementById('editDriver').value = currentVehicle.driver_name || '';
             if (currentVehicle.image_url) { document.getElementById('editImagePreview').src = currentVehicle.image_url; document.getElementById('editImagePreview').style.display = 'block'; }
@@ -654,7 +753,18 @@
     }
     async function toggleShowDetails() {
         const newValue = document.getElementById('showDetailsToggle').checked;
+        updateHomeDetailsRow(newValue, currentVehicle?.model, currentVehicle?.driver_name);
         if (currentVehicle) { await supabaseClient.from('vehicles').update({ show_details: newValue }).eq('id', currentVehicle.id); showToast(newValue ? safeT('show_details_on_toast') : safeT('show_details_off_toast')); }
+    }
+    function updateHomeDetailsRow(isOn, model, driver) {
+        const row = document.getElementById('homeDetailsRow');
+        if (!row) return;
+        const modelEl = document.getElementById('homeModelChip');
+        const driverEl = document.getElementById('homeDriverChip');
+        if (!isOn || (!model && !driver)) { row.style.display = 'none'; return; }
+        if (modelEl) { if (model) { modelEl.textContent = model; modelEl.style.display = ''; } else { modelEl.style.display = 'none'; } }
+        if (driverEl) { if (driver) { driverEl.textContent = driver; driverEl.style.display = ''; } else { driverEl.style.display = 'none'; } }
+        row.style.display = '';
     }
     function updateHomePhoneCell(isOn) {
         const el = document.getElementById('homePhoneVal');
@@ -668,13 +778,34 @@
         if(el){ el.textContent = isOn ? (safeT('visible_lbl')||'ظاهر') : (safeT('hidden_lbl')||'مخفي'); el.className = 's-val '+(isOn?'on':'off'); }
         if(ic){ ic.innerHTML = isOn ? '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>' : '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'; }
     }
-    // ── Edit-section plate box helpers ──
-    const editNums = ['en1','en2','en3','en4'];
-    const editLtrs = ['el1','el2','el3'];
-    function editNumInput(el, idx){ el.value=el.value.replace(/\D/g,''); if(el.value && idx<3){ const next=document.getElementById(editNums[idx+1]); if(next) next.focus(); } }
-    function editNumKey(e, idx){ if(e.key==='Backspace'&&!e.target.value&&idx>0){ document.getElementById(editNums[idx-1]).focus(); } }
-    function editLetterInput(el, idx){ if(el.value && idx<2){ const next=document.getElementById(editLtrs[idx+1]); if(next) next.focus(); } }
-    function editLetterKey(e, idx){ if(e.key==='Backspace'&&!e.target.value&&idx>0){ document.getElementById(editLtrs[idx-1]).focus(); } }
+    // ── Plate helpers ──
+    const _AR='٠١٢٣٤٥٦٧٨٩';
+    function _arToEn(c){ const i=_AR.indexOf(c); return i>=0?String(i):c; }
+    function _enToAr(c){ const d=parseInt(c); return isNaN(d)?c:_AR[d]; }
+    function _numToAr(s){ return String(s).replace(/[0-9]/g,d=>_AR[+d]); }
+    function _numToEn(s){ return String(s).replace(/[٠-٩]/g,c=>String(_AR.indexOf(c))); }
+    const _dAN=['dan1','dan2','dan3','dan4'];
+    const _dEN=['den1','den2','den3','den4'];
+    const _dAL=['dal1','dal2','dal3'];
+    const _dEL=['del1','del2','del3'];
+    function dashArNumIn(el,idx){ el.value=el.value.replace(/[^0-9٠-٩]/g,'').slice(0,1); if(el.value){ const en=document.getElementById(_dEN[idx]); if(en) en.value=_arToEn(el.value); if(idx<3) document.getElementById(_dAN[idx+1])?.focus(); } }
+    function dashArNumKey(e,idx){ if(e.key==='Backspace'&&!e.target.value&&idx>0) document.getElementById(_dAN[idx-1])?.focus(); }
+    function dashEnNumIn(el,idx){ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); if(el.value){ const ar=document.getElementById(_dAN[idx]); if(ar) ar.value=_enToAr(el.value); if(idx<3) document.getElementById(_dEN[idx+1])?.focus(); } }
+    function dashEnNumKey(e,idx){ if(e.key==='Backspace'&&!e.target.value&&idx>0) document.getElementById(_dEN[idx-1])?.focus(); }
+    function dashArLtrIn(el,idx){ el.value=el.value.slice(0,1); if(el.value&&idx<2) document.getElementById(_dAL[idx+1])?.focus(); }
+    function dashArLtrKey(e,idx){ if(e.key==='Backspace'&&!e.target.value&&idx>0) document.getElementById(_dAL[idx-1])?.focus(); }
+    function dashEnLtrIn(el,idx){ el.value=el.value.replace(/[^a-zA-Z]/g,'').toUpperCase().slice(0,1); if(el.value&&idx<2) document.getElementById(_dEL[idx+1])?.focus(); }
+    function dashEnLtrKey(e,idx){ if(e.key==='Backspace'&&!e.target.value&&idx>0) document.getElementById(_dEL[idx-1])?.focus(); }
+    function _showPlate(arLtrs,enLtrs,nums){
+        const pb=document.getElementById('homePlateBadge'); if(!pb) return;
+        if(!arLtrs&&!nums){ pb.style.display='none'; return; }
+        const enN=_numToEn(nums); const arN=_numToAr(enN);
+        document.getElementById('homePlateNumsAr').textContent=arN.split('').join(' ');
+        document.getElementById('homePlateNumsEn').textContent=enN.split('').join(' ');
+        document.getElementById('homePlateLtrsAr').textContent=arLtrs.split('').join(' ');
+        document.getElementById('homePlateLtrsEn').textContent=enLtrs.split('').join(' ');
+        pb.style.display='inline-flex';
+    }
 
     function restoreContactCheckboxes(method) {
         const all = !method || method === 'all';
@@ -921,29 +1052,31 @@ if (imageFile) {
     }
 }
         const carName = document.getElementById('editCarName').value.trim();
-        const pLetters = ['el1','el2','el3'].map(id=>document.getElementById(id)?.value||'').join('').trim();
-        const pNumbers = ['en1','en2','en3','en4'].map(id=>document.getElementById(id)?.value||'').join('').trim();
-        const plate = (pLetters && pNumbers) ? pLetters + ' ' + pNumbers : (pLetters || pNumbers || null);
+        const _sArL = _dAL.map(id=>document.getElementById(id)?.value||'').join('').trim();
+        const _sEnL = _dEL.map(id=>document.getElementById(id)?.value||'').join('').trim();
+        const _sEnN = _dEN.map(id=>document.getElementById(id)?.value||'').join('').trim();
+        const _sLPart = _sArL ? (_sEnL ? `${_sArL}|${_sEnL}` : _sArL) : '';
+        const plate = (_sLPart && _sEnN) ? `${_sLPart} ${_sEnN}` : (_sLPart || _sEnN || null);
         const model = document.getElementById('editModel').value.trim();
         const driver = document.getElementById('editDriver').value.trim();
         const { error } = await supabaseClient.from('vehicles').update({ custom_name: carName || null, plate_number: plate, model: model, driver_name: driver }).eq('id', currentVehicle.id);
         if(error){ showToast(safeT('changes_failed')); return; }
+        if (currentVehicle) { currentVehicle.model = model; currentVehicle.driver_name = driver; currentVehicle.custom_name = carName || null; currentVehicle.plate_number = plate; }
         showToast(safeT('changes_saved'));
         const displayName = carName || safeT('vehicle_default');
         document.getElementById('vehicleDisplay').innerText = displayName;
         document.getElementById('vehicleName').innerHTML = '<span>' + displayName + '</span>';
         document.getElementById('homeVehicleName').textContent = displayName;
-        if(plate){
-            const parts = plate.split(' ');
+        if (plate) {
+            const _pp = plate.split(' ');
+            const _lpipe = (_pp[0]||'').split('|');
+            _showPlate(_lpipe[0]||'', _lpipe[1]||'', _pp[1]||'');
+        } else {
             const pb = document.getElementById('homePlateBadge');
-            const ltrs = document.getElementById('homePlateLetters');
-            const nums = document.getElementById('homePlateNumbers');
-            if(pb && ltrs && nums){
-                if(parts.length === 2){ ltrs.textContent = parts[0]; nums.textContent = parts[1]; }
-                else { ltrs.textContent = plate; nums.textContent = ''; }
-                pb.style.display = 'inline-flex';
-            }
+            if (pb) pb.style.display = 'none';
         }
+        const showDet = document.getElementById('showDetailsToggle')?.checked ?? false;
+        updateHomeDetailsRow(showDet, model, driver);
     }
     async function loadMyStickers() {
         if (!currentVehicle) return;
