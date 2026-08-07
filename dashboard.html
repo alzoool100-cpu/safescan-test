@@ -79,11 +79,23 @@
         .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: var(--color-primary); color: white; padding: 16px 24px; border-radius: 40px; font-weight: 600; z-index: 9999; animation: slideDown 0.4s ease, fadeOut 0.4s ease 3s forwards; max-width: 90%; text-align: center; }
         @keyframes slideDown { from { top: -80px; opacity: 0; } to { top: 20px; opacity: 1; } }
         @keyframes fadeOut { to { opacity: 0; top: -80px; } }
-        #conversationPage { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-body); z-index: 2000; display: none; flex-direction: column; padding: 16px; }
-        #conversationPage.active { display: flex; }
-        .conv-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-        .conv-messages { flex: 1; overflow-y: auto; }
-        .conv-reply-area { display: flex; gap: 8px; margin-top: 12px; }
+        /* ── Conversation page ── */
+        #conversationPage { position:fixed; top:0; left:0; right:0; bottom:0; background:var(--bg-body); z-index:2000; display:none; flex-direction:column; padding:0; }
+        #conversationPage.active { display:flex; }
+        .conv-header { display:flex; align-items:center; gap:12px; padding:12px 16px; background:var(--bg-card); border-bottom:1px solid var(--border-color); box-shadow:0 1px 4px rgba(0,0,0,.05); flex-shrink:0; }
+        .conv-back-btn { background:var(--bg-tag); border:1px solid var(--border-color); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-primary); flex-shrink:0; }
+        .conv-messages { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:14px; }
+        .conv-reply-area { display:flex; gap:10px; padding:10px 14px 14px; background:var(--bg-card); border-top:1px solid var(--border-color); align-items:flex-end; flex-shrink:0; }
+        /* ── Bubbles ── */
+        .bubble-wrap { display:flex; flex-direction:column; max-width:82%; }
+        .visitor-wrap { align-self:flex-end; align-items:flex-end; }
+        .owner-wrap { align-self:flex-start; align-items:flex-start; }
+        .bubble-label { font-size:10px; font-weight:700; opacity:.55; margin-bottom:4px; letter-spacing:.04em; }
+        .bubble-text { font-size:14px; line-height:1.6; word-break:break-word; }
+        .bubble-actions { margin-top:8px; padding-top:6px; border-top:1px solid rgba(0,0,0,.07); }
+        .bubble-action-btn { display:inline-flex; align-items:center; gap:4px; background:none; border:none; color:var(--color-primary); cursor:pointer; font-size:12px; padding:0; }
+        .bubble-action-btn.muted { color:var(--text-muted); }
+        .bubble-time { font-size:11px; color:var(--text-muted); margin-top:5px; padding:0 2px; }
         .edit-input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); margin-top: 4px; background: var(--bg-input); color: var(--text-primary); }
         #pushSubscribeBtn.active { background: var(--color-success); color: white; }
         button, .toggle-switch { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
@@ -507,9 +519,25 @@
 </div>
 
 <div id="conversationPage">
-    <div class="conv-header"><button onclick="closeConversation()" style="background:none;border:none;font-size:20px;cursor:pointer">← رجوع</button><strong data-key="reply_title">الرد على الرسالة</strong></div>
+    <div class="conv-header">
+        <button onclick="closeConversation()" class="conv-back-btn" title="رجوع">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:15px;" data-key="reply_title">الرد على الرسالة</div>
+            <div id="convSubtitle" style="font-size:12px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;"></div>
+        </div>
+    </div>
     <div class="conv-messages" id="convMessages"></div>
-    <div class="conv-reply-area"><textarea id="convReplyText" data-placeholder="reply_placeholder" placeholder="اكتب ردك..." style="flex:1"></textarea><button class="btn btn-primary" onclick="sendReplyFromConv()" style="width:auto" data-key="send_reply">إرسال</button></div>
+    <div class="conv-reply-area">
+        <textarea id="convReplyText" placeholder="اكتب ردك..." rows="1"
+            style="flex:1;resize:none;min-height:42px;max-height:120px;border-radius:22px;padding:10px 16px;border:1.5px solid var(--border-color);background:var(--bg-input);color:var(--text-primary);font-size:14px;line-height:1.4;font-family:inherit;"
+            oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+        <button onclick="sendReplyFromConv()" title="إرسال الرد"
+            style="width:42px;height:42px;border-radius:50%;background:var(--color-primary);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:white;touch-action:manipulation;">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1026,11 +1054,66 @@
     }
 function linkifyPhone(text){ const escaped = escapeHtml(text); return escaped.replace(/[\d\+\s]{9,}/g, (m) => m.trim().replace(/\s/g,'').length >= 9 ? `<a href="tel:${m.trim().replace(/\s/g,'')}" style="color:green;font-weight:600;text-decoration:none;">${m.trim()}</a>` : m); }
     const _translateSvg = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-left:4px;"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>';
-    function openConversation(messageId){selectedMessageId=messageId;const msg=allMessages.find(m=>m.id==messageId);if(!msg)return;let html=`<div class="message-bubble visitor-bubble">${safeT('visitor_label')}: ${linkifyPhone(msg.visitor_message)}<br><button onclick="translateMsg(this)" data-text="${escapeHtml(msg.visitor_message)}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:none;color:var(--color-primary);cursor:pointer;font-size:12px;margin-top:6px;">${_translateSvg} ${safeT('translate_btn')||'ترجمة'}</button></div>`;if(msg.owner_response)html+=`<div class="message-bubble owner-bubble">${safeT('owner_label')}: ${escapeHtml(msg.owner_response)}<br><button onclick="translateMsgEn(this)" data-text="${escapeHtml(msg.owner_response)}" style="display:inline-flex;align-items:center;gap:4px;background:none;border:none;color:#888;cursor:pointer;font-size:12px;margin-top:6px;">${_translateSvg} ${safeT('translate_btn_en')||'ترجمة للإنجليزية'}</button></div>`;document.getElementById('convMessages').innerHTML=html;document.getElementById('conversationPage').classList.add('active');}
+    function _timeAgo(dateStr) {
+        if (!dateStr) return '';
+        const diff = (Date.now() - new Date(dateStr).getTime()) / 1000;
+        if (diff < 60) return 'الآن';
+        if (diff < 3600) return Math.floor(diff/60) + ' دقيقة';
+        if (diff < 86400) return Math.floor(diff/3600) + ' ساعة';
+        if (diff < 604800) return Math.floor(diff/86400) + ' يوم';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('ar-SA', {day:'numeric', month:'short'});
+    }
+    function openConversation(messageId) {
+        selectedMessageId = messageId;
+        const msg = allMessages.find(m => m.id == messageId);
+        if (!msg) return;
+        // Header subtitle: plate + time
+        const plate = currentVehicle?.plate_number ? currentVehicle.plate_number.replace('|',' ') : '';
+        const timeStr = _timeAgo(msg.created_at);
+        const sub = document.getElementById('convSubtitle');
+        if (sub) sub.textContent = [plate, timeStr].filter(Boolean).join(' · ');
+        // Visitor bubble
+        const vTime = msg.created_at ? `<div class="bubble-time">${_timeAgo(msg.created_at)}</div>` : '';
+        let html = `<div class="bubble-wrap visitor-wrap">
+            <div class="message-bubble visitor-bubble">
+                <div class="bubble-label">${safeT('visitor_label')||'زائر'}</div>
+                <div class="bubble-text">${linkifyPhone(msg.visitor_message)}</div>
+                <div class="bubble-actions">
+                    <button onclick="translateMsg(this)" data-text="${escapeHtml(msg.visitor_message)}" class="bubble-action-btn">
+                        ${_translateSvg} ${safeT('translate_btn')||'ترجمة'}
+                    </button>
+                </div>
+            </div>${vTime}</div>`;
+        // Owner reply bubble (if exists)
+        if (msg.owner_response) {
+            html += `<div class="bubble-wrap owner-wrap">
+                <div class="message-bubble owner-bubble">
+                    <div class="bubble-label">${safeT('owner_label')||'مالك'}</div>
+                    <div class="bubble-text">${escapeHtml(msg.owner_response)}</div>
+                    <div class="bubble-actions">
+                        <button onclick="translateMsgEn(this)" data-text="${escapeHtml(msg.owner_response)}" class="bubble-action-btn muted">
+                            ${_translateSvg} ${safeT('translate_btn_en')||'ترجمة للإنجليزية'}
+                        </button>
+                    </div>
+                </div></div>`;
+        }
+        document.getElementById('convMessages').innerHTML = html;
+        document.getElementById('conversationPage').classList.add('active');
+    }
     function translateMsg(el){ const text = el.dataset.text; window.open('https://translate.google.com/m?sl=auto&tl=ar&q=' + encodeURIComponent(text), '_blank'); }
     function translateMsgEn(el){ const text = el.dataset.text; window.open('https://translate.google.com/m?sl=ar&tl=en&q=' + encodeURIComponent(text), '_blank'); }
     function closeConversation(){document.getElementById('conversationPage').classList.remove('active');selectedMessageId=null;}
-    async function sendReplyFromConv(){const reply=document.getElementById('convReplyText').value.trim();if(!reply||!selectedMessageId)return;const {error}=await supabaseClient.from('scan_logs').update({owner_response:reply,status:'closed'}).eq('id',selectedMessageId);if(error){showToast('❌ فشل');return;}showToast('✅ '+safeT('reply_sent'));document.getElementById('convReplyText').value='';closeConversation();loadMessages();}
+    async function sendReplyFromConv(){
+        const ta = document.getElementById('convReplyText');
+        const reply = ta.value.trim();
+        if(!reply||!selectedMessageId)return;
+        const {error}=await supabaseClient.from('scan_logs').update({owner_response:reply,status:'closed'}).eq('id',selectedMessageId);
+        if(error){showToast('❌ فشل');return;}
+        showToast('✅ '+safeT('reply_sent'));
+        ta.value=''; ta.style.height='auto';
+        closeConversation();loadMessages();
+    }
     async function saveProfile(){
         const imageFile = document.getElementById('editVehicleImage').files[0];
 if (imageFile && imageFile.size > 5 * 1024 * 1024) { showToast('❌ حجم الصورة يتجاوز 5MB'); return; }
