@@ -19,8 +19,18 @@
         .requirements { list-style: none; padding: 0; margin: 8px 0 0; font-size: 13px; text-align: right; }
         .requirements li { color: var(--color-danger); margin-bottom: 4px; }
         .requirements li.met { color: var(--color-success); text-decoration: none; }
-        .plate-box { width:42px; height:48px; text-align:center; font-size:18px; font-weight:700; padding:6px 4px; border-radius:8px; border:1px solid var(--border-input); background:var(--bg-input); color:var(--text-primary); }
-        .plate-box:focus { outline:none; border-color:var(--color-primary); box-shadow:0 0 0 3px rgba(26,58,92,.1); }
+        .plate-input-frame { display:inline-flex; direction:ltr; background:#fff; border:2.5px solid #1a1a1a; border-radius:4px; font-family:'Arial',sans-serif; box-shadow:0 2px 8px rgba(0,0,0,.15); }
+        .pi-side { display:flex; flex-direction:column; align-items:center; padding:5px 5px; gap:4px; }
+        .pi-left { border-left:1px solid #bbb; }
+        .pi-right { border-right:1px solid #bbb; }
+        .pi-center { display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:5px 4px; min-width:44px; }
+        .pi-row { display:flex; gap:3px; }
+        .pi-box { width:32px; height:34px; text-align:center; font-size:15px; font-weight:700; border:1px solid #bbb; border-radius:4px; background:#f8f8f8; color:#111; font-family:'Tajawal',Arial,sans-serif; }
+        .pi-box:focus { outline:none; border-color:#1A3A5C; background:#fff; box-shadow:0 0 0 2px rgba(26,58,92,.15); }
+        .pi-box.pi-en { font-size:13px; font-family:Arial,sans-serif; }
+        .pi-sep { width:100%; height:1px; background:#ccc; }
+        .plate-country-ar { font-size:6px; font-weight:700; color:#111; letter-spacing:.04em; font-family:'Tajawal',sans-serif; white-space:nowrap; }
+        .plate-country-en { font-size:7.5px; font-weight:900; color:#111; letter-spacing:.14em; }
     </style>
 </head>
 <body>
@@ -81,16 +91,57 @@
         <div class="input-group"><label data-key="car_name_label">اسم المركبة</label><input type="text" id="carName" data-placeholder="car_name_placeholder" placeholder="مثال: سيارة العمل"></div>
         <div class="input-group">
             <label data-key="plate_label">رقم اللوحة</label>
-            <!-- صناديق فردية: أحرف (يمين) + أرقام (يسار) — عرض اللوحة السعودية -->
-            <div style="display:flex;gap:6px;direction:ltr;justify-content:center;align-items:center;margin-top:6px;flex-wrap:wrap;">
-                <input type="text" class="plate-box" id="pn1" inputmode="numeric" maxlength="1" placeholder="4" oninput="regNumInput(this,0)" onkeydown="regNumKey(event,0)">
-                <input type="text" class="plate-box" id="pn2" inputmode="numeric" maxlength="1" placeholder="5" oninput="regNumInput(this,1)" onkeydown="regNumKey(event,1)">
-                <input type="text" class="plate-box" id="pn3" inputmode="numeric" maxlength="1" placeholder="7" oninput="regNumInput(this,2)" onkeydown="regNumKey(event,2)">
-                <input type="text" class="plate-box" id="pn4" inputmode="numeric" maxlength="1" placeholder="" oninput="regNumInput(this,3)" onkeydown="regNumKey(event,3)" style="opacity:.55">
-                <span style="color:var(--text-muted);font-weight:700;font-size:22px;margin:0 4px;">|</span>
-                <input type="text" class="plate-box" id="pl1" maxlength="1" placeholder="ن" oninput="regLetterInput(this,0)" onkeydown="regLetterKey(event,0)" style="direction:rtl">
-                <input type="text" class="plate-box" id="pl2" maxlength="1" placeholder="و" oninput="regLetterInput(this,1)" onkeydown="regLetterKey(event,1)" style="direction:rtl">
-                <input type="text" class="plate-box" id="pl3" maxlength="1" placeholder="ه" oninput="regLetterInput(this,2)" onkeydown="regLetterKey(event,2)" style="direction:rtl">
+            <div style="display:flex;justify-content:center;margin:8px 0 4px;">
+                <div class="plate-input-frame">
+                    <!-- يسار: الأرقام -->
+                    <div class="pi-side pi-left">
+                        <div class="pi-row">
+                            <input class="pi-box" id="ran1" type="text" inputmode="decimal" maxlength="1" placeholder="٣" oninput="regArNumIn(this,0)" onkeydown="regArNumKey(event,0)">
+                            <input class="pi-box" id="ran2" type="text" inputmode="decimal" maxlength="1" placeholder="٧" oninput="regArNumIn(this,1)" onkeydown="regArNumKey(event,1)">
+                            <input class="pi-box" id="ran3" type="text" inputmode="decimal" maxlength="1" placeholder="٥" oninput="regArNumIn(this,2)" onkeydown="regArNumKey(event,2)">
+                            <input class="pi-box" id="ran4" type="text" inputmode="decimal" maxlength="1" placeholder="" oninput="regArNumIn(this,3)" onkeydown="regArNumKey(event,3)" style="opacity:.5">
+                        </div>
+                        <div class="pi-sep"></div>
+                        <div class="pi-row">
+                            <input class="pi-box pi-en" id="ren1" type="text" inputmode="numeric" maxlength="1" placeholder="3" oninput="regEnNumIn(this,0)" onkeydown="regEnNumKey(event,0)">
+                            <input class="pi-box pi-en" id="ren2" type="text" inputmode="numeric" maxlength="1" placeholder="7" oninput="regEnNumIn(this,1)" onkeydown="regEnNumKey(event,1)">
+                            <input class="pi-box pi-en" id="ren3" type="text" inputmode="numeric" maxlength="1" placeholder="5" oninput="regEnNumIn(this,2)" onkeydown="regEnNumKey(event,2)">
+                            <input class="pi-box pi-en" id="ren4" type="text" inputmode="numeric" maxlength="1" placeholder="" oninput="regEnNumIn(this,3)" onkeydown="regEnNumKey(event,3)" style="opacity:.5">
+                        </div>
+                    </div>
+                    <!-- وسط: الشعار -->
+                    <div class="pi-center">
+                        <div class="plate-country-ar">السعودية</div>
+                        <svg viewBox="0 0 30 22" width="24" height="18" style="flex-shrink:0;">
+                            <line x1="15" y1="7" x2="15" y2="13" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M15,7 C11,5 7,3 4,1" stroke="#111" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+                            <path d="M15,7 C19,5 23,3 26,1" stroke="#111" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+                            <path d="M15,8 C12,6 9,5 7,4" stroke="#111" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                            <path d="M15,8 C18,6 21,5 23,4" stroke="#111" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                            <path d="M15,9 C14,7 13,6 13,4" stroke="#111" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                            <path d="M15,9 C16,7 17,6 17,4" stroke="#111" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+                            <line x1="2" y1="21" x2="28" y2="14" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="28" y1="21" x2="2" y2="14" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+                            <line x1="1" y1="19" x2="1" y2="22" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+                            <line x1="29" y1="19" x2="29" y2="22" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
+                        <div class="plate-country-en">KSA</div>
+                    </div>
+                    <!-- يمين: الأحرف -->
+                    <div class="pi-side pi-right">
+                        <div class="pi-row" style="direction:rtl;">
+                            <input class="pi-box" id="ral1" type="text" maxlength="1" placeholder="خ" oninput="regArLtrIn(this,0)" onkeydown="regArLtrKey(event,0)" style="direction:rtl">
+                            <input class="pi-box" id="ral2" type="text" maxlength="1" placeholder="ل" oninput="regArLtrIn(this,1)" onkeydown="regArLtrKey(event,1)" style="direction:rtl">
+                            <input class="pi-box" id="ral3" type="text" maxlength="1" placeholder="ي" oninput="regArLtrIn(this,2)" onkeydown="regArLtrKey(event,2)" style="direction:rtl">
+                        </div>
+                        <div class="pi-sep"></div>
+                        <div class="pi-row">
+                            <input class="pi-box pi-en" id="rel1" type="text" maxlength="1" placeholder="V" oninput="regEnLtrIn(this,0)" onkeydown="regEnLtrKey(event,0)">
+                            <input class="pi-box pi-en" id="rel2" type="text" maxlength="1" placeholder="L" oninput="regEnLtrIn(this,1)" onkeydown="regEnLtrKey(event,1)">
+                            <input class="pi-box pi-en" id="rel3" type="text" maxlength="1" placeholder="J" oninput="regEnLtrIn(this,2)" onkeydown="regEnLtrKey(event,2)">
+                        </div>
+                    </div>
+                </div>
             </div>
             <span class="hint" data-key="plate_hint">الأحرف دائماً 3 · الأرقام من 1 إلى 4</span>
         </div>
@@ -175,32 +226,28 @@
         }
     }
 
-    // ── صناديق اللوحة الفردية ──
-    const _pNums = ['pn1','pn2','pn3','pn4'];
-    const _pLtrs = ['pl1','pl2','pl3'];
-    function regNumInput(el, idx) {
-        el.value = el.value.replace(/[^0-9٠-٩]/g,'').slice(0,1);
-        if(el.value.length === 1 && idx < 3) document.getElementById(_pNums[idx+1])?.focus();
-        else if(el.value.length === 1 && idx === 3) document.getElementById(_pLtrs[0])?.focus();
-    }
-    function regNumKey(e, idx) {
-        if(e.key === 'Backspace' && !e.target.value && idx > 0) document.getElementById(_pNums[idx-1])?.focus();
-    }
-    function regLetterInput(el, idx) {
-        el.value = el.value.slice(0,1);
-        if(el.value.length === 1 && idx < 2) document.getElementById(_pLtrs[idx+1])?.focus();
-    }
-    function regLetterKey(e, idx) {
-        if(e.key === 'Backspace' && !e.target.value) {
-            if(idx > 0) document.getElementById(_pLtrs[idx-1])?.focus();
-            else document.getElementById(_pNums[3])?.focus();
-        }
-    }
-    function getRegPlateValue() {
-        const letters = _pLtrs.map(id=>document.getElementById(id)?.value||'').join('').trim();
-        const numbers = _pNums.map(id=>document.getElementById(id)?.value||'').filter(v=>v).join('').trim();
-        if(letters && numbers) return letters + ' ' + numbers;
-        return letters || numbers || null;
+    // ── صناديق اللوحة السعودية ──
+    const _rAR='٠١٢٣٤٥٦٧٨٩';
+    function _rArToEn(c){ const i=_rAR.indexOf(c); return i>=0?String(i):c; }
+    function _rEnToAr(c){ const d=parseInt(c); return isNaN(d)?c:_rAR[d]; }
+    const _rAN=['ran1','ran2','ran3','ran4'];
+    const _rEN=['ren1','ren2','ren3','ren4'];
+    const _rAL=['ral1','ral2','ral3'];
+    const _rEL=['rel1','rel2','rel3'];
+    function regArNumIn(el,idx){ el.value=el.value.replace(/[^0-9٠-٩]/g,'').slice(0,1); if(el.value){ const en=document.getElementById(_rEN[idx]); if(en) en.value=_rArToEn(el.value); if(idx<3) document.getElementById(_rAN[idx+1])?.focus(); } }
+    function regArNumKey(e,idx){ if(e.key==='Backspace'&&!e.target.value&&idx>0) document.getElementById(_rAN[idx-1])?.focus(); }
+    function regEnNumIn(el,idx){ el.value=el.value.replace(/[^0-9]/g,'').slice(0,1); if(el.value){ const ar=document.getElementById(_rAN[idx]); if(ar) ar.value=_rEnToAr(el.value); if(idx<3) document.getElementById(_rEN[idx+1])?.focus(); } }
+    function regEnNumKey(e,idx){ if(e.key==='Backspace'&&!e.target.value&&idx>0) document.getElementById(_rEN[idx-1])?.focus(); }
+    function regArLtrIn(el,idx){ el.value=el.value.slice(0,1); if(el.value&&idx<2) document.getElementById(_rAL[idx+1])?.focus(); }
+    function regArLtrKey(e,idx){ if(e.key==='Backspace'&&!e.target.value&&idx>0) document.getElementById(_rAL[idx-1])?.focus(); }
+    function regEnLtrIn(el,idx){ el.value=el.value.replace(/[^a-zA-Z]/g,'').toUpperCase().slice(0,1); if(el.value&&idx<2) document.getElementById(_rEL[idx+1])?.focus(); }
+    function regEnLtrKey(e,idx){ if(e.key==='Backspace'&&!e.target.value&&idx>0) document.getElementById(_rEL[idx-1])?.focus(); }
+    function getRegPlateValue(){
+        const arL=_rAL.map(id=>document.getElementById(id)?.value||'').join('').trim();
+        const enL=_rEL.map(id=>document.getElementById(id)?.value||'').join('').trim();
+        const enN=_rEN.map(id=>document.getElementById(id)?.value||'').join('').trim();
+        const lPart=arL?(enL?`${arL}|${enL}`:arL):'';
+        return (lPart&&enN)?`${lPart} ${enN}`:(lPart||enN||null);
     }
 
     document.getElementById('activateForm').addEventListener('submit', async (e) => {
