@@ -8,6 +8,32 @@
     <link rel="manifest" href="/manifest.json">
     <style>
         .quick-msgs { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; justify-content: center; }
+        /* ── Mini plate badge for visitor page ── */
+        .v-plate { display:inline-flex; direction:ltr; background:#fff; border:2px solid #1a1a1a; border-radius:3px; overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,.2); font-family:'Arial',sans-serif; margin-top:6px; }
+        .v-plate-side { display:flex; flex-direction:column; align-items:center; padding:3px 7px; gap:1px; }
+        .v-plate-left { border-left:1px solid #bbb; }
+        .v-plate-right { border-right:1px solid #bbb; }
+        .v-plate-center { display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:2px 4px; min-width:38px; }
+        .v-plate-ar { font-size:14px; font-weight:900; color:#111; letter-spacing:.12em; font-family:'Tajawal',sans-serif; white-space:nowrap; }
+        .v-plate-en { font-size:9px; font-weight:700; color:#222; letter-spacing:.14em; white-space:nowrap; }
+        .v-plate-hline { width:100%; height:1px; background:#bbb; }
+        .v-plate-cntry-ar { font-size:5px; font-weight:700; color:#111; letter-spacing:.03em; font-family:'Tajawal',sans-serif; white-space:nowrap; }
+        .v-plate-cntry-en { font-size:6px; font-weight:900; color:#111; letter-spacing:.12em; }
+        /* ── Detail chips ── */
+        .v-detail-chips { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:8px; }
+        .v-chip { font-size:12px; background:var(--bg-tag); border:1px solid var(--border-color); border-radius:99px; padding:3px 10px; color:var(--text-secondary); }
+        /* ── Vehicle info area ── */
+        #vehicleInfoArea { text-align:center; margin:16px 0; }
+        #vehicleInfoImg { width:100%; max-height:180px; object-fit:cover; border-radius:14px; margin-bottom:10px; display:none; }
+        /* ── Contact method buttons ── */
+        #stepMethod .method-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
+        .method-btn { display:flex; flex-direction:column; align-items:center; gap:5px; padding:14px 8px; border:none; border-radius:14px; font-size:14px; font-weight:600; cursor:pointer; touch-action:manipulation; transition:opacity .15s,transform .1s; color:#fff; }
+        .method-btn:active { transform:scale(.96); opacity:.9; }
+        .method-btn .m-icon { font-size:22px; }
+        .method-btn.msg { background:var(--color-primary); }
+        .method-btn.whatsapp { background:#25D366; }
+        .method-btn.sms { background:#6c757d; }
+        .method-btn.call { background:#17a2b8; }
     </style>
 </head>
 <body>
@@ -24,21 +50,35 @@
 
 <div class="card" style="position:relative;z-index:1;">
     <div class="logo"><span class="logo-icon">🚗</span><span class="logo-text">SafeScan</span><span class="nfc-badge">NFC</span></div>
-    <div id="vehicleInfoArea" style="display:none; text-align:center; margin: 16px 0;">
-    <img id="vehicleInfoImg" style="width:100%; max-height:200px; object-fit:cover; border-radius:16px; margin-bottom:12px; display:none;">
-    <div id="vehicleInfoName" style="font-weight:700; font-size:18px; color:var(--text-primary);"></div>
-</div>
+    <div id="vehicleInfoArea" style="display:none;">
+        <img id="vehicleInfoImg" style="width:100%;max-height:180px;object-fit:cover;border-radius:14px;margin-bottom:10px;display:none;">
+        <div id="vehicleInfoName" style="font-weight:700;font-size:16px;color:var(--text-primary);margin-bottom:2px;"></div>
+        <div id="vehiclePlateBadge" style="display:none;"></div>
+        <div id="vehicleDetailChips" class="v-detail-chips" style="display:none;"></div>
+    </div>
 <h1 style="font-size:20px; margin:8px 0;">📨 <span data-key="contact_owner">تواصل مع مالك السيارة</span></h1>
 <div style="background:var(--bg-tag); padding:8px 14px; border-radius:40px; font-size:12px; margin-bottom:16px; display:inline-block; color:var(--text-secondary);">
     🔔 <span data-key="safe_message">رسالتك آمنة · رقمك مخفي إلا باختيارك</span>
 </div>
 <div id="stepMethod" style="display:none; margin:20px 0;">
-    <p style="font-weight:600; margin-bottom:16px; font-size:17px;" data-key="choose_method">كيف تريد التواصل؟</p>
-    <div style="display:flex; flex-direction:column; gap:10px;">
-        <button class="btn btn-primary" onclick="selectMethod('message')" id="btnMessage" data-key="method_message">📨 رسالة داخل النظام</button>
-        <button class="btn btn-primary" onclick="selectMethod('whatsapp')" id="btnWhatsapp" style="background:#25D366;" data-key="method_whatsapp">💬 واتساب</button>
-        <button class="btn btn-primary" onclick="selectMethod('sms')" id="btnSms" style="background:#6c757d;" data-key="method_sms">📱 رسالة SMS</button>
-        <button class="btn btn-primary" onclick="selectMethod('call')" id="btnCall" style="background:#17a2b8;" data-key="method_call">📞 اتصال مباشر</button>
+    <p style="font-weight:600; margin-bottom:4px; font-size:16px;" data-key="choose_method">كيف تريد التواصل؟</p>
+    <div class="method-grid">
+        <button class="method-btn msg" onclick="selectMethod('message')" id="btnMessage">
+            <span class="m-icon">📨</span>
+            <span data-key="method_message">رسالة</span>
+        </button>
+        <button class="method-btn whatsapp" onclick="selectMethod('whatsapp')" id="btnWhatsapp">
+            <span class="m-icon">💬</span>
+            <span data-key="method_whatsapp">واتساب</span>
+        </button>
+        <button class="method-btn sms" onclick="selectMethod('sms')" id="btnSms">
+            <span class="m-icon">📱</span>
+            <span data-key="method_sms">SMS</span>
+        </button>
+        <button class="method-btn call" onclick="selectMethod('call')" id="btnCall">
+            <span class="m-icon">📞</span>
+            <span data-key="method_call">اتصال</span>
+        </button>
     </div>
 </div>
 
@@ -149,7 +189,7 @@ async function loadVehicleData() {
             }).catch(() => {});
         }
         const { data: vehicle } = await supabaseClient
-            .from('vehicles').select('user_id, custom_name, model, plate_number, image_url, show_image, is_active, show_details')
+            .from('vehicles').select('user_id, custom_name, model, driver_name, plate_number, image_url, show_image, is_active, show_details')
             .eq('id', sticker.vehicle_id).maybeSingle();
         if (!vehicle) return;
         const { data: profile } = await supabaseClient
@@ -162,15 +202,71 @@ async function loadVehicleData() {
     } catch(e) {}
 }
 
+function _isolateArLetters(str) {
+    return (str || '').split('').join('‌');
+}
+function _buildPlateBadge(plateRaw) {
+    if (!plateRaw) return '';
+    const parts = plateRaw.split(' ');
+    const letterPart = parts[0] || '';
+    const numPart = parts[1] || '';
+    const pipe = letterPart.split('|');
+    const arL = pipe[0] || '';
+    const enL = pipe[1] || '';
+    const AR = '٠١٢٣٤٥٦٧٨٩';
+    const toAr = s => s.replace(/[0-9]/g, d => AR[+d]);
+    const toEn = s => s.replace(/[٠-٩]/g, c => String(AR.indexOf(c)));
+    const enN = toEn(numPart);
+    const arN = toAr(enN);
+    return `<div class="v-plate">
+        <div class="v-plate-side v-plate-left">
+            <div class="v-plate-ar">${arN.split('').join(' ')}</div>
+            <div class="v-plate-hline"></div>
+            <div class="v-plate-en">${enN.split('').join(' ')}</div>
+        </div>
+        <div class="v-plate-center">
+            <div class="v-plate-cntry-ar">السعودية</div>
+            <svg viewBox="0 0 30 22" width="20" height="15" style="flex-shrink:0;">
+                <line x1="15" y1="14" x2="15" y2="5" stroke="#111" stroke-width="1.4" stroke-linecap="round"/>
+                <path d="M15,5 C12,3 8,1.5 4,1" stroke="#111" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+                <path d="M15,5 C18,3 22,1.5 26,1" stroke="#111" stroke-width="1.1" fill="none" stroke-linecap="round"/>
+                <path d="M15,6 C12,4.5 9,3.5 7,3" stroke="#111" stroke-width="0.95" fill="none" stroke-linecap="round"/>
+                <path d="M15,6 C18,4.5 21,3.5 23,3" stroke="#111" stroke-width="0.95" fill="none" stroke-linecap="round"/>
+                <line x1="2" y1="21" x2="28" y2="14" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="28" y1="21" x2="2" y2="14" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="1" y1="19" x2="1" y2="22" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="29" y1="19" x2="29" y2="22" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            <div class="v-plate-cntry-en">KSA</div>
+        </div>
+        <div class="v-plate-side v-plate-right">
+            <div class="v-plate-ar">${_isolateArLetters(arL)}</div>
+            <div class="v-plate-hline"></div>
+            <div class="v-plate-en">${enL.split('').join(' ')}</div>
+        </div>
+    </div>`;
+}
 function showVehicleInfo() {
     if (!vehicleData) return;
-    const carIdentity = vehicleData.show_details ? (vehicleData.custom_name || vehicleData.model || '') : '';
-    const platePart = vehicleData.show_details ? vehicleData.plate_number : '';
-    const name = [carIdentity, platePart].filter(Boolean).join(' · لوحة ');
-    document.getElementById('vehicleInfoName').textContent = name || 'صاحب المركبة';
+    const showD = !!vehicleData.show_details;
+    const vName = vehicleData.custom_name || (showD ? vehicleData.model : '') || '';
+    document.getElementById('vehicleInfoName').textContent = vName || 'صاحب المركبة';
     if (vehicleData.show_image && vehicleData.image_url) {
         document.getElementById('vehicleInfoImg').src = vehicleData.image_url;
         document.getElementById('vehicleInfoImg').style.display = 'block';
+    }
+    if (showD && vehicleData.plate_number) {
+        const plateBadgeEl = document.getElementById('vehiclePlateBadge');
+        plateBadgeEl.innerHTML = _buildPlateBadge(vehicleData.plate_number);
+        plateBadgeEl.style.display = 'block';
+    }
+    const chips = [];
+    if (showD && vehicleData.model && vehicleData.custom_name) chips.push(vehicleData.model);
+    if (showD && vehicleData.driver_name) chips.push('👤 ' + vehicleData.driver_name);
+    if (chips.length) {
+        const chipsEl = document.getElementById('vehicleDetailChips');
+        chipsEl.innerHTML = chips.map(c => `<span class="v-chip">${c}</span>`).join('');
+        chipsEl.style.display = 'flex';
     }
     document.getElementById('vehicleInfoArea').style.display = 'block';
 }
@@ -184,10 +280,10 @@ function showVehicleInfo() {
     document.getElementById('stepAccident').style.display = 'none';
     const showContact = vehicleData?.show_phone !== false;
     const m = showContact ? contactMethod : '';
-    document.getElementById('btnMessage').style.display = (m==='all'||m==='') ? 'block' : 'none';
-    document.getElementById('btnWhatsapp').style.display = (m==='all'||m==='whatsapp') ? 'block' : 'none';
-    document.getElementById('btnSms').style.display = (m==='all'||m==='sms') ? 'block' : 'none';
-    document.getElementById('btnCall').style.display = (m==='all'||m==='phone') ? 'block' : 'none';
+    document.getElementById('btnMessage').style.display = (m==='all'||m==='') ? 'flex' : 'none';
+    document.getElementById('btnWhatsapp').style.display = (m==='all'||m==='whatsapp') ? 'flex' : 'none';
+    document.getElementById('btnSms').style.display = (m==='all'||m==='sms') ? 'flex' : 'none';
+    document.getElementById('btnCall').style.display = (m==='all'||m==='phone') ? 'flex' : 'none';
 }
 
 function showMessageStep() {
