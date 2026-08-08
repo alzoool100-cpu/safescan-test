@@ -328,25 +328,9 @@
         <div class="settings-row">
             <div style="display:flex;align-items:center;gap:10px;">
                 <span class="row-icon"><svg viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></span>
-                <span>نغمة الإشعارات</span>
+                <span>صوت الإشعارات</span>
             </div>
-            <div style="display:flex;align-items:center;gap:6px;">
-                <select id="soundSelect" onchange="changeSoundSetting(this.value)" style="background:var(--bg-input);border:1px solid var(--border-color);border-radius:30px;padding:7px 10px;font-size:12px;color:var(--text-primary)">
-                    <option value="off">بدون صوت</option>
-                    <option value="ding">دينغ</option>
-                    <option value="double">مزدوج</option>
-                    <option value="alert">تنبيه قوي</option>
-                    <option value="custom">من جوالي</option>
-                </select>
-                <button class="btn-tag" onclick="previewSound()" style="padding:6px 10px;font-size:12px">▶</button>
-            </div>
-        </div>
-        <div id="customSoundRow" style="display:none" class="settings-row">
-            <span style="font-size:13px;color:var(--text-secondary);"><span id="customSoundName">لم يُختَر بعد</span></span>
-            <div>
-                <input type="file" id="ringtoneFile" accept="audio/*" onchange="handleRingtoneFile(this)" style="display:none">
-                <button class="btn-tag" onclick="document.getElementById('ringtoneFile').click()" style="font-size:12px">اختيار</button>
-            </div>
+            <label class="sett-toggle"><input type="checkbox" id="soundToggle" onchange="toggleSoundSetting()"><span class="slider"></span></label>
         </div>
         <div class="settings-row" style="font-size:11px;color:var(--text-muted);border:none;padding-top:0;padding-right:44px;">
             <span>لإشعارات الخلفية: إعدادات الجوال ← Chrome ← البطارية ← بلا قيود</span>
@@ -859,78 +843,22 @@
     }
 
     // ========== نغمات الإشعارات ==========
-    function _ac() { return new (window.AudioContext || window.webkitAudioContext)(); }
-    function _b(c, freq, t, d, type, vol) {
-        var o=c.createOscillator(), g=c.createGain();
-        o.connect(g); g.connect(c.destination);
-        o.type=type||'sine'; o.frequency.value=freq;
-        g.gain.setValueAtTime(vol||0.4, c.currentTime+t);
-        g.gain.exponentialRampToValueAtTime(0.001, c.currentTime+t+d);
-        o.start(c.currentTime+t); o.stop(c.currentTime+t+d);
-    }
-    var _builtinSounds = {
-        ding:   function(){var c=_ac();_b(c,660,0,0.6,'sine',0.45);_b(c,880,0.18,0.5,'sine',0.3);_b(c,1100,0.35,0.45,'sine',0.2);},
-        double: function(){var c=_ac();_b(c,800,0,0.2,'sine',0.5);_b(c,1000,0.28,0.2,'sine',0.5);_b(c,800,0.56,0.2,'sine',0.4);_b(c,1000,0.84,0.2,'sine',0.4);},
-        alert:  function(){var c=_ac();[0,0.12,0.24,0.38,0.52].forEach(function(t,i){_b(c,400+i*100,t,0.1,'square',0.35);});}
-    };
-
-    // IndexedDB for custom ringtone
-    function _openRingDB() {
-        return new Promise(function(res,rej){
-            var r=indexedDB.open('ss_ringtone',1);
-            r.onupgradeneeded=function(e){e.target.result.createObjectStore('s');};
-            r.onsuccess=function(e){res(e.target.result);}; r.onerror=rej;
-        });
-    }
-    async function _saveRing(blob) {
-        var db=await _openRingDB();
-        return new Promise(function(res,rej){var t=db.transaction('s','readwrite');t.objectStore('s').put(blob,'r');t.oncomplete=res;t.onerror=rej;});
-    }
-    async function _loadRing() {
-        try{var db=await _openRingDB();return new Promise(function(res){var t=db.transaction('s','readonly');var q=t.objectStore('s').get('r');q.onsuccess=function(e){res(e.target.result||null);};q.onerror=function(){res(null);};});}catch(e){return null;}
-    }
-    async function handleRingtoneFile(input) {
-        var file=input.files[0]; if(!file) return;
-        await _saveRing(file);
-        localStorage.setItem('safescan_custom_sound_name', file.name);
-        document.getElementById('customSoundName').textContent = file.name;
-        // Play preview
-        var url=URL.createObjectURL(file);
-        var a=new Audio(url); a.play().catch(function(){});
-        setTimeout(function(){URL.revokeObjectURL(url);},30000);
-    }
-    async function _playCustomRing() {
-        var blob=await _loadRing(); if(!blob) return;
-        var url=URL.createObjectURL(blob);
-        var a=new Audio(url); a.play().catch(function(){});
-        a.onended=function(){URL.revokeObjectURL(url);};
-    }
-    function changeSoundSetting(val) {
-        localStorage.setItem('safescan_sound_type', val);
-        var row=document.getElementById('customSoundRow');
-        if(row) row.style.display = val==='custom' ? 'flex' : 'none';
-    }
-    function previewSound() {
-        var s=localStorage.getItem('safescan_sound_type')||'double';
-        if(s==='off') return;
-        if(s==='custom'){_playCustomRing();return;}
-        if(_builtinSounds[s]){try{_builtinSounds[s]();}catch(e){}}
-    }
     function restoreAudioSetting() {
-        var sel=document.getElementById('soundSelect');
-        var s=localStorage.getItem('safescan_sound_type')||'double';
-        if(sel) sel.value=s;
-        var row=document.getElementById('customSoundRow');
-        if(row) row.style.display = s==='custom' ? 'flex' : 'none';
-        var name=localStorage.getItem('safescan_custom_sound_name');
-        var nameEl=document.getElementById('customSoundName');
-        if(nameEl && name) nameEl.textContent=name;
+        var tog = document.getElementById('soundToggle');
+        var isOn = localStorage.getItem('safescan_audio_enabled') !== 'false';
+        if (tog) tog.checked = isOn;
+    }
+    function toggleSoundSetting() {
+        var isOn = document.getElementById('soundToggle').checked;
+        localStorage.setItem('safescan_audio_enabled', isOn ? 'true' : 'false');
     }
     function playNotificationSound() {
-        var s=localStorage.getItem('safescan_sound_type')||'double';
-        if(s==='off') return;
-        if(s==='custom'){_playCustomRing();return;}
-        if(_builtinSounds[s]){try{_builtinSounds[s]();}catch(e){}}
+        if (localStorage.getItem('safescan_audio_enabled') === 'false') return;
+        try {
+            var a = new Audio('/notification.mp3');
+            a.volume = 0.85;
+            a.play().catch(function(){});
+        } catch(e) {}
     }
 
     // ========== إشعارات الجوال ==========

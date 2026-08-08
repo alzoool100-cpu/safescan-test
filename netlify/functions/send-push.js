@@ -99,6 +99,7 @@ exports.handler = async (event) => {
         priority: 10,
         android_visibility: 1,
         ttl: 86400,
+        chrome_web_sound: { url: `${process.env.APP_BASE_URL || 'https://calm-chebakia-9ddff4.netlify.app'}/notification.mp3` },
       }),
     });
 
