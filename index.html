@@ -7,194 +7,305 @@
     <link rel="stylesheet" href="base.css">
     <link rel="manifest" href="/manifest.json">
     <style>
-        .quick-msgs { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0; justify-content: center; }
-        /* ── Mini plate badge for visitor page ── */
-        .v-plate { display:inline-flex; direction:ltr; background:#fff; border:2px solid #1a1a1a; border-radius:3px; overflow:hidden; box-shadow:0 1px 6px rgba(0,0,0,.2); font-family:'Arial',sans-serif; margin-top:6px; }
-        .v-plate-side { display:flex; flex-direction:column; align-items:center; padding:3px 7px; gap:1px; }
+        body { padding: 10px; }
+        .card { padding: 18px 16px; max-width: 400px; }
+
+        /* ── Logo row ── */
+        .logo { margin-bottom: 14px; }
+        .logo-icon svg { width:26px; height:26px; }
+
+        /* ── Dark mode / lang controls ── */
+        #darkModeToggle { position:fixed; top:12px; left:12px; z-index:9999; background:var(--bg-card); border:1px solid var(--border-color); border-radius:50%; width:38px; height:38px; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:var(--shadow-card); padding:0; }
+        #darkModeToggle svg { width:18px; height:18px; stroke:var(--text-secondary); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+        /* ── Hero split ── */
+        .v-hero { display:none; direction:ltr; gap:10px; margin-bottom:14px; padding-bottom:14px; border-bottom:1px solid var(--border-color); align-items:center; }
+        .v-hero-img-box { width:44%; flex-shrink:0; border-radius:11px; overflow:hidden; background:var(--bg-tag); aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; }
+        .v-hero-img-box img { width:100%; height:100%; object-fit:cover; display:none; }
+        .v-hero-img-box .car-placeholder svg { width:54px; height:54px; stroke:var(--text-muted); fill:none; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
+        .v-hero-info { flex:1; direction:rtl; text-align:right; display:flex; flex-direction:column; gap:5px; align-items:flex-end; }
+        .v-hero-name { font-weight:700; font-size:15px; color:var(--text-primary); line-height:1.3; }
+
+        /* ── Mini plate badge ── */
+        .v-plate { display:inline-flex; direction:ltr; background:#fff; border:2px solid #1a1a1a; border-radius:3px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.18); font-family:'Arial',sans-serif; }
+        .v-plate-side { display:flex; flex-direction:column; align-items:center; padding:3px 6px; gap:1px; }
         .v-plate-left { border-left:1px solid #bbb; }
         .v-plate-right { border-right:1px solid #bbb; }
-        .v-plate-center { display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:2px 4px; min-width:38px; }
-        .v-plate-ar { font-size:14px; font-weight:900; color:#111; letter-spacing:.12em; font-family:'Tajawal',sans-serif; white-space:nowrap; }
-        .v-plate-en { font-size:9px; font-weight:700; color:#222; letter-spacing:.14em; white-space:nowrap; }
+        .v-plate-center { display:flex; flex-direction:column; align-items:center; justify-content:space-between; padding:2px 4px; min-width:34px; }
+        .v-plate-ar { font-size:13px; font-weight:900; color:#111; letter-spacing:.1em; font-family:'Tajawal',sans-serif; white-space:nowrap; }
+        .v-plate-en { font-size:8px; font-weight:700; color:#222; letter-spacing:.12em; white-space:nowrap; }
         .v-plate-hline { width:100%; height:1px; background:#bbb; }
-        .v-plate-cntry-ar { font-size:5px; font-weight:700; color:#111; letter-spacing:.03em; font-family:'Tajawal',sans-serif; white-space:nowrap; }
-        .v-plate-cntry-en { font-size:6px; font-weight:900; color:#111; letter-spacing:.12em; }
+        .v-plate-cntry-ar { font-size:5px; font-weight:700; color:#111; font-family:'Tajawal',sans-serif; white-space:nowrap; }
+        .v-plate-cntry-en { font-size:6px; font-weight:900; color:#111; letter-spacing:.1em; }
+
         /* ── Detail chips ── */
-        .v-detail-chips { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:8px; }
-        .v-chip { font-size:12px; background:var(--bg-tag); border:1px solid var(--border-color); border-radius:99px; padding:3px 10px; color:var(--text-secondary); }
-        /* ── Vehicle info area ── */
-        #vehicleInfoArea { text-align:center; margin:16px 0; }
-        #vehicleInfoImg { width:100%; max-height:180px; object-fit:cover; border-radius:14px; margin-bottom:10px; display:none; }
-        /* ── Contact method buttons ── */
-        #stepMethod .method-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:14px; }
-        .method-btn { display:flex; flex-direction:column; align-items:center; gap:5px; padding:14px 8px; border:none; border-radius:14px; font-size:14px; font-weight:600; cursor:pointer; touch-action:manipulation; transition:opacity .15s,transform .1s; color:#fff; }
-        .method-btn:active { transform:scale(.96); opacity:.9; }
-        .method-btn .m-icon { font-size:22px; }
-        .method-btn.msg { background:var(--color-primary); }
-        .method-btn.whatsapp { background:#25D366; }
-        .method-btn.sms { background:#6c757d; }
-        .method-btn.call { background:#17a2b8; }
+        .v-chips { display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end; }
+        .v-chip { font-size:11px; background:var(--bg-tag); border:1px solid var(--border-color); border-radius:99px; padding:2px 9px; color:var(--text-secondary); display:inline-flex; align-items:center; gap:4px; }
+        .v-chip svg { width:11px; height:11px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; flex-shrink:0; }
+
+        /* ── Page title row ── */
+        .page-title-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+        .page-title-row svg { width:20px; height:20px; stroke:var(--color-primary); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+        .page-title-row h1 { font-size:17px; margin:0; }
+        .safety-note { display:inline-flex; align-items:center; gap:6px; background:var(--bg-tag); padding:6px 12px; border-radius:99px; font-size:11px; margin-bottom:14px; color:var(--text-secondary); }
+        .safety-note svg { width:13px; height:13px; stroke:var(--color-success); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+
+        /* ── Contact method grid ── */
+        #stepMethod { margin-bottom:14px; }
+        .method-label { font-weight:600; font-size:14px; margin-bottom:9px; color:var(--text-secondary); }
+        .method-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+        .method-btn { display:flex; flex-direction:column; align-items:center; gap:5px; padding:13px 6px; border:none; border-radius:13px; font-size:13px; font-weight:600; cursor:pointer; touch-action:manipulation; transition:opacity .15s, transform .1s; color:#fff; }
+        .method-btn:active { transform:scale(.95); opacity:.88; }
+        .method-btn svg { width:22px; height:22px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+        .method-btn.msg     { background:var(--color-primary); }
+        .method-btn.whatsapp{ background:#25D366; }
+        .method-btn.sms     { background:#6c757d; }
+        .method-btn.call    { background:#17a2b8; }
+
+        /* ── Quick message tags ── */
+        .quick-msgs { display:flex; flex-wrap:wrap; gap:7px; margin:12px 0; justify-content:center; }
+        .btn-tag { display:inline-flex; align-items:center; gap:5px; }
+        .btn-tag svg { width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+
+        /* ── Send button ── */
+        .v-send-btn { width:100%; padding:13px; border:none; border-radius:99px; background:var(--color-primary); color:#fff; display:flex; align-items:center; justify-content:center; gap:7px; font-size:15px; font-weight:700; cursor:pointer; margin-top:10px; box-shadow:var(--shadow-btn); transition:all .2s; }
+        .v-send-btn:hover { background:var(--color-primary-hover); transform:translateY(-1px); }
+        .v-send-btn svg { width:17px; height:17px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0; }
+
+        /* ── Sticker promo ── */
+        .v-promo { display:flex; align-items:center; gap:10px; padding:11px 13px; background:var(--bg-tag); border-radius:13px; margin-top:14px; text-align:right; }
+        .v-promo-icon { flex-shrink:0; width:36px; height:36px; background:var(--color-primary); border-radius:10px; display:flex; align-items:center; justify-content:center; }
+        .v-promo-icon svg { width:18px; height:18px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+        .v-promo-text { flex:1; }
+        .v-promo-text p { font-size:12px; color:var(--text-secondary); margin:0 0 4px; }
+        .v-promo-text button { font-size:12px; font-weight:700; color:var(--color-primary); background:none; border:none; cursor:pointer; padding:0; }
+
+        /* ── Footer ── */
+        .v-footer { margin-top:14px; padding-top:12px; border-top:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between; }
+        .v-owner-link { display:inline-flex; align-items:center; gap:5px; font-size:12px; color:var(--text-muted); text-decoration:none; }
+        .v-owner-link svg { width:13px; height:13px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+        .v-footer-links { font-size:11px; color:var(--text-muted); }
+        .v-footer-links a { color:var(--text-muted); text-decoration:none; }
+        .v-footer-links a + a::before { content:" · "; }
     </style>
 </head>
 <body>
-<button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
 
+<!-- Dark mode toggle -->
+<button id="darkModeToggle" aria-label="وضع ليلي">
+    <svg id="dmIcon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+</button>
+
+<!-- Language selector -->
 <div class="lang-dropdown">
-  <select id="langSelect" onchange="setLanguage(this.value)">
-    <option value="ar">العربية</option>
-    <option value="en">English</option>
-    <option value="hi">हिन्दी</option>
-    <option value="ur">اردو</option>
-  </select>
+    <select id="langSelect" onchange="setLanguage(this.value)">
+        <option value="ar">العربية</option>
+        <option value="en">English</option>
+        <option value="hi">हिन्दी</option>
+        <option value="ur">اردو</option>
+    </select>
 </div>
 
 <div class="card" style="position:relative;z-index:1;">
-    <div class="logo"><span class="logo-icon">🚗</span><span class="logo-text">SafeScan</span><span class="nfc-badge">NFC</span></div>
-    <div id="vehicleInfoArea" style="display:none;">
-        <img id="vehicleInfoImg" style="width:100%;max-height:180px;object-fit:cover;border-radius:14px;margin-bottom:10px;display:none;">
-        <div id="vehicleInfoName" style="font-weight:700;font-size:16px;color:var(--text-primary);margin-bottom:2px;"></div>
-        <div id="vehiclePlateBadge" style="display:none;"></div>
-        <div id="vehicleDetailChips" class="v-detail-chips" style="display:none;"></div>
-    </div>
-<h1 style="font-size:20px; margin:8px 0;">📨 <span data-key="contact_owner">تواصل مع مالك السيارة</span></h1>
-<div style="background:var(--bg-tag); padding:8px 14px; border-radius:40px; font-size:12px; margin-bottom:16px; display:inline-block; color:var(--text-secondary);">
-    🔔 <span data-key="safe_message">رسالتك آمنة · رقمك مخفي إلا باختيارك</span>
-</div>
-<div id="stepMethod" style="display:none; margin:20px 0;">
-    <p style="font-weight:600; margin-bottom:4px; font-size:16px;" data-key="choose_method">كيف تريد التواصل؟</p>
-    <div class="method-grid">
-        <button class="method-btn msg" onclick="selectMethod('message')" id="btnMessage">
-            <span class="m-icon">📨</span>
-            <span data-key="method_message">رسالة</span>
-        </button>
-        <button class="method-btn whatsapp" onclick="selectMethod('whatsapp')" id="btnWhatsapp">
-            <span class="m-icon">💬</span>
-            <span data-key="method_whatsapp">واتساب</span>
-        </button>
-        <button class="method-btn sms" onclick="selectMethod('sms')" id="btnSms">
-            <span class="m-icon">📱</span>
-            <span data-key="method_sms">SMS</span>
-        </button>
-        <button class="method-btn call" onclick="selectMethod('call')" id="btnCall">
-            <span class="m-icon">📞</span>
-            <span data-key="method_call">اتصال</span>
-        </button>
-    </div>
-</div>
 
-<div id="stepMessage" style="display:none; margin:20px 0;">
-    <p id="stepMessageTitle" style="font-weight:600; margin-bottom:16px; font-size:17px;" data-key="choose_msg">اختر رسالتك:</p>
-    <div class="quick-msgs">
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'block')" data-key="quick_block">🚫 تسد الطريق</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'lights')" data-key="quick_lights">💡 الأضواء مفتوحة</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'window')" data-key="quick_window">🪟 النافذة مفتوحة</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'carsale')" data-key="quick_car_sale">🚗 السيارة للبيع؟</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'platesale')" data-key="quick_plate_sale">🏷️ اللوحة للبيع؟</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'accident')" data-key="quick_accident">⚠️ حادث / احتكاك</button>
-        <button class="btn-tag" onclick="selectQuickMsg(this, 'custom')" data-key="quick_custom">✍️ رسالة خاصة</button>
+    <!-- Logo -->
+    <div class="logo">
+        <span class="logo-icon">
+            <svg viewBox="0 0 26 26" fill="none" stroke="var(--text-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="8" width="22" height="12" rx="3"/>
+                <path d="M5 8l2.5-4h11L21 8"/>
+                <circle cx="7.5" cy="17" r="2"/><circle cx="18.5" cy="17" r="2"/>
+            </svg>
+        </span>
+        <span class="logo-text">SafeScan</span>
+        <span class="nfc-badge">NFC</span>
     </div>
-    <textarea id="messageInput" data-placeholder="message_placeholder" placeholder="اكتب رسالتك هنا..." style="margin-top:12px;"></textarea>
-    <div id="errorMsg" class="error-text" style="margin:8px 0;"></div>
-    <button class="btn btn-primary" style="margin-top:8px;" onclick="sendMessage()" data-key="send_btn">📨 إرسال</button>
-    <button class="btn btn-outline" style="margin-top:8px;" onclick="showMethodStep()" data-key="back_btn">← رجوع</button>
-</div>
 
-<div id="stepAccident" style="display:none; margin:20px 0;">
-    <p style="font-weight:600; margin-bottom:8px;" data-key="add_phone_accident">📱 أضف رقمك ليتواصل معك المالك (اختياري)</p>
-    <input type="tel" id="accidentPhone" placeholder="05xxxxxxxx" style="margin-bottom:12px;">
-    <button class="btn btn-primary" onclick="finalizeAccidentSend()" data-key="send_btn">📨 إرسال</button>
-    <button class="btn btn-outline" style="margin-top:8px;" onclick="finalizeAccidentSend(true)" data-key="skip_send">تخطي وإرسال بدون رقم</button>
-</div>
-    
-<div id="sessionArea" class="session-area" style="display:none; text-align: center;">
-    <button id="openChatBtn" class="btn btn-success" onclick="openChat()" data-key="chat_open" style="font-size: 14px; padding: 10px 20px;">💬 فتح في نافذة جديدة</button>
-    <p class="info-text" style="margin-top: 8px;" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
-</div>
+    <!-- Hero: image left + info right — shown after data loads -->
+    <div class="v-hero" id="vehicleHero">
+        <div class="v-hero-img-box" id="heroImgBox">
+            <div class="car-placeholder" id="carPlaceholder">
+                <svg viewBox="0 0 60 40" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="4" y="14" width="52" height="20" rx="4"/>
+                    <path d="M10 14l5-9h30l5 9"/>
+                    <circle cx="15" cy="32" r="5"/><circle cx="45" cy="32" r="5"/>
+                    <rect x="17" y="6" width="26" height="9" rx="2" opacity=".4"/>
+                </svg>
+            </div>
+            <img id="vehicleInfoImg" alt="">
+        </div>
+        <div class="v-hero-info">
+            <div class="v-hero-name" id="vehicleInfoName"></div>
+            <div id="vehiclePlateBadge" style="display:none;"></div>
+            <div class="v-chips" id="vehicleDetailChips" style="display:none;"></div>
+        </div>
+    </div>
 
-    <div style="margin-top:20px;border-top:1px solid var(--border-color);padding-top:16px;">
-        <p style="font-size:14px;color:var(--text-secondary);margin-bottom:8px" data-key="get_sticker_desc">هل تريد استيكر لسيارتك؟</p>
-        <button class="btn btn-outline" style="width:100%;" data-key="get_sticker" onclick="showToast('🚧 المتجر قريباً!')">🛒 احصل على استيكر SafeScan</button>
+    <!-- Page title -->
+    <div class="page-title-row">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        <h1 data-key="contact_owner">تواصل مع مالك السيارة</h1>
     </div>
-    <div style="margin-top:16px;font-size:13px;">
-        <a href="/login.html" style="color: var(--text-muted);" data-key="owner_login">🔐 مالك السيارة؟ سجل دخولك</a>
+    <div class="safety-note">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span data-key="safe_message">رسالتك آمنة · رقمك مخفي إلا باختيارك</span>
     </div>
-<div style="margin-top:12px; font-size:12px; text-align:center; color:var(--text-muted);">
-    <a href="/privacy.html" style="color:var(--text-muted); text-decoration:none;" data-key="privacy_title">سياسة الخصوصية</a> ·
-    <a href="/terms.html" style="color:var(--text-muted); text-decoration:none;" data-key="terms_title">شروط الاستخدام</a> ·
-    <a href="/support.html" style="color:var(--text-muted); text-decoration:none;" data-key="support_title">الدعم</a>
+
+    <!-- Step 1: contact method -->
+    <div id="stepMethod" style="display:none;">
+        <p class="method-label" data-key="choose_method">كيف تريد التواصل؟</p>
+        <div class="method-grid">
+            <button class="method-btn msg" onclick="selectMethod('message')" id="btnMessage">
+                <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <span data-key="method_message">رسالة</span>
+            </button>
+            <button class="method-btn whatsapp" onclick="selectMethod('whatsapp')" id="btnWhatsapp">
+                <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                <span data-key="method_whatsapp">واتساب</span>
+            </button>
+            <button class="method-btn sms" onclick="selectMethod('sms')" id="btnSms">
+                <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                <span data-key="method_sms">SMS</span>
+            </button>
+            <button class="method-btn call" onclick="selectMethod('call')" id="btnCall">
+                <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                <span data-key="method_call">اتصال</span>
+            </button>
+        </div>
     </div>
-</div>
+
+    <!-- Step 2: compose message -->
+    <div id="stepMessage" style="display:none;">
+        <p id="stepMessageTitle" style="font-weight:600; margin-bottom:10px; font-size:15px;" data-key="choose_msg">اختر رسالتك:</p>
+        <div class="quick-msgs">
+            <button class="btn-tag" onclick="selectQuickMsg(this,'block')" data-key="quick_block">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                تسد الطريق
+            </button>
+            <button class="btn-tag" onclick="selectQuickMsg(this,'lights')" data-key="quick_lights">
+                <svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/><circle cx="12" cy="12" r="4"/></svg>
+                الأضواء مفتوحة
+            </button>
+            <button class="btn-tag" onclick="selectQuickMsg(this,'window')" data-key="quick_window">
+                <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+                النافذة مفتوحة
+            </button>
+            <button class="btn-tag" onclick="selectQuickMsg(this,'carsale')" data-key="quick_car_sale">
+                <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="12" rx="3"/><path d="M5 7l2.5-4h9L19 7"/><circle cx="7" cy="17" r="1.5"/><circle cx="17" cy="17" r="1.5"/></svg>
+                السيارة للبيع؟
+            </button>
+            <button class="btn-tag" onclick="selectQuickMsg(this,'platesale')" data-key="quick_plate_sale">
+                <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                اللوحة للبيع؟
+            </button>
+            <button class="btn-tag" onclick="selectQuickMsg(this,'accident')" data-key="quick_accident">
+                <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                حادث / احتكاك
+            </button>
+            <button class="btn-tag" onclick="selectQuickMsg(this,'custom')" data-key="quick_custom">
+                <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                رسالة خاصة
+            </button>
+        </div>
+        <textarea id="messageInput" placeholder="اكتب رسالتك هنا..." data-placeholder="message_placeholder" style="margin-top:8px; height:80px;"></textarea>
+        <div id="errorMsg" class="error-text" style="margin:6px 0;"></div>
+        <button class="v-send-btn" onclick="sendMessage()" data-key="send_btn">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <span class="send-btn-label">إرسال</span>
+        </button>
+        <button class="btn btn-outline" style="margin-top:8px;" onclick="showMethodStep()" data-key="back_btn">← رجوع</button>
+    </div>
+
+    <!-- Step 3: accident phone -->
+    <div id="stepAccident" style="display:none;">
+        <p style="font-weight:600; margin-bottom:8px;" data-key="add_phone_accident">أضف رقمك ليتواصل معك المالك (اختياري)</p>
+        <input type="tel" id="accidentPhone" placeholder="05xxxxxxxx" style="margin-bottom:12px;">
+        <button class="v-send-btn" onclick="finalizeAccidentSend()">
+            <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            <span data-key="send_btn">إرسال</span>
+        </button>
+        <button class="btn btn-outline" style="margin-top:8px;" onclick="finalizeAccidentSend(true)" data-key="skip_send">تخطي وإرسال بدون رقم</button>
+    </div>
+
+    <!-- Session / reply area -->
+    <div id="sessionArea" class="session-area" style="display:none; text-align:center;">
+        <button id="openChatBtn" class="btn btn-success" onclick="openChat()" data-key="chat_open" style="font-size:14px; padding:10px 20px;">💬 فتح في نافذة جديدة</button>
+        <p class="info-text" style="margin-top:8px;" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
+    </div>
+
+    <!-- Sticker promo -->
+    <div class="v-promo">
+        <div class="v-promo-icon">
+            <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        </div>
+        <div class="v-promo-text">
+            <p data-key="get_sticker_desc">تواصل ذكي · حماية حقيقية · NFC في سيارتك</p>
+            <button data-key="get_sticker" onclick="showToast('المتجر قريباً!')">احصل على SafeScan لسيارتك ←</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="v-footer">
+        <a href="/login.html" class="v-owner-link" data-key="owner_login">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            مالك السيارة؟ سجل دخولك
+        </a>
+        <div class="v-footer-links">
+            <a href="/privacy.html" data-key="privacy_title">الخصوصية</a>
+            <a href="/terms.html" data-key="terms_title">الشروط</a>
+        </div>
+    </div>
+
+</div><!-- .card -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="translations.js"></script>
 <script>
-    const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    if (!supabaseClient) alert('خطأ في تحميل المكتبات.');
-    document.addEventListener('DOMContentLoaded', function() {
-        const sel = document.getElementById('langSelect');
-        if (sel) { sel.value = currentLang; }
-    });
+const supabaseClient = window.supabase?.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+if (!supabaseClient) alert('خطأ في تحميل المكتبات.');
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const stickerToken = urlParams.get('token');
-    const scanType = urlParams.get('nfc') === '1' ? 'nfc' : 'qr';
-    let currentSessionToken = '';
-    let waitingForReply = false;
-    let vehicleData = null;
-    let lastOwnerResponse = '';
-    let contactMethod = 'all';
+document.addEventListener('DOMContentLoaded', function() {
+    const sel = document.getElementById('langSelect');
+    if (sel) sel.value = currentLang;
+});
+
+const urlParams = new URLSearchParams(window.location.search);
+const stickerToken = urlParams.get('token');
+const scanType = urlParams.get('nfc') === '1' ? 'nfc' : 'qr';
+let currentSessionToken = '';
+let waitingForReply = false;
+let vehicleData = null;
+let lastOwnerResponse = '';
+let contactMethod = 'all';
 let currentStep = 'method';
 
-    // ========== بصمة الزائر ==========
-    function getVisitorFingerprint() {
-        const data = [
-            navigator.userAgent,
-            screen.width,
-            screen.height,
-            navigator.language,
-            new Date().getTimezoneOffset()
-        ].join('|');
-        return btoa(data).substring(0, 24); // ترميز قصير
-    }
+function getVisitorFingerprint() {
+    const data = [navigator.userAgent, screen.width, screen.height, navigator.language, new Date().getTimezoneOffset()].join('|');
+    return btoa(data).substring(0, 24);
+}
 
-    // ========== التوجيه الذكي ==========
-    async function checkStickerAndRedirect() {
-        if (!stickerToken || !supabaseClient) return;
-        try {
-            const { data: s } = await supabaseClient
-                .from('stickers')
-                .select('status')
-                .eq('qr_token', stickerToken)
-                .maybeSingle()
-                ;
-            if (s && (s.status === 'printed' || s.status === 'factory_new' || s.status === 'ready_to_print')) window.location.href = '/register.html?token=' + stickerToken;
-        } catch(e) {}
-    }
-    checkStickerAndRedirect();
+async function checkStickerAndRedirect() {
+    if (!stickerToken || !supabaseClient) return;
+    try {
+        const { data: s } = await supabaseClient.from('stickers').select('status').eq('qr_token', stickerToken).maybeSingle();
+        if (s && (s.status === 'printed' || s.status === 'factory_new' || s.status === 'ready_to_print'))
+            window.location.href = '/register.html?token=' + stickerToken;
+    } catch(e) {}
+}
+checkStickerAndRedirect();
 
-    // ========== جلب بيانات المركبة ==========
 async function loadVehicleData() {
     if (!stickerToken || !supabaseClient) return;
     try {
-        const { data: sticker } = await supabaseClient
-            .from('stickers').select('id, vehicle_id')
-            .eq('qr_token', stickerToken).maybeSingle();
+        const { data: sticker } = await supabaseClient.from('stickers').select('id, vehicle_id').eq('qr_token', stickerToken).maybeSingle();
         if (!sticker) return;
         if (sticker.id) {
-            fetch('/.netlify/functions/log-scan', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ sticker_id: sticker.id, scan_type: scanType }),
-            }).catch(() => {});
+            fetch('/.netlify/functions/log-scan', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ sticker_id: sticker.id, scan_type: scanType }) }).catch(() => {});
         }
-        const { data: vehicle } = await supabaseClient
-            .from('vehicles').select('user_id, custom_name, model, driver_name, plate_number, image_url, show_image, is_active, show_details')
-            .eq('id', sticker.vehicle_id).maybeSingle();
+        const { data: vehicle } = await supabaseClient.from('vehicles').select('user_id, custom_name, model, driver_name, plate_number, image_url, show_image, is_active, show_details').eq('id', sticker.vehicle_id).maybeSingle();
         if (!vehicle) return;
-        const { data: profile } = await supabaseClient
-            .from('profiles').select('show_phone, contact_method')
-            .eq('id', vehicle.user_id).maybeSingle();
+        const { data: profile } = await supabaseClient.from('profiles').select('show_phone, contact_method').eq('id', vehicle.user_id).maybeSingle();
         vehicleData = { ...vehicle, show_phone: profile?.show_phone, contact_method: profile?.contact_method || 'all' };
         contactMethod = vehicleData.contact_method;
         showVehicleInfo();
@@ -205,6 +316,7 @@ async function loadVehicleData() {
 function _isolateArLetters(str) {
     return (str || '').split('').join('‌');
 }
+
 function _buildPlateBadge(plateRaw) {
     if (!plateRaw) return '';
     const parts = plateRaw.split(' ');
@@ -246,44 +358,47 @@ function _buildPlateBadge(plateRaw) {
         </div>
     </div>`;
 }
+
 function showVehicleInfo() {
     if (!vehicleData) return;
     const showD = !!vehicleData.show_details;
     const vName = vehicleData.custom_name || (showD ? vehicleData.model : '') || '';
     document.getElementById('vehicleInfoName').textContent = vName || 'صاحب المركبة';
     if (vehicleData.show_image && vehicleData.image_url) {
-        document.getElementById('vehicleInfoImg').src = vehicleData.image_url;
-        document.getElementById('vehicleInfoImg').style.display = 'block';
+        const img = document.getElementById('vehicleInfoImg');
+        img.src = vehicleData.image_url;
+        img.style.display = 'block';
+        const ph = document.getElementById('carPlaceholder');
+        if (ph) ph.style.display = 'none';
     }
     if (showD && vehicleData.plate_number) {
-        const plateBadgeEl = document.getElementById('vehiclePlateBadge');
-        plateBadgeEl.innerHTML = _buildPlateBadge(vehicleData.plate_number);
-        plateBadgeEl.style.display = 'block';
+        const el = document.getElementById('vehiclePlateBadge');
+        el.innerHTML = _buildPlateBadge(vehicleData.plate_number);
+        el.style.display = 'block';
     }
     const chips = [];
-    if (showD && vehicleData.model && vehicleData.custom_name) chips.push(vehicleData.model);
-    if (showD && vehicleData.driver_name) chips.push('👤 ' + vehicleData.driver_name);
+    if (showD && vehicleData.model && vehicleData.custom_name) chips.push({ icon: '<svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="12" rx="3"/><path d="M5 7l2.5-4h9L19 7"/><circle cx="7" cy="17" r="1.5"/><circle cx="17" cy="17" r="1.5"/></svg>', text: vehicleData.model });
+    if (showD && vehicleData.driver_name) chips.push({ icon: '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>', text: vehicleData.driver_name });
     if (chips.length) {
-        const chipsEl = document.getElementById('vehicleDetailChips');
-        chipsEl.innerHTML = chips.map(c => `<span class="v-chip">${c}</span>`).join('');
-        chipsEl.style.display = 'flex';
+        const el = document.getElementById('vehicleDetailChips');
+        el.innerHTML = chips.map(c => `<span class="v-chip">${c.icon}${c.text}</span>`).join('');
+        el.style.display = 'flex';
     }
-    document.getElementById('vehicleInfoArea').style.display = 'block';
+    document.getElementById('vehicleHero').style.display = 'flex';
 }
-    loadVehicleData();
 
-    // ========== أزرار الرسائل الجاهزة ==========
-    function setMessage(text) { document.getElementById('messageInput').value = text; }
-    function showMethodStep() {
+loadVehicleData();
+
+function showMethodStep() {
     document.getElementById('stepMethod').style.display = 'block';
     document.getElementById('stepMessage').style.display = 'none';
     document.getElementById('stepAccident').style.display = 'none';
     const showContact = vehicleData?.show_phone !== false;
     const m = showContact ? contactMethod : '';
-    document.getElementById('btnMessage').style.display = (m==='all'||m==='') ? 'flex' : 'none';
+    document.getElementById('btnMessage').style.display  = (m==='all'||m==='') ? 'flex' : 'none';
     document.getElementById('btnWhatsapp').style.display = (m==='all'||m==='whatsapp') ? 'flex' : 'none';
-    document.getElementById('btnSms').style.display = (m==='all'||m==='sms') ? 'flex' : 'none';
-    document.getElementById('btnCall').style.display = (m==='all'||m==='phone') ? 'flex' : 'none';
+    document.getElementById('btnSms').style.display      = (m==='all'||m==='sms') ? 'flex' : 'none';
+    document.getElementById('btnCall').style.display     = (m==='all'||m==='phone') ? 'flex' : 'none';
 }
 
 function showMessageStep() {
@@ -294,34 +409,24 @@ function showMessageStep() {
 
 function selectMethod(method) {
     if (method === 'call') {
-        fetch('/.netlify/functions/get-contact-link', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ qr_token: stickerToken, method: 'call' })
-        }).then(r => r.json()).then(d => { if (d.url) window.location.href = d.url; }).catch(() => {});
-        return;
-    }
-    if (method === 'whatsapp' || method === 'sms') {
-        showMessageStep();
-        document.getElementById('messageInput').dataset.method = method;
+        fetch('/.netlify/functions/get-contact-link', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ qr_token: stickerToken, method: 'call' }) })
+            .then(r => r.json()).then(d => { if (d.url) window.location.href = d.url; }).catch(() => {});
         return;
     }
     showMessageStep();
-    document.getElementById('messageInput').dataset.method = 'message';
+    document.getElementById('messageInput').dataset.method = (method === 'whatsapp' || method === 'sms') ? method : 'message';
 }
-
-    let pendingAccidentMsg = null;
 
 function selectQuickMsg(btn, type) {
     const vName = vehicleData?.custom_name || vehicleData?.model || 'صاحب المركبة';
     const plate = vehicleData?.plate_number ? ' · لوحة ' + vehicleData.plate_number : '';
     const msgs = {
-        block: `صاحب ${vName}${plate}، سيارتك تسد الطريق. الرجاء تحريكها. شكراً.`,
-        lights: `صاحب ${vName}${plate}، أضواء سيارتك مفتوحة. الرجاء إيقافها.`,
-        window: `صاحب ${vName}${plate}، نافذة سيارتك مفتوحة. الرجاء إغلاقها.`,
-        carsale: `مرحباً صاحب ${vName}${plate}، هل سيارتك معروضة للبيع؟ أرجو التواصل.`,
+        block:     `صاحب ${vName}${plate}، سيارتك تسد الطريق. الرجاء تحريكها. شكراً.`,
+        lights:    `صاحب ${vName}${plate}، أضواء سيارتك مفتوحة. الرجاء إيقافها.`,
+        window:    `صاحب ${vName}${plate}، نافذة سيارتك مفتوحة. الرجاء إغلاقها.`,
+        carsale:   `مرحباً صاحب ${vName}${plate}، هل سيارتك معروضة للبيع؟ أرجو التواصل.`,
         platesale: `مرحباً صاحب ${vName}${plate}، هل اللوحة معروضة للبيع؟ أرجو التواصل.`,
-        accident: `صاحب ${vName}${plate}، أود إبلاغك بوجود احتكاك في سيارتك. أنا المسؤول وأتمنى التواصل.`,
+        accident:  `صاحب ${vName}${plate}، أود إبلاغك بوجود احتكاك في سيارتك. أنا المسؤول وأتمنى التواصل.`,
         custom: ''
     };
     document.getElementById('messageInput').value = msgs[type] || '';
@@ -332,6 +437,8 @@ function selectQuickMsg(btn, type) {
     }
 }
 
+let pendingAccidentMsg = null;
+
 function showAccidentStep(originalMsg) {
     pendingAccidentMsg = originalMsg;
     document.getElementById('stepMessage').style.display = 'none';
@@ -341,194 +448,141 @@ function showAccidentStep(originalMsg) {
 async function finalizeAccidentSend(skip) {
     const phone = document.getElementById('accidentPhone').value.trim();
     let finalMsg = pendingAccidentMsg;
-    if (!skip && phone) {
-        finalMsg += `\n📱 للتواصل: ${phone}`;
-    }
+    if (!skip && phone) finalMsg += `\nللتواصل: ${phone}`;
     document.getElementById('messageInput').value = finalMsg;
-   document.getElementById('stepAccident').style.display = 'none';
+    document.getElementById('stepAccident').style.display = 'none';
     await sendMessage(true);
 }
-    function escapeHtml(text) {
+
+function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text || '';
     return div.innerHTML;
 }
-    // ========== فحص الحظر وإرسال الرسالة ==========
-   async function sendMessage(skipAccidentCheck) {
-        const sendBtn = document.querySelector('.btn-primary[data-key="send_btn"]');
-if (sendBtn) { sendBtn.textContent = '⏳ جار الإرسال...'; sendBtn.disabled = true; }
-        if (!supabaseClient) return;
-        const msg = document.getElementById('messageInput').value.trim(); 
-       const errEl = document.getElementById('errorMsg');
-       const msgType = document.getElementById('messageInput').dataset.msgType;
-if (!skipAccidentCheck && msgType === 'accident') {
-    showAccidentStep(msg);
-    if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
-    return;
-}
-        errEl.textContent = '';
-        if (!msg) { errEl.textContent = '❌ ' + t('msg_empty'); if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; } return; }
-        if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; } return; }
 
-        if (waitingForReply) {
-            errEl.textContent = '❌ ' + t('wait_reply_first');
-            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
-            return;
-        }
+async function sendMessage(skipAccidentCheck) {
+    const sendBtn = document.querySelector('.v-send-btn');
+    const labelEl = sendBtn?.querySelector('.send-btn-label');
+    if (labelEl) { labelEl.textContent = 'جار الإرسال...'; }
+    if (sendBtn) sendBtn.disabled = true;
+    if (!supabaseClient) return;
+    const msg = document.getElementById('messageInput').value.trim();
+    const errEl = document.getElementById('errorMsg');
+    const msgType = document.getElementById('messageInput').dataset.msgType;
+    if (!skipAccidentCheck && msgType === 'accident') {
+        showAccidentStep(msg);
+        if (labelEl) labelEl.textContent = 'إرسال';
+        if (sendBtn) sendBtn.disabled = false;
+        return;
+    }
+    errEl.textContent = '';
+    if (!msg) { errEl.textContent = '❌ ' + t('msg_empty'); if (labelEl) labelEl.textContent = 'إرسال'; if (sendBtn) sendBtn.disabled = false; return; }
+    if (!stickerToken) { errEl.textContent = '❌ ' + (t('error_token') || 'لم يتم التعرف'); if (labelEl) labelEl.textContent = 'إرسال'; if (sendBtn) sendBtn.disabled = false; return; }
+    if (waitingForReply) { errEl.textContent = '❌ ' + t('wait_reply_first'); if (labelEl) labelEl.textContent = 'إرسال'; if (sendBtn) sendBtn.disabled = false; return; }
 
-        const now = Date.now();
-        const quotaKey = 'safescan_quota_' + stickerToken;
-        let quota = JSON.parse(localStorage.getItem(quotaKey) || '{"count":0,"resetAt":0}');
-        if (now > quota.resetAt) { quota = { count: 0, resetAt: now + 3600000 }; }
-        if (quota.count >= 3) {
-            errEl.textContent = '❌ ' + t('rate_limit_client');
-            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
-            return;
-        }
+    const now = Date.now();
+    const quotaKey = 'safescan_quota_' + stickerToken;
+    let quota = JSON.parse(localStorage.getItem(quotaKey) || '{"count":0,"resetAt":0}');
+    if (now > quota.resetAt) quota = { count: 0, resetAt: now + 3600000 };
+    if (quota.count >= 3) { errEl.textContent = '❌ ' + t('rate_limit_client'); if (labelEl) labelEl.textContent = 'إرسال'; if (sendBtn) sendBtn.disabled = false; return; }
 
-        // بصمة الزائر
-        const fingerprint = getVisitorFingerprint();
+    const fingerprint = getVisitorFingerprint();
+    const { data: sticker, error: se } = await supabaseClient.from('stickers').select('id, status, vehicle_id').eq('qr_token', stickerToken).maybeSingle();
+    if (se || !sticker) { errEl.textContent = '❌ ' + (t('sticker_invalid') || 'استيكر غير صالح'); if (labelEl) labelEl.textContent = 'إرسال'; if (sendBtn) sendBtn.disabled = false; return; }
+    if (sticker.status !== 'active') {
+        errEl.textContent = '❌ ' + (sticker.status === 'inactive' ? (t('owner_stopped') || 'المالك أوقف الاستقبال مؤقتاً') : (t('sticker_invalid') || 'استيكر غير مفعّل'));
+        if (labelEl) labelEl.textContent = 'إرسال'; if (sendBtn) sendBtn.disabled = false; return;
+    }
 
-        const { data: sticker, error: se } = await supabaseClient
-            .from('stickers').select('id, status, vehicle_id').eq('qr_token', stickerToken)
-            .maybeSingle();
-        if (se || !sticker) { errEl.textContent = '❌ ' + (t('sticker_invalid') || 'استيكر غير صالح'); return; }
-        if (sticker.status !== 'active') {
-            errEl.textContent = '❌ ' + (sticker.status === 'inactive' ? (t('owner_stopped') || 'المالك أوقف الاستقبال مؤقتاً') : t('sticker_invalid') || 'استيكر غير مفعّل');
-            return;
-        }
-
-        const method = document.getElementById('messageInput').dataset.method || 'message';
-        if (method === 'whatsapp' || method === 'sms') {
-            try {
-                const clRes = await fetch('/.netlify/functions/get-contact-link', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ qr_token: stickerToken, method, message: msg })
-                });
-                const clData = await clRes.json();
-                if (clData.url) {
-                    if (method === 'whatsapp') window.open(clData.url, '_blank');
-                    else window.location.href = clData.url;
-                } else {
-                    errEl.textContent = '❌ ' + (t('phone_hidden') || 'الرقم محجوب من المالك');
-                }
-            } catch (e) {
-                errEl.textContent = '❌ ' + t('network_error');
-            }
-            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
-            return;
-        }
+    const method = document.getElementById('messageInput').dataset.method || 'message';
+    if (method === 'whatsapp' || method === 'sms') {
         try {
-        const pushRes = await fetch('/.netlify/functions/send-push', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ sticker_id: sticker.id, message: msg, fingerprint })
-        });
+            const clRes = await fetch('/.netlify/functions/get-contact-link', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ qr_token: stickerToken, method, message: msg }) });
+            const clData = await clRes.json();
+            if (clData.url) { if (method === 'whatsapp') window.open(clData.url, '_blank'); else window.location.href = clData.url; }
+            else errEl.textContent = '❌ ' + (t('phone_hidden') || 'الرقم محجوب من المالك');
+        } catch(e) { errEl.textContent = '❌ ' + t('network_error'); }
+        if (labelEl) labelEl.textContent = 'إرسال'; if (sendBtn) sendBtn.disabled = false;
+        return;
+    }
+    try {
+        const pushRes = await fetch('/.netlify/functions/send-push', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ sticker_id: sticker.id, message: msg, fingerprint }) });
         const pushData = await pushRes.json();
-        console.log('[Push]', JSON.stringify(pushData));
-
-        if (pushData.error === 'blocked') {
-            errEl.textContent = '❌ ' + (t('blocked_message') || 'تم حظرك من قبل المالك');
-            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
-            return;
-        }
-        if (pushData.error === 'rate_limited') {
-            errEl.textContent = '❌ ' + t('rate_limited');
-            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
-            return;
-        }
-        if (pushData.error === 'owner_inactive') {
-            errEl.textContent = '❌ ' + (t('owner_unavailable') || t('owner_stopped'));
-            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
-            return;
-        }
-        if (!pushData.session_token) {
-            errEl.textContent = '❌ ' + t('send_failed');
-            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
-            return;
-        }
+        if (pushData.error === 'blocked') { errEl.textContent = '❌ ' + (t('blocked_message') || 'تم حظرك من قبل المالك'); if (labelEl) labelEl.textContent = 'إرسال'; if (sendBtn) sendBtn.disabled = false; return; }
+        if (pushData.error === 'rate_limited') { errEl.textContent = '❌ ' + t('rate_limited'); if (labelEl) labelEl.textContent = 'إرسال'; if (sendBtn) sendBtn.disabled = false; return; }
+        if (pushData.error === 'owner_inactive') { errEl.textContent = '❌ ' + (t('owner_unavailable') || t('owner_stopped')); if (labelEl) labelEl.textContent = 'إرسال'; if (sendBtn) sendBtn.disabled = false; return; }
+        if (!pushData.session_token) { errEl.textContent = '❌ ' + t('send_failed'); if (labelEl) labelEl.textContent = 'إرسال'; if (sendBtn) sendBtn.disabled = false; return; }
         currentSessionToken = pushData.session_token;
-
         quota.count++;
         localStorage.setItem(quotaKey, JSON.stringify(quota));
         waitingForReply = true;
-
-        localStorage.setItem('safescan_new_message', JSON.stringify({message: msg, time: Date.now()}));
-
+        localStorage.setItem('safescan_new_message', JSON.stringify({ message: msg, time: Date.now() }));
         document.getElementById('stepMessage').style.display = 'none';
-document.getElementById('stepMethod').style.display = 'none';
-document.getElementById('stepAccident').style.display = 'none';
-document.getElementById('sessionArea').style.display = 'block';
-document.getElementById('sessionArea').innerHTML = `
-    <div class="message-bubble visitor-bubble">🧑 أنت: ${escapeHtml(msg)}</div>
-    <div id="ownerReplyBox" style="text-align:center; color: var(--text-muted); padding:10px;">⏳ في انتظار رد المالك...</div>
-    <p class="info-text" style="margin-top: 12px; text-align:center;">⏱️ الجلسة صالحة لمدة ساعة</p>
-    <button onclick="openChat()" class="btn btn-success" style="margin-top:12px; width:100%; font-size:14px;" data-key="chat_open">💬 فتح في نافذة جديدة</button>
-    <button onclick="window.location.reload()" class="btn btn-outline" style="margin-top:8px; width:100%;">🔄 إرسال رسالة جديدة</button>
-`;
-        if (sendBtn) { sendBtn.textContent = '📨 إرسال الرسالة'; sendBtn.disabled = false; }
-        } catch (netErr) {
-            errEl.textContent = '❌ ' + t('network_error');
-            if (sendBtn) { sendBtn.textContent = '📨 إرسال'; sendBtn.disabled = false; }
-        }
+        document.getElementById('stepMethod').style.display = 'none';
+        document.getElementById('stepAccident').style.display = 'none';
+        document.getElementById('sessionArea').style.display = 'block';
+        document.getElementById('sessionArea').innerHTML = `
+            <div class="message-bubble visitor-bubble">أنت: ${escapeHtml(msg)}</div>
+            <div id="ownerReplyBox" style="text-align:center;color:var(--text-muted);padding:10px;">⏳ في انتظار رد المالك...</div>
+            <p class="info-text" style="margin-top:10px;text-align:center;">الجلسة صالحة لمدة ساعة</p>
+            <button onclick="openChat()" class="btn btn-success" style="margin-top:10px;width:100%;font-size:14px;" data-key="chat_open">فتح في نافذة جديدة</button>
+            <button onclick="window.location.reload()" class="btn btn-outline" style="margin-top:8px;width:100%;">إرسال رسالة جديدة</button>
+        `;
+        if (labelEl) labelEl.textContent = 'إرسال';
+        if (sendBtn) sendBtn.disabled = false;
+    } catch(netErr) {
+        errEl.textContent = '❌ ' + t('network_error');
+        if (labelEl) labelEl.textContent = 'إرسال';
+        if (sendBtn) sendBtn.disabled = false;
     }
-
-    function translateOwnerMsg(){ window.open('https://translate.google.com/m?sl=auto&tl=' + (currentLang||'ar') + '&q=' + encodeURIComponent(lastOwnerResponse), '_blank'); }
-    function openChat() {
-        if (currentSessionToken) {
-            sessionStorage.setItem('safescan_session', currentSessionToken);
-            window.open('/chat.html', '_blank');
-        }
-    }
-
-   function checkReplyStatus() {
-    if (!waitingForReply || !currentSessionToken) return;
-    fetch('/.netlify/functions/check-reply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: currentSessionToken })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data && data.owner_response) {
-            waitingForReply = false;
-            clearInterval(replyCheckInterval);
-            const replyBox = document.getElementById('ownerReplyBox');
-            if (replyBox) {
-                lastOwnerResponse = data.owner_response;
-                replyBox.outerHTML = `<div class="message-bubble owner-bubble">🚗 المالك: ${escapeHtml(data.owner_response)}<br><button onclick="translateOwnerMsg()" style="background:none;border:none;color:var(--color-success);cursor:pointer;font-size:12px;margin-top:6px;">🌐 ترجمة</button></div>`;
-            }
-        }
-    })
-    .catch(e => console.log('[Reply Error]', e.message));
 }
-    let replyCheckInterval = setInterval(checkReplyStatus, 5000);
-    window.addEventListener('beforeunload', () => clearInterval(replyCheckInterval));
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) { clearInterval(replyCheckInterval); }
-        else if (waitingForReply) { clearInterval(replyCheckInterval); replyCheckInterval = setInterval(checkReplyStatus, 5000); }
-    });
 
-    function showToast(msg) {
-        const old = document.querySelector('.toast');
-        if (old) old.remove();
-        const t = document.createElement('div');
-        t.className = 'toast';
-        t.textContent = msg;
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 3500);
-    }
+function translateOwnerMsg() { window.open('https://translate.google.com/m?sl=auto&tl=' + (currentLang||'ar') + '&q=' + encodeURIComponent(lastOwnerResponse), '_blank'); }
 
-    const dt = document.getElementById('darkModeToggle');
-    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
-    dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
+function openChat() {
+    if (currentSessionToken) { sessionStorage.setItem('safescan_session', currentSessionToken); window.open('/chat.html', '_blank'); }
+}
 
-    const langSelect = document.getElementById('langSelect');
-    if (langSelect) {
-        langSelect.value = currentLang || 'ar';
-        langSelect.addEventListener('change', function() { setLanguage(this.value); });
-    }
+function checkReplyStatus() {
+    if (!waitingForReply || !currentSessionToken) return;
+    fetch('/.netlify/functions/check-reply', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ token: currentSessionToken }) })
+        .then(r => r.json()).then(data => {
+            if (data && data.owner_response) {
+                waitingForReply = false;
+                clearInterval(replyCheckInterval);
+                const rb = document.getElementById('ownerReplyBox');
+                if (rb) { lastOwnerResponse = data.owner_response; rb.outerHTML = `<div class="message-bubble owner-bubble">المالك: ${escapeHtml(data.owner_response)}<br><button onclick="translateOwnerMsg()" style="background:none;border:none;color:var(--color-success);cursor:pointer;font-size:12px;margin-top:6px;">ترجمة</button></div>`; }
+            }
+        }).catch(() => {});
+}
+let replyCheckInterval = setInterval(checkReplyStatus, 5000);
+window.addEventListener('beforeunload', () => clearInterval(replyCheckInterval));
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) clearInterval(replyCheckInterval);
+    else if (waitingForReply) { clearInterval(replyCheckInterval); replyCheckInterval = setInterval(checkReplyStatus, 5000); }
+});
+
+function showToast(msg) {
+    const old = document.querySelector('.toast'); if (old) old.remove();
+    const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 3500);
+}
+
+/* ── Dark mode ── */
+const SVG_MOON = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+const SVG_SUN  = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+const dmIcon = document.getElementById('dmIcon');
+const dt = document.getElementById('darkModeToggle');
+if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dmIcon.innerHTML = SVG_SUN; }
+dt.onclick = () => {
+    document.documentElement.classList.toggle('dark-mode');
+    const isDark = document.documentElement.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', isDark);
+    dmIcon.innerHTML = isDark ? SVG_SUN : SVG_MOON;
+};
+
+const langSelect = document.getElementById('langSelect');
+if (langSelect) { langSelect.value = currentLang || 'ar'; langSelect.addEventListener('change', function() { setLanguage(this.value); }); }
 </script>
 </body>
 </html>
