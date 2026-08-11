@@ -46,7 +46,7 @@
 
 <div class="card" style="max-width: 480px; position: relative; z-index: 1;">
     <div class="logo">
-        <span class="logo-icon">🛡️</span>
+        <span class="logo-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
         <span class="logo-text">SafeScan</span>
         <span class="nfc-badge">NFC</span>
     </div>
@@ -155,8 +155,9 @@
     </form>
     <div class="footer-note">
         <span data-key="encrypted_msg">رقمك مشفر ولا يظهر للغير</span><br>
-        <a href="/privacy.html" style="color: var(--text-muted);">سياسة الخصوصية</a> · 
-        <a href="/terms.html" style="color: var(--text-muted);">شروط الاستخدام</a>
+        <a href="/privacy.html" style="color: var(--text-muted);" data-key="privacy_title">سياسة الخصوصية</a> ·
+        <a href="/terms.html" style="color: var(--text-muted);" data-key="terms_title">شروط الاستخدام</a> ·
+        <a href="/support.html" style="color: var(--text-muted);" data-key="support_link">الدعم الفني</a>
     </div>
 </div>
 
@@ -315,7 +316,7 @@ if (imageFile) {
         const model = document.getElementById('model').value;
         const driverName = document.getElementById('driverName').value;
 
-        const { data: vehicle, error: vehicleError } = await supabaseClient.from('vehicles').insert([{ user_id: userId, custom_name: carName || 'سيارتي', image_url: imageUrl, plate_number: plateNumber || null, model: model || null, driver_name: driverName || null, is_active: true }]).select().single();
+        const { data: vehicle, error: vehicleError } = await supabaseClient.from('vehicles').insert([{ user_id: userId, custom_name: carName || null, image_url: imageUrl, plate_number: plateNumber || null, model: model || null, driver_name: driverName || null, is_active: true }]).select().single();
         if (vehicleError) { errorEl.textContent = '❌ خطأ في إنشاء المركبة'; return; }
 
         // H4: conditional UPDATE prevents TOCTOU — only succeeds if status still valid

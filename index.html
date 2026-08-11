@@ -23,8 +23,8 @@
         .v-hero-img-box { width:44%; flex-shrink:0; border-radius:11px; overflow:hidden; background:var(--bg-tag); aspect-ratio:4/3; display:flex; align-items:center; justify-content:center; }
         .v-hero-img-box img { width:100%; height:100%; object-fit:cover; display:none; }
         .v-hero-img-box .car-placeholder svg { width:54px; height:54px; stroke:var(--text-muted); fill:none; stroke-width:1.4; stroke-linecap:round; stroke-linejoin:round; }
-        .v-hero-info { flex:1; direction:rtl; text-align:right; display:flex; flex-direction:column; gap:5px; align-items:flex-end; }
-        .v-hero-name { font-weight:700; font-size:15px; color:var(--text-primary); line-height:1.3; }
+        .v-hero-info { flex:1; direction:rtl; text-align:right; display:flex; flex-direction:column; gap:5px; align-items:flex-end; min-width:0; }
+        .v-hero-name { font-weight:700; font-size:15px; color:var(--text-primary); line-height:1.3; text-align:right; width:100%; }
 
         /* ── Mini plate badge ── */
         .v-plate { display:inline-flex; direction:ltr; background:#fff; border:2px solid #1a1a1a; border-radius:3px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.18); font-family:'Arial',sans-serif; }
@@ -111,11 +111,7 @@
     <!-- Logo -->
     <div class="logo">
         <span class="logo-icon">
-            <svg viewBox="0 0 26 26" fill="none" stroke="var(--text-primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="8" width="22" height="12" rx="3"/>
-                <path d="M5 8l2.5-4h11L21 8"/>
-                <circle cx="7.5" cy="17" r="2"/><circle cx="18.5" cy="17" r="2"/>
-            </svg>
+            <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--text-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </span>
         <span class="logo-text">SafeScan</span>
         <span class="nfc-badge">NFC</span>
@@ -216,15 +212,14 @@
         <button class="btn btn-outline" style="margin-top:8px;" onclick="showMethodStep()" data-key="back_btn">← رجوع</button>
     </div>
 
-    <!-- Step 3: accident phone -->
+    <!-- Step 3: phone (accident / sale) -->
     <div id="stepAccident" style="display:none;">
-        <p style="font-weight:600; margin-bottom:8px;" data-key="add_phone_accident">أضف رقمك ليتواصل معك المالك (اختياري)</p>
+        <p style="font-weight:600; margin-bottom:8px;" data-key="add_phone_generic">أضف رقمك ليتواصل معك المالك (اختياري)</p>
         <input type="tel" id="accidentPhone" placeholder="05xxxxxxxx" style="margin-bottom:12px;">
         <button class="v-send-btn" onclick="finalizeAccidentSend()">
             <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             <span data-key="send_btn">إرسال</span>
         </button>
-        <button class="btn btn-outline" style="margin-top:8px;" onclick="finalizeAccidentSend(true)" data-key="skip_send">تخطي وإرسال بدون رقم</button>
     </div>
 
     <!-- Session / reply area -->
@@ -239,8 +234,8 @@
             <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
         </div>
         <div class="v-promo-text">
-            <p data-key="get_sticker_desc">تواصل ذكي · حماية حقيقية · NFC في سيارتك</p>
-            <button data-key="get_sticker" onclick="showToast('المتجر قريباً!')">احصل على SafeScan لسيارتك ←</button>
+            <p data-key="get_sticker_desc">جهّز سيارتك بملصق SafeScan الذكي</p>
+            <button data-key="get_sticker" onclick="showToast('المتجر قريباً!')">احصل على ملصقك الآن ←</button>
         </div>
     </div>
 
@@ -362,7 +357,8 @@ function _buildPlateBadge(plateRaw) {
 function showVehicleInfo() {
     if (!vehicleData) return;
     const showD = !!vehicleData.show_details;
-    const vName = vehicleData.custom_name || (showD ? vehicleData.model : '') || '';
+    // Only show name/model when details are visible
+    const vName = showD ? (vehicleData.custom_name || vehicleData.model || '') : (vehicleData.custom_name || '');
     document.getElementById('vehicleInfoName').textContent = vName || 'صاحب المركبة';
     if (vehicleData.show_image && vehicleData.image_url) {
         const img = document.getElementById('vehicleInfoImg');
@@ -393,12 +389,19 @@ function showMethodStep() {
     document.getElementById('stepMethod').style.display = 'block';
     document.getElementById('stepMessage').style.display = 'none';
     document.getElementById('stepAccident').style.display = 'none';
+    // In-app message always available
+    document.getElementById('btnMessage').style.display = 'flex';
     const showContact = vehicleData?.show_phone !== false;
-    const m = showContact ? contactMethod : '';
-    document.getElementById('btnMessage').style.display  = (m==='all'||m==='') ? 'flex' : 'none';
-    document.getElementById('btnWhatsapp').style.display = (m==='all'||m==='whatsapp') ? 'flex' : 'none';
-    document.getElementById('btnSms').style.display      = (m==='all'||m==='sms') ? 'flex' : 'none';
-    document.getElementById('btnCall').style.display     = (m==='all'||m==='phone') ? 'flex' : 'none';
+    if (showContact) {
+        const ms = (!contactMethod || contactMethod === 'all') ? ['phone','whatsapp','sms'] : contactMethod.split(',');
+        document.getElementById('btnWhatsapp').style.display = ms.includes('whatsapp') ? 'flex' : 'none';
+        document.getElementById('btnSms').style.display      = ms.includes('sms') ? 'flex' : 'none';
+        document.getElementById('btnCall').style.display     = ms.includes('phone') ? 'flex' : 'none';
+    } else {
+        document.getElementById('btnWhatsapp').style.display = 'none';
+        document.getElementById('btnSms').style.display      = 'none';
+        document.getElementById('btnCall').style.display     = 'none';
+    }
 }
 
 function showMessageStep() {
@@ -445,10 +448,10 @@ function showAccidentStep(originalMsg) {
     document.getElementById('stepAccident').style.display = 'block';
 }
 
-async function finalizeAccidentSend(skip) {
+async function finalizeAccidentSend() {
     const phone = document.getElementById('accidentPhone').value.trim();
     let finalMsg = pendingAccidentMsg;
-    if (!skip && phone) finalMsg += `\nللتواصل: ${phone}`;
+    if (phone) finalMsg += `\nللتواصل: ${phone}`;
     document.getElementById('messageInput').value = finalMsg;
     document.getElementById('stepAccident').style.display = 'none';
     await sendMessage(true);
@@ -469,7 +472,7 @@ async function sendMessage(skipAccidentCheck) {
     const msg = document.getElementById('messageInput').value.trim();
     const errEl = document.getElementById('errorMsg');
     const msgType = document.getElementById('messageInput').dataset.msgType;
-    if (!skipAccidentCheck && msgType === 'accident') {
+    if (!skipAccidentCheck && (msgType === 'accident' || msgType === 'carsale' || msgType === 'platesale')) {
         showAccidentStep(msg);
         if (labelEl) labelEl.textContent = 'إرسال';
         if (sendBtn) sendBtn.disabled = false;
