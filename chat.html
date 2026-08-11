@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeScan - محادثة مؤقتة</title>
+    <title data-key="chat_title">محادثة مؤقتة</title>
     <link rel="stylesheet" href="base.css">
     <script>if(localStorage.getItem('darkMode')==='true')document.documentElement.classList.add('dark-mode');</script>
     <link rel="manifest" href="/manifest.json">
@@ -14,25 +14,68 @@
         }
     </script>
     <style>
-        .container { max-width: 500px; margin: 0 auto; }
-        h2 { text-align: center; margin-bottom: 16px; }
-        .btn-secondary { background: var(--bg-tag); color: var(--text-primary); border: none; padding: 12px 24px; border-radius: 30px; font-weight: 600; cursor: pointer; }
+        .chat-info-list { list-style: none; padding: 0; margin: 16px 0 0; display: flex; flex-direction: column; gap: 10px; }
+        .chat-info-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); }
+        .chat-info-icon { width: 28px; height: 28px; border-radius: 8px; background: var(--bg-tag); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .chat-info-icon svg { width: 15px; height: 15px; stroke: var(--color-primary); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .refresh-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .refresh-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .bubble-label { font-size: 11px; font-weight: 700; opacity: .55; display: block; margin-bottom: 4px; letter-spacing: .04em; }
     </style>
 </head>
 <body>
-<button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;box-shadow:var(--shadow-card);">🌙</button>
-<div class="container">
-    <h2 data-key="chat_title">💬 محادثة مؤقتة مع مالك السيارة</h2>
-    <div id="status"></div>
-    <div id="messages"></div>
-    <div style="display: flex; justify-content: center; margin-top: 16px;">
-        <button class="btn-secondary" onclick="loadMessages()" data-key="refresh_btn">🔄 تحديث الآن</button>
+
+<div class="lang-dropdown">
+  <select id="langSelect" onchange="setLanguage(this.value)">
+    <option value="ar">العربية</option>
+    <option value="en">English</option>
+    <option value="hi">हिन्दी</option>
+    <option value="ur">اردو</option>
+  </select>
+</div>
+
+<button id="darkModeToggle" style="position:fixed;top:15px;left:15px;z-index:9999;background:var(--bg-card);border:1px solid var(--border-color);border-radius:50%;width:40px;height:40px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-card);">
+    <svg id="dmIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+</button>
+
+<div class="card" style="max-width: 480px; margin: auto;">
+    <div class="logo">
+        <span class="logo-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </span>
+        <span class="logo-text">SafeScan</span>
     </div>
-    <div class="info-text" style="text-align:center; margin-top:16px;">
-        <span data-key="session_info">⏱️ تنتهي الجلسة بعد ساعة</span><br>
-        <span data-key="identity_hidden">📵 هويتك مجهولة</span><br>
-        <span data-key="no_reply">🔒 لا يمكنك الرد</span>
-    </div>
+
+    <h2 data-key="chat_title" style="margin: 8px 0 4px;">محادثة مؤقتة</h2>
+
+    <div id="status" style="margin-bottom: 12px;"></div>
+    <div id="messages" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;"></div>
+
+    <button class="btn btn-outline refresh-btn" onclick="loadMessages()" style="width: 100%; margin-bottom: 16px;">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        <span data-key="refresh_btn">تحديث الآن</span>
+    </button>
+
+    <ul class="chat-info-list">
+        <li class="chat-info-item">
+            <div class="chat-info-icon">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <span data-key="session_info">تنتهي الجلسة بعد ساعة</span>
+        </li>
+        <li class="chat-info-item">
+            <div class="chat-info-icon">
+                <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </div>
+            <span data-key="identity_hidden">هويتك مجهولة</span>
+        </li>
+        <li class="chat-info-item">
+            <div class="chat-info-icon">
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <span data-key="no_reply">لا يمكنك الرد</span>
+        </li>
+    </ul>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -79,12 +122,19 @@
         }
 
         statusDiv.innerHTML = '';
-        let html = `<div class="message-bubble visitor-bubble">🧑 ${t('visitor_label') || 'زائر'}: ${escapeHtml(data.visitor_message)}</div>`;
+        let html = `<div class="message-bubble visitor-bubble"><span class="bubble-label">${t('visitor_label') || 'زائر'}</span>${escapeHtml(data.visitor_message)}</div>`;
 
         if (data.owner_response) {
             const visitorLang = (navigator.language || 'en').split('-')[0];
             const translateUrl = 'https://translate.google.com/m?sl=auto&tl=' + visitorLang + '&q=' + encodeURIComponent(data.owner_response);
-            html += `<div class="message-bubble owner-bubble">🚗 ${t('owner_label') || 'مالك'}: ${escapeHtml(data.owner_response)}<br><a href="${translateUrl}" target="_blank" style="color:#888;font-size:12px;text-decoration:none;margin-top:6px;display:inline-block;">🌐 Translate</a></div>`;
+            html += `<div class="message-bubble owner-bubble">
+                <span class="bubble-label">${t('owner_label') || 'مالك'}</span>
+                ${escapeHtml(data.owner_response)}
+                <a href="${translateUrl}" target="_blank" style="color:var(--text-muted);font-size:12px;text-decoration:none;margin-top:8px;display:inline-flex;align-items:center;gap:4px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l6 6"/><path d="M4 14l6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="M22 22l-5-10-5 10"/><path d="M14 18h6"/></svg>
+                    Translate
+                </a>
+            </div>`;
             isReplied = true;
             clearInterval(autoRefreshInterval);
             statusDiv.innerHTML = '<div class="status-badge status-replied">✅ ' + (t('session_ended') || 'تم الرد - انتهت الجلسة') + '</div>';
@@ -96,27 +146,18 @@
         if (data.show_phone_to_visitor && data.sticker_id) {
             try {
                 const { data: sticker } = await supabaseClient
-                    .from('stickers')
-                    .select('vehicle_id')
-                    .eq('id', data.sticker_id)
-                    .maybeSingle()
-                    ;
+                    .from('stickers').select('vehicle_id').eq('id', data.sticker_id).maybeSingle();
                 if (sticker) {
                     const { data: vehicle } = await supabaseClient
-                        .from('vehicles')
-                        .select('user_id')
-                        .eq('id', sticker.vehicle_id)
-                        .maybeSingle()
-                        ;
+                        .from('vehicles').select('user_id').eq('id', sticker.vehicle_id).maybeSingle();
                     if (vehicle) {
                         const { data: profile } = await supabaseClient
-                            .from('profiles')
-                            .select('phone')
-                            .eq('id', vehicle.user_id)
-                            .maybeSingle()
-                            ;
+                            .from('profiles').select('phone').eq('id', vehicle.user_id).maybeSingle();
                         if (profile?.phone) {
-                            html += `<div class="message-bubble owner-bubble">📱 ${t('phone_revealed_chat') || 'رقم المالك:'} <a href="tel:${profile.phone}" style="color: var(--color-primary); font-weight: 700;">${profile.phone}</a></div>`;
+                            html += `<div class="message-bubble owner-bubble">
+                                <span class="bubble-label">${t('owner_label') || 'مالك'}</span>
+                                ${t('phone_revealed_chat') || 'رقم المالك:'} <a href="tel:${profile.phone}" style="color: var(--color-primary); font-weight: 700;">${profile.phone}</a>
+                            </div>`;
                         }
                     }
                 }
@@ -124,20 +165,27 @@
                 console.error('خطأ في جلب رقم المالك:', err);
             }
         }
-        // إظهار بيانات المركبة إذا سمح المالك
+
+        // Vehicle details if owner allowed showing
         if (data.sticker_id && supabaseClient) {
             try {
                 const { data: sticker } = await supabaseClient.from('stickers').select('vehicle_id').eq('id', data.sticker_id).maybeSingle();
                 if (sticker) {
                     const { data: vehicle } = await supabaseClient.from('vehicles').select('custom_name, plate_number, model, show_details').eq('id', sticker.vehicle_id).maybeSingle();
                     if (vehicle && vehicle.show_details) {
-                        html += `<div class="message-bubble owner-bubble">🚗 ${t('vehicle_info') || 'المركبة'}: ${vehicle.custom_name || ''} ${vehicle.model || ''}<br>${t('plate_number_label') || 'رقم اللوحة'}: ${vehicle.plate_number || ''}</div>`;
+                        const vTitle = [vehicle.custom_name, vehicle.model].filter(Boolean).join(' · ') || '';
+                        const plateLine = vehicle.plate_number ? `<br><span style="font-size:12px;opacity:.75;">${t('plate_number_label') || 'رقم اللوحة'}: ${vehicle.plate_number}</span>` : '';
+                        html += `<div class="message-bubble owner-bubble">
+                            <span class="bubble-label">${t('vehicle_info') || 'المركبة'}</span>
+                            ${vTitle}${plateLine}
+                        </div>`;
                     }
                 }
             } catch (err) {
                 console.error('vehicle details error:', err);
             }
         }
+
         messagesDiv.innerHTML = html;
     }
 
@@ -154,11 +202,33 @@
 
     async function init() { await loadMessages(); startAutoRefresh(); }
     window.addEventListener('beforeunload', () => clearInterval(autoRefreshInterval));
-    init();
 
+    // Dark mode toggle
     const dt = document.getElementById('darkModeToggle');
-    if (localStorage.getItem('darkMode') === 'true') { document.documentElement.classList.add('dark-mode'); dt.textContent = '☀️'; }
-    dt.onclick = () => { document.documentElement.classList.toggle('dark-mode'); const is = document.documentElement.classList.contains('dark-mode'); localStorage.setItem('darkMode', is); dt.textContent = is ? '☀️' : '🌙'; };
+    const dmIcon = document.getElementById('dmIcon');
+
+    function updateDarkIcon(isDark) {
+        dmIcon.innerHTML = isDark
+            ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+            : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    }
+
+    if (localStorage.getItem('darkMode') === 'true') {
+        document.documentElement.classList.add('dark-mode');
+        updateDarkIcon(true);
+    }
+    dt.onclick = () => {
+        document.documentElement.classList.toggle('dark-mode');
+        const is = document.documentElement.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', is);
+        updateDarkIcon(is);
+    };
+
+    document.getElementById('langSelect').value = currentLang;
+    applyTranslations();
+    document.getElementById('langSelect').addEventListener('change', function() { setLanguage(this.value); });
+
+    init();
 </script>
 </body>
 </html>
