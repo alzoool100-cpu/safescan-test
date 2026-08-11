@@ -391,9 +391,11 @@ function showMethodStep() {
     document.getElementById('stepAccident').style.display = 'none';
     // In-app message always available
     document.getElementById('btnMessage').style.display = 'flex';
-    const showContact = vehicleData?.show_phone !== false;
+    const showContact = vehicleData?.show_phone === true;
     if (showContact) {
-        const ms = (!contactMethod || contactMethod === 'all') ? ['phone','whatsapp','sms'] : contactMethod.split(',');
+        const ms = (!contactMethod || contactMethod === 'all') ? ['phone','whatsapp','sms']
+                 : contactMethod === 'none' ? []
+                 : contactMethod.split(',');
         document.getElementById('btnWhatsapp').style.display = ms.includes('whatsapp') ? 'flex' : 'none';
         document.getElementById('btnSms').style.display      = ms.includes('sms') ? 'flex' : 'none';
         document.getElementById('btnCall').style.display     = ms.includes('phone') ? 'flex' : 'none';
