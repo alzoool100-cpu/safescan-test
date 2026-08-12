@@ -841,7 +841,7 @@
         if(call) methods.push('phone');
         if(wa) methods.push('whatsapp');
         if(sms) methods.push('sms');
-        const method = (methods.length === 0 || methods.length === 3) ? 'all' : methods.join(',');
+        const method = methods.length === 3 ? 'all' : (methods.length === 0 ? 'none' : methods.join(','));
         localStorage.setItem('safescan_contact_method', method);
         if(currentUser) { await supabaseClient.from('profiles').update({contact_method: method}).eq('id', currentUser.id); showToast('✅ ' + safeT('changes_saved')); }
     }

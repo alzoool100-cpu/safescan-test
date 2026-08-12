@@ -80,11 +80,16 @@ exports.handler = async (event) => {
     });
 
     const result = await res.json();
-    if (!(result.recipients ?? 0)) {
+    const pushDelivered = (result.recipients ?? 0) > 0;
+    if (!pushDelivered) {
       console.warn('OTP push 0 recipients for user:', profile.id);
     }
 
-    return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+    // If push couldn't be delivered, return the OTP in the response as a fallback
+    const responseBody = { ok: true };
+    if (!pushDelivered) responseBody.otp = otp;
+
+    return { statusCode: 200, headers, body: JSON.stringify(responseBody) };
 
   } catch (err) {
     console.error('reset-otp error:', err.message);

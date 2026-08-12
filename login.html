@@ -72,9 +72,10 @@
         if (!supabaseClient) alert('خطأ في تحميل المكتبات.');
 
         // C30: redirect already-authenticated users straight to dashboard
+        // getSession() reads from localStorage — no network call needed
         (async () => {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            if (user) window.location.replace('/dashboard.html');
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session?.user) window.location.replace('/dashboard.html');
         })();
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -82,22 +83,20 @@
             const phone = document.getElementById('phone').value.trim();
             const password = document.getElementById('password').value;
             const errorEl = document.getElementById('errorMsg');
+            const btn = e.target.querySelector('button[type="submit"]');
             errorEl.textContent = '';
             if (!phone || !password) { errorEl.textContent = '❌ الرجاء إدخال البيانات'; return; }
+            btn.disabled = true;
             try {
-                const res = await fetch('/.netlify/functions/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, password }),
-                });
-                const data = await res.json();
-                if (data.error === 'rate_limited') { errorEl.textContent = '❌ محاولات كثيرة. حاول بعد ساعة.'; return; }
-                if (data.error || !data.ok) { errorEl.textContent = '❌ بيانات خاطئة'; return; }
-                await supabaseClient.auth.setSession({ access_token: data.access_token, refresh_token: data.refresh_token });
+                const email = `${phone}@safescan.local`;
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error || !data?.session) { errorEl.textContent = '❌ بيانات خاطئة'; return; }
                 localStorage.setItem('safescan_login_ts', Date.now().toString());
                 window.location.href = '/dashboard.html';
             } catch (err) {
                 errorEl.textContent = '❌ خطأ في الاتصال. حاول مجدداً.';
+            } finally {
+                btn.disabled = false;
             }
         });
 
