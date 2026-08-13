@@ -532,17 +532,12 @@ async function sendMessage(skipAccidentCheck) {
         document.getElementById('sessionArea').style.display = 'block';
         document.getElementById('sessionArea').innerHTML = `
             <div class="message-bubble visitor-bubble">أنت: ${escapeHtml(msg)}</div>
-            <div id="ownerReplyBox" style="text-align:center;color:var(--text-muted);padding:10px;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <div style="text-align:center;color:var(--text-muted);padding:14px;display:flex;align-items:center;justify-content:center;gap:8px;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1.5s linear infinite;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                ${safeT('waiting_reply') || 'في انتظار رد المالك'}
+                ${safeT('send_success') || 'تم إرسال رسالتك'} · ${safeT('loading') || 'جارٍ الانتقال...'}
             </div>
-            <p class="info-text" style="margin-top:10px;text-align:center;">${safeT('link_valid') || 'الجلسة صالحة لمدة ساعة'}</p>
-            <button onclick="openChat()" class="btn btn-success" style="margin-top:10px;width:100%;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                ${safeT('chat_open') || 'فتح المحادثة الآن'}
-            </button>
-            <button onclick="window.location.reload()" class="btn btn-outline" style="margin-top:8px;width:100%;">إرسال رسالة جديدة</button>
         `;
+        setTimeout(() => openChat(), 800);
         if (labelEl) labelEl.textContent = 'إرسال';
         if (sendBtn) sendBtn.disabled = false;
     } catch(netErr) {
@@ -555,7 +550,7 @@ async function sendMessage(skipAccidentCheck) {
 function translateOwnerMsg() { window.open('https://translate.google.com/m?sl=auto&tl=' + (currentLang||'ar') + '&q=' + encodeURIComponent(lastOwnerResponse), '_blank'); }
 
 function openChat() {
-    if (currentSessionToken) { sessionStorage.setItem('safescan_session', currentSessionToken); window.open('/chat.html', '_blank'); }
+    if (currentSessionToken) { sessionStorage.setItem('safescan_session', currentSessionToken); window.location.href = '/chat.html'; }
 }
 
 function checkReplyStatus() {

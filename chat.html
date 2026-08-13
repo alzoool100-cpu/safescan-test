@@ -21,6 +21,7 @@
         .refresh-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
         .refresh-btn svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .bubble-label { font-size: 11px; font-weight: 700; opacity: .55; display: block; margin-bottom: 4px; letter-spacing: .04em; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -101,7 +102,7 @@
             return;
         }
 
-        statusDiv.innerHTML = '<div class="loading">⏳ جار التحميل...</div>';
+        statusDiv.innerHTML = '<div class="loading" style="display:flex;align-items:center;justify-content:center;gap:8px;color:var(--text-muted);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1.5s linear infinite;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + (t('loading') || 'جار التحميل...') + '</div>';
         let data;
         try {
             const res = await fetch('/.netlify/functions/check-reply', {
@@ -140,7 +141,7 @@
             statusDiv.innerHTML = '<div class="status-badge status-replied">✅ ' + (t('session_ended') || 'تم الرد - انتهت الجلسة') + '</div>';
         } else {
             isReplied = false;
-            statusDiv.innerHTML = '<div class="status-badge status-pending">⏳ ' + (t('waiting_reply') || 'في انتظار رد المالك') + '</div>';
+            statusDiv.innerHTML = '<div class="status-badge status-pending" style="display:inline-flex;align-items:center;gap:6px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1.5s linear infinite;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>' + (t('waiting_reply') || 'في انتظار رد المالك') + '</div>';
         }
 
         if (data.show_phone_to_visitor && data.sticker_id) {
