@@ -87,6 +87,7 @@
         .v-footer-links { font-size:11px; color:var(--text-muted); }
         .v-footer-links a { color:var(--text-muted); text-decoration:none; }
         .v-footer-links a + a::before { content:" · "; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -174,40 +175,40 @@
     <div id="stepMessage" style="display:none;">
         <p id="stepMessageTitle" style="font-weight:600; margin-bottom:10px; font-size:15px;" data-key="choose_msg">اختر رسالتك:</p>
         <div class="quick-msgs">
-            <button class="btn-tag" onclick="selectQuickMsg(this,'block')" data-key="quick_block">
+            <button class="btn-tag" onclick="selectQuickMsg(this,'block')">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                تسد الطريق
+                <span data-key="quick_block">تسد الطريق</span>
             </button>
-            <button class="btn-tag" onclick="selectQuickMsg(this,'lights')" data-key="quick_lights">
+            <button class="btn-tag" onclick="selectQuickMsg(this,'lights')">
                 <svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/><circle cx="12" cy="12" r="4"/></svg>
-                الأضواء مفتوحة
+                <span data-key="quick_lights">الأضواء مفتوحة</span>
             </button>
-            <button class="btn-tag" onclick="selectQuickMsg(this,'window')" data-key="quick_window">
+            <button class="btn-tag" onclick="selectQuickMsg(this,'window')">
                 <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
-                النافذة مفتوحة
+                <span data-key="quick_window">النافذة مفتوحة</span>
             </button>
-            <button class="btn-tag" onclick="selectQuickMsg(this,'carsale')" data-key="quick_car_sale">
+            <button class="btn-tag" onclick="selectQuickMsg(this,'carsale')">
                 <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="12" rx="3"/><path d="M5 7l2.5-4h9L19 7"/><circle cx="7" cy="17" r="1.5"/><circle cx="17" cy="17" r="1.5"/></svg>
-                السيارة للبيع؟
+                <span data-key="quick_car_sale">السيارة للبيع؟</span>
             </button>
-            <button class="btn-tag" onclick="selectQuickMsg(this,'platesale')" data-key="quick_plate_sale">
+            <button class="btn-tag" onclick="selectQuickMsg(this,'platesale')">
                 <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                اللوحة للبيع؟
+                <span data-key="quick_plate_sale">اللوحة للبيع؟</span>
             </button>
-            <button class="btn-tag" onclick="selectQuickMsg(this,'accident')" data-key="quick_accident">
+            <button class="btn-tag" onclick="selectQuickMsg(this,'accident')">
                 <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                حادث / احتكاك
+                <span data-key="quick_accident">حادث / احتكاك</span>
             </button>
-            <button class="btn-tag" onclick="selectQuickMsg(this,'custom')" data-key="quick_custom">
+            <button class="btn-tag" onclick="selectQuickMsg(this,'custom')">
                 <svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-                رسالة خاصة
+                <span data-key="quick_custom">رسالة خاصة</span>
             </button>
         </div>
         <textarea id="messageInput" placeholder="اكتب رسالتك هنا..." data-placeholder="message_placeholder" style="margin-top:8px; height:80px;"></textarea>
         <div id="errorMsg" class="error-text" style="margin:6px 0;"></div>
-        <button class="v-send-btn" onclick="sendMessage()" data-key="send_btn">
+        <button class="v-send-btn" onclick="sendMessage()">
             <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            <span class="send-btn-label">إرسال</span>
+            <span class="send-btn-label" data-key="send_btn">إرسال الرسالة</span>
         </button>
         <button class="btn btn-outline" style="margin-top:8px;" onclick="showMethodStep()" data-key="back_btn">← رجوع</button>
     </div>
@@ -224,7 +225,10 @@
 
     <!-- Session / reply area -->
     <div id="sessionArea" class="session-area" style="display:none; text-align:center;">
-        <button id="openChatBtn" class="btn btn-success" onclick="openChat()" data-key="chat_open" style="font-size:14px; padding:10px 20px;">💬 فتح في نافذة جديدة</button>
+        <button id="openChatBtn" class="btn btn-success" onclick="openChat()" style="font-size:14px; padding:10px 20px; display:inline-flex; align-items:center; gap:8px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span data-key="chat_open">فتح المحادثة الآن</span>
+        </button>
         <p class="info-text" style="margin-top:8px;" data-key="link_valid">⏱️ الرابط صالح لمدة ساعة واحدة</p>
     </div>
 
@@ -528,9 +532,15 @@ async function sendMessage(skipAccidentCheck) {
         document.getElementById('sessionArea').style.display = 'block';
         document.getElementById('sessionArea').innerHTML = `
             <div class="message-bubble visitor-bubble">أنت: ${escapeHtml(msg)}</div>
-            <div id="ownerReplyBox" style="text-align:center;color:var(--text-muted);padding:10px;">⏳ في انتظار رد المالك...</div>
-            <p class="info-text" style="margin-top:10px;text-align:center;">الجلسة صالحة لمدة ساعة</p>
-            <button onclick="openChat()" class="btn btn-success" style="margin-top:10px;width:100%;font-size:14px;" data-key="chat_open">فتح في نافذة جديدة</button>
+            <div id="ownerReplyBox" style="text-align:center;color:var(--text-muted);padding:10px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1.5s linear infinite;flex-shrink:0;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                ${safeT('waiting_reply') || 'في انتظار رد المالك'}
+            </div>
+            <p class="info-text" style="margin-top:10px;text-align:center;">${safeT('link_valid') || 'الجلسة صالحة لمدة ساعة'}</p>
+            <button onclick="openChat()" class="btn btn-success" style="margin-top:10px;width:100%;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                ${safeT('chat_open') || 'فتح المحادثة الآن'}
+            </button>
             <button onclick="window.location.reload()" class="btn btn-outline" style="margin-top:8px;width:100%;">إرسال رسالة جديدة</button>
         `;
         if (labelEl) labelEl.textContent = 'إرسال';
