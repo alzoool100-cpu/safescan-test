@@ -326,8 +326,15 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 const urlParams = new URLSearchParams(window.location.search);
-const stickerToken = urlParams.get('token');
-const scanType = urlParams.get('nfc') === '1' ? 'nfc' : 'qr';
+let stickerToken = urlParams.get('token') || '';
+let scanType = 'qr';
+// Handle both ?token=X&nfc=1 (correct) and ?token=X?nfc=1 (malformed)
+if (stickerToken.includes('?nfc=')) {
+    scanType = 'nfc';
+    stickerToken = stickerToken.split('?')[0];
+} else if (urlParams.get('nfc') === '1') {
+    scanType = 'nfc';
+}
 let currentSessionToken = '';
 let waitingForReply = false;
 let vehicleData = null;
